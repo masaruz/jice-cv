@@ -17,8 +17,8 @@ type GameState struct {
 	IsGameStart     bool
 	StartTableTime  time.Time
 	FinishTableTime time.Time
-	StartGameTime   time.Time
-	FinishGameTime  time.Time
+	StartRoundTime  time.Time
+	FinishRoundTime time.Time
 	Gambit          engine.Gambit
 	Event           string
 }

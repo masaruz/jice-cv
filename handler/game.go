@@ -38,14 +38,16 @@ func IsGameStart() bool {
 
 // IsEndRound if current time is more than finish time
 func IsEndRound() bool {
-	return state.GS.FinishGameTime.Unix() <= time.Now().Unix()
+	return state.GS.FinishRoundTime.Unix() <= time.Now().Unix()
 }
 
-// IsBeforeDeadLine if player do something before deadline
-func IsBeforeDeadLine(id int) bool {
-	// deadline := state.GS.Players[id].DeadLine.Unix()
-	// startline := deadline
-	return true
+// IsPlayerTurn if player do something before deadline
+func IsPlayerTurn(id string) bool {
+	index, _ := util.Get(state.GS.Players, id)
+	nowline := time.Now().Unix()
+	startline := state.GS.Players[index].StartLine.Unix()
+	deadline := state.GS.Players[index].DeadLine.Unix()
+	return nowline >= startline && nowline < deadline
 }
 
 // FindWinner find a winner by evaluate his cards
@@ -81,23 +83,25 @@ func FindWinner() {
 }
 
 // CreateTimeLine set timeline for game and any players
-func CreateTimeLine(limit int) {
-	pos, loop := 0, 0
+func CreateTimeLine(decisionTime int) {
+	loop, delay := 0, 1
 	start, amount := time.Now(), len(state.GS.Players)
-	index, _ := util.FindDealer(state.GS.Players)
+	state.GS.StartRoundTime = start
+	dealer, _ := util.FindDealer(state.GS.Players)
 	for loop < amount {
-		next := (index + 1) % amount
+		next := (dealer + 1) % amount
 		player := state.GS.Players[next]
 		if player.IsPlaying {
-			pos++
 			state.GS.Players[next].Action = model.Action{Name: constant.Check}
-			state.GS.Players[next].DeadLine = start.Add(time.Second * time.Duration(pos*limit))
+			startline := start.Add(time.Second * time.Duration(delay))
+			state.GS.Players[next].StartLine = startline
+			state.GS.Players[next].DeadLine = startline.Add(time.Second * time.Duration(decisionTime))
+			start = state.GS.Players[next].DeadLine
 		}
-		index++
+		dealer++
 		loop++
 	}
-	state.GS.StartGameTime = start
-	state.GS.FinishGameTime = start.Add(time.Second * time.Duration(pos*limit))
+	state.GS.FinishRoundTime = start.Add(time.Second * time.Duration(delay))
 }
 
 // IsFullHand check if hold max cards
@@ -158,4 +162,13 @@ func Deal(cardAmount int, playerAmount int) {
 // FinishGame prepare to finish game
 func FinishGame() {
 	state.GS.IsGameStart = false
+}
+
+// ShiftTimeline shift timeline of everyone because someone take action
+func ShiftTimeline(diff time.Duration) {
+	for index := range state.GS.Players {
+		state.GS.Players[index].StartLine = state.GS.Players[index].StartLine.Add(diff)
+		state.GS.Players[index].DeadLine = state.GS.Players[index].DeadLine.Add(diff)
+	}
+	state.GS.FinishRoundTime = state.GS.FinishRoundTime.Add(diff)
 }

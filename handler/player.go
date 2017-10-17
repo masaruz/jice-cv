@@ -5,6 +5,7 @@ import (
 	"999k_engine/model"
 	"999k_engine/state"
 	"999k_engine/util"
+	"time"
 )
 
 // GetPlayerState return players state
@@ -124,7 +125,7 @@ func Stand(id string) {
 			}
 		}
 		state.GS.Visitors = util.Add(state.GS.Visitors, caller)
-		// state.GS.FinishGameTime = ShiftFinishGameTime()
+		// state.GS.FinishRoundTime = ShiftFinishRoundTime()
 	} else {
 		state.GS.Gambit.Finish()
 	}
@@ -133,19 +134,12 @@ func Stand(id string) {
 
 // Check cards and actioned by player who has turn and has the same bet
 func Check(id string) bool {
-	index, _ := util.Get(state.GS.Players, id)
-	// if !player.IsPlayerTurn {
-	// 	return false
-	// }
-	state.GS.Players[index].Action = model.Action{Name: constant.Check}
-	for i := range state.GS.Players {
-		if !state.GS.Players[i].IsPlaying {
-			continue
-		}
-		// make default action to everyone
-		state.GS.Players[i].Action = model.Action{Name: constant.Check}
+	if !IsPlayerTurn(id) {
+		return false
 	}
-	// state.GS.FinishGameTime = ShiftFinishGameTime()
-	state.GS.Save()
+	_, player := util.Get(state.GS.Players, id)
+	SetOthersDefaultAction("", constant.Check)
+	diff := time.Now().Sub(player.DeadLine)
+	ShiftTimeline(diff)
 	return true
 }
