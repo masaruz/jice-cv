@@ -1,8 +1,8 @@
 package util
 
 import (
-	"999k_websocket/constant"
-	"999k_websocket/model"
+	"999k_engine/constant"
+	"999k_engine/model"
 	"fmt"
 	"math"
 )

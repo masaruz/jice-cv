@@ -1,9 +1,9 @@
 package game
 
 import (
-	"999k_websocket/constant"
-	"999k_websocket/handler"
-	"999k_websocket/util"
+	"999k_engine/constant"
+	"999k_engine/handler"
+	"999k_engine/util"
 	"fmt"
 	"sort"
 )

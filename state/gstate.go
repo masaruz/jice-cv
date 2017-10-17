@@ -1,8 +1,8 @@
 package state
 
 import (
-	"999k_websocket/engine"
-	"999k_websocket/model"
+	"999k_engine/engine"
+	"999k_engine/model"
 	"time"
 )
 

@@ -1,11 +1,11 @@
 package game_test
 
 import (
-	"999k_websocket/constant"
-	"999k_websocket/game"
-	"999k_websocket/handler"
-	"999k_websocket/state"
-	"999k_websocket/util"
+	"999k_engine/constant"
+	"999k_engine/game"
+	"999k_engine/handler"
+	"999k_engine/state"
+	"999k_engine/util"
 	"testing"
 	"time"
 )
@@ -233,7 +233,7 @@ func TestLoop2(t *testing.T) {
 }
 
 func TestLoop3(t *testing.T) {
-	t.Run("when someone take action", func(t *testing.T) {
+	t.Run("when someone take check action", func(t *testing.T) {
 		decisionTime := 1
 		minimumBet := 10
 		ninek := game.NineK{

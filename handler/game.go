@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"999k_websocket/constant"
-	"999k_websocket/engine"
-	"999k_websocket/model"
-	"999k_websocket/state"
-	"999k_websocket/util"
+	"999k_engine/constant"
+	"999k_engine/engine"
+	"999k_engine/model"
+	"999k_engine/state"
+	"999k_engine/util"
 	"time"
 )
 

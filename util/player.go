@@ -1,6 +1,6 @@
 package util
 
-import "999k_websocket/model"
+import "999k_engine/model"
 
 // Remove by remove element from array
 func Remove(slice model.Players, id string) model.Players {
