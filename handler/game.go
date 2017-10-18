@@ -84,7 +84,7 @@ func FindWinner() {
 
 // CreateTimeLine set timeline for game and any players
 func CreateTimeLine(decisionTime int) {
-	loop, delay := 0, 1
+	loop, delay := 0, util.GetDelay()
 	start, amount := time.Now(), len(state.GS.Players)
 	state.GS.StartRoundTime = start
 	dealer, _ := util.FindDealer(state.GS.Players)
@@ -102,6 +102,11 @@ func CreateTimeLine(decisionTime int) {
 		loop++
 	}
 	state.GS.FinishRoundTime = start.Add(time.Second * time.Duration(delay))
+}
+
+// IncreaseTurn to seperate player bets
+func IncreaseTurn() {
+	state.GS.Turn++
 }
 
 // IsFullHand check if hold max cards
@@ -161,6 +166,7 @@ func Deal(cardAmount int, playerAmount int) {
 
 // FinishGame prepare to finish game
 func FinishGame() {
+	state.GS.Turn = 0
 	state.GS.IsGameStart = false
 }
 
@@ -171,4 +177,29 @@ func ShiftTimeline(diff time.Duration) {
 		state.GS.Players[index].DeadLine = state.GS.Players[index].DeadLine.Add(diff)
 	}
 	state.GS.FinishRoundTime = state.GS.FinishRoundTime.Add(diff)
+}
+
+// ShiftPlayerTimeline shift player to the end timeline
+func ShiftPlayerTimeline(id string, second int) {
+	duration := time.Duration(time.Second * time.Duration(second))
+	extend := duration + (time.Second * time.Duration(util.GetDelay()))
+	index, _ := util.Get(state.GS.Players, id)
+	finishRoundTime := state.GS.FinishRoundTime
+	state.GS.Players[index].StartLine = finishRoundTime
+	state.GS.Players[index].DeadLine = finishRoundTime.Add(duration)
+	state.GS.FinishRoundTime = finishRoundTime.Add(extend)
+}
+
+// GetCurrentTurn get current turn number
+func GetCurrentTurn() int {
+	return state.GS.Turn
+}
+
+// IncreasePots when increase pots values
+func IncreasePots(chips int, index int) {
+	if len(state.GS.Pots) <= 0 {
+		state.GS.Pots = []int{0}
+	}
+	// increase pot values
+	state.GS.Pots[0] += chips
 }

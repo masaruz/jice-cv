@@ -127,8 +127,13 @@ func TestLoop2(t *testing.T) {
 		if util.CountSitting(state.GS.Players) != 2 {
 			t.Fail()
 		}
+		if state.GS.Gambit.Start() {
+			t.Fail()
+		}
 		handler.StartTable()
-		state.GS.Gambit.Start()
+		if !state.GS.Gambit.Start() {
+			t.Fail()
+		}
 		for _, player := range state.GS.Players {
 			if player.ID == "" {
 				continue
@@ -248,8 +253,13 @@ func TestLoop3(t *testing.T) {
 		handler.Sit("player1", 2) // dealer
 		handler.Sit("player2", 5)
 		handler.Sit("player3", 3) // first
+		if state.GS.Gambit.Start() {
+			t.Fail()
+		}
 		handler.StartTable()
-		state.GS.Gambit.Start()
+		if !state.GS.Gambit.Start() {
+			t.Fail()
+		}
 		for _, player := range state.GS.Players {
 			if player.ID == "" {
 				continue
@@ -320,9 +330,82 @@ func TestLoop3(t *testing.T) {
 		if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
 			t.Fail()
 		}
+		if !state.GS.Gambit.Start() {
+			t.Fail()
+		}
 		// _, p1 := util.Get(state.GS.Players, "player1")
 		// _, p2 := util.Get(state.GS.Players, "player2")
 		// _, p3 := util.Get(state.GS.Players, "player3")
+		// p1.Print()
+		// p2.Print()
+		// p3.Print()
+	})
+}
+
+func TestLoop4(t *testing.T) {
+	t.Run("when someone take bet action", func(t *testing.T) {
+		decisionTime := 3
+		delay := 1
+		minimumBet := 10
+		ninek := game.NineK{
+			MaxPlayers:   6,
+			DecisionTime: decisionTime,
+			MinimumBet:   minimumBet}
+		handler.SetGambit(ninek)
+		state.GS.Gambit.Init() // create seats
+		// dumb player
+		handler.Sit("player1", 2) // dealer
+		handler.Sit("player2", 5)
+		handler.Sit("player3", 3) // first
+		handler.StartTable()
+		if !state.GS.Gambit.Start() || state.GS.Pots[0] != 30 {
+			t.Fail()
+		}
+		for _, player := range state.GS.Players {
+			if player.ID == "" {
+				continue
+			}
+			if player.Bets[0] != minimumBet {
+				t.Fail()
+			}
+			if len(player.Cards) != 2 {
+				t.Fail()
+			}
+			if !player.IsPlaying {
+				t.Fail()
+			}
+			if player.Action.Name != constant.Check {
+				t.Fail()
+			}
+		}
+		time.Sleep(time.Second * time.Duration(delay))
+		if !handler.Check("player3") {
+			t.Fail()
+		}
+		_, p1 := util.Get(state.GS.Players, "player1")
+		_, p2 := util.Get(state.GS.Players, "player2")
+		_, p3 := util.Get(state.GS.Players, "player3")
+		time.Sleep(time.Second * time.Duration(delay))
+		if !handler.Bet("player2", 15, decisionTime) {
+			t.Fail()
+		}
+		_, p1 = util.Get(state.GS.Players, "player1")
+		_, p2 = util.Get(state.GS.Players, "player2")
+		_, p3 = util.Get(state.GS.Players, "player3")
+		if p2.Bets[0] != 25 || p2.Action.Name != constant.Bet || p1.Action.Name != constant.Fold || p3.Action.Name != constant.Fold {
+			t.Fail()
+		}
+		// after p2 shift timeline it should be the last player in timeline
+		if state.GS.FinishRoundTime.Sub(p2.DeadLine).Seconds() != float64(delay) {
+			t.Fail()
+		}
+		// time.Sleep(time.Second * time.Duration(delay+3))
+		// if handler.Check("player1") || !handler.Check("player3") {
+		// 	t.Fail()
+		// }
+		// _, p1 = util.Get(state.GS.Players, "player1")
+		// _, p2 = util.Get(state.GS.Players, "player2")
+		// _, p3 = util.Get(state.GS.Players, "player3")
 		// p1.Print()
 		// p2.Print()
 		// p3.Print()

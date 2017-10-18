@@ -5,7 +5,7 @@ type Gambit interface {
 	// Init deck and environment variables
 	Init()
 	// Start game
-	Start()
+	Start() bool
 	// NextRound game after round by round
 	NextRound() bool
 	// Finish game

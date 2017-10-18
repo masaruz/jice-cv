@@ -20,6 +20,7 @@ type GameState struct {
 	StartRoundTime  time.Time
 	FinishRoundTime time.Time
 	Gambit          engine.Gambit
+	Pots            []int
 	Event           string
 }
 

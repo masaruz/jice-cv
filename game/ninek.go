@@ -4,7 +4,6 @@ import (
 	"999k_engine/constant"
 	"999k_engine/handler"
 	"999k_engine/util"
-	"fmt"
 	"sort"
 )
 
@@ -22,13 +21,14 @@ func (game NineK) Init() {
 }
 
 // Start game
-func (game NineK) Start() {
+func (game NineK) Start() bool {
 	if handler.IsTableStart() && !handler.IsGameStart() && handler.MakePlayersReady() {
 		// initiate bet value to players
 		for index, player := range handler.GetPlayerState() {
 			if player.IsPlaying {
 				player.Bets = append(player.Bets, game.MinimumBet)
 				handler.SetPlayer(index, player)
+				handler.IncreasePots(game.MinimumBet, handler.GetCurrentTurn()) // start with first element in pots
 			}
 		}
 		handler.SetDealer()
@@ -36,11 +36,11 @@ func (game NineK) Start() {
 		handler.Shuffle()
 		handler.CreateTimeLine(game.DecisionTime)
 		handler.Deal(2, game.MaxPlayers)
-		// without except player
-		handler.SetOthersDefaultAction("", constant.Check)
-	} else {
-		fmt.Println("No players enough to play")
+		// except player
+		handler.SetDefaultAction("", constant.Check)
+		return true
 	}
+	return false
 }
 
 // NextRound game after round by round
@@ -48,6 +48,7 @@ func (game NineK) NextRound() bool {
 	if !handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound() {
 		handler.Deal(1, game.MaxPlayers)
 		handler.CreateTimeLine(game.DecisionTime)
+		handler.IncreaseTurn()
 		return true
 	}
 	// which mean no longer continue must be finish the round

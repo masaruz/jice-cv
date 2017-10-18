@@ -55,18 +55,20 @@ func ActionReducer(event string) model.Actions {
 // MakePlayersReady make everyone isPlayer = true
 func MakePlayersReady() bool {
 	for index, player := range state.GS.Players {
-		if player.ID != "" {
-			state.GS.Players[index].Cards = model.Cards{}
-			state.GS.Players[index].Bets = []int{}
-			state.GS.Players[index].IsWinner = false
-			state.GS.Players[index].IsPlaying = true
+		if player.ID == "" {
+			continue
 		}
+		state.GS.Players[index].Cards = model.Cards{}
+		state.GS.Players[index].Bets = []int{}
+		state.GS.Players[index].IsWinner = false
+		state.GS.Players[index].IsPlaying = true
+		state.GS.Players[index].Actions = ActionReducer(constant.StartGame)
 	}
 	return util.CountSitting(state.GS.Players) >= 2
 }
 
-// SetOthersDefaultAction make every has default action
-func SetOthersDefaultAction(id string, action string) {
+// SetDefaultAction make every has default action
+func SetDefaultAction(id string, action string) {
 	daction := model.Action{Name: action}
 	for index, player := range state.GS.Players {
 		if !player.IsPlaying {
@@ -76,6 +78,20 @@ func SetOthersDefaultAction(id string, action string) {
 			state.GS.Players[index].Action = daction
 		} else if id == "" {
 			state.GS.Players[index].Action = daction
+		}
+	}
+}
+
+// SetActions make every has default action
+func SetActions(id string, actions model.Actions) {
+	for index, player := range state.GS.Players {
+		if !player.IsPlaying {
+			continue
+		}
+		if id != "" && id != player.ID {
+			state.GS.Players[index].Actions = actions
+		} else if id == "" {
+			state.GS.Players[index].Actions = actions
 		}
 	}
 }
@@ -134,12 +150,34 @@ func Stand(id string) {
 
 // Check cards and actioned by player who has turn and has the same bet
 func Check(id string) bool {
+	_, player := util.Get(state.GS.Players, id)
 	if !IsPlayerTurn(id) {
 		return false
 	}
-	_, player := util.Get(state.GS.Players, id)
-	SetOthersDefaultAction("", constant.Check)
+	SetDefaultAction("", constant.Check)
 	diff := time.Now().Sub(player.DeadLine)
 	ShiftTimeline(diff)
+	return true
+}
+
+// Bet when previous chips are equally but we want to add more chips to the pots
+func Bet(id string, chips int, duration int) bool {
+	if !IsPlayerTurn(id) {
+		return false
+	}
+	index, player := util.Get(state.GS.Players, id)
+	// added value to the bet in this turn
+	state.GS.Players[index].Bets[state.GS.Turn] += chips
+	// broadcast to everyone that I bet
+	state.GS.Players[index].Action = model.Action{Name: constant.Bet}
+	IncreasePots(chips, 0)
+	// others automatic set to fold as default
+	SetDefaultAction(id, constant.Fold)
+	// others need to know what to do next
+	SetActions(id, ActionReducer(constant.Bet))
+	diff := time.Now().Sub(player.DeadLine)
+	ShiftTimeline(diff)
+	// duration extend the timeline
+	ShiftPlayerTimeline(id, duration)
 	return true
 }
