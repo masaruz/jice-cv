@@ -22,7 +22,7 @@ type Player struct {
 
 // Print status of player only for development
 func (player Player) Print() {
-	fmt.Println(player.ID, player.IsPlaying, player.Cards, player.Default, player.Action, player.StartLine.Unix(), player.DeadLine.Unix(), player.Bets, player.Type, player.IsWinner)
+	fmt.Println(player.ID, player.IsPlaying, player.Cards, player.Default, player.Action, player.StartLine.Unix(), player.DeadLine.Unix(), player.Bets, player.Type, player.IsWinner, player.Slot)
 }
 
 // Players in the battle

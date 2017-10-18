@@ -21,9 +21,14 @@ func CreateSeats(seats int) {
 	}
 }
 
-// StartTable make table start
+// StartTable set table start
 func StartTable() {
 	state.GS.IsTableStart = true
+}
+
+// StartGame set game start
+func StartGame() {
+	state.GS.IsGameStart = true
 }
 
 // IsTableStart true or false

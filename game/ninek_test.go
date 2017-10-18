@@ -527,3 +527,148 @@ func TestLoop5(t *testing.T) {
 		// fmt.Println("fin:", state.GS.FinishRoundTime.Unix())
 	})
 }
+
+func TestLoop6(t *testing.T) {
+	t.Run("when someone take bet and raise and fold action", func(t *testing.T) {
+		decisionTime := 3
+		minimumBet := 10
+		ninek := game.NineK{
+			MaxPlayers:   6,
+			DecisionTime: decisionTime,
+			MinimumBet:   minimumBet}
+		handler.SetGambit(ninek)
+		state.GS.Gambit.Init() // create seats
+		// dumb player
+		id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
+		handler.Connect(id1)
+		if len(state.GS.Visitors) != 1 {
+			t.Fail()
+		}
+		handler.Connect(id2)
+		handler.Connect(id3)
+		if len(state.GS.Visitors) != 3 {
+			t.Fail()
+		}
+		handler.Sit(id1, 2) // first
+		if len(state.GS.Visitors) != 2 ||
+			util.CountSitting(state.GS.Players) != 1 ||
+			util.CountPlaying(state.GS.Players) != 0 ||
+			state.GS.Gambit.Start() {
+			t.Fail()
+		}
+		handler.Sit(id2, 4)
+		handler.Sit(id3, 5)
+		if len(state.GS.Visitors) != 0 ||
+			util.CountSitting(state.GS.Players) != 3 ||
+			util.CountPlaying(state.GS.Players) != 0 {
+			t.Fail()
+		}
+		handler.Connect(id4)
+		if len(state.GS.Visitors) != 1 ||
+			util.CountSitting(state.GS.Players) != 3 ||
+			util.CountPlaying(state.GS.Players) != 0 {
+			t.Fail()
+		}
+		handler.Sit(id4, 1) // dealer
+		if len(state.GS.Visitors) != 0 ||
+			util.CountSitting(state.GS.Players) != 4 ||
+			util.CountPlaying(state.GS.Players) != 0 {
+			t.Fail()
+		}
+		handler.Stand(id4)
+		handler.Stand(id3)
+		if len(state.GS.Visitors) != 2 ||
+			util.CountSitting(state.GS.Players) != 2 ||
+			util.CountPlaying(state.GS.Players) != 0 {
+			t.Fail()
+		}
+		handler.StartTable()
+		if !state.GS.Gambit.Start() {
+			t.Fail()
+		}
+		if len(state.GS.Visitors) != 2 ||
+			util.CountSitting(state.GS.Players) != 2 ||
+			util.CountPlaying(state.GS.Players) != 2 {
+			t.Fail()
+		}
+		handler.Sit(id4, 1)
+		handler.Sit(id3, 5)
+		if len(state.GS.Visitors) != 0 ||
+			util.CountSitting(state.GS.Players) != 4 ||
+			util.CountPlaying(state.GS.Players) != 2 {
+			t.Fail()
+		}
+		if state.GS.Gambit.Start() {
+			t.Fail()
+		}
+		if !handler.Check(id2) || !handler.Check(id1) {
+			t.Fail()
+		}
+		if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() {
+			t.Fail()
+		}
+		if !handler.Check(id2) || !handler.Check(id1) {
+			t.Fail()
+		}
+		if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
+			t.Fail()
+		}
+		if !state.GS.Gambit.Start() {
+			t.Fail()
+		}
+		if !handler.Stand(id3) || len(state.GS.Visitors) != 1 ||
+			util.CountSitting(state.GS.Players) != 3 ||
+			util.CountPlaying(state.GS.Players) != 3 {
+			t.Fail()
+		}
+		if !handler.Fold(id4) || !handler.Fold(id1) {
+			t.Fail()
+		}
+		if !handler.Sit(id3, 3) {
+			t.Fail()
+		}
+		_, player3 := util.Get(state.GS.Players, id3)
+		if player3.IsPlaying || len(player3.Cards) > 0 {
+			t.Fail()
+		}
+		if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
+			t.Fail()
+		}
+		_, player2 := util.Get(state.GS.Players, id2)
+		if !player2.IsWinner {
+			t.Fail()
+		}
+		if !state.GS.Gambit.Start() ||
+			!handler.Check(id1) || !handler.Check(id3) ||
+			!handler.Bet(id2, 20, decisionTime) ||
+			!handler.Call(id4, decisionTime) ||
+			!handler.Fold(id1) || !handler.Fold(id3) {
+			t.Fail()
+		}
+		if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() ||
+			!handler.Check(id2) || !handler.Bet(id4, 20, decisionTime) ||
+			!handler.Stand(id2) {
+			t.Fail()
+		}
+		if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
+			t.Fail()
+		}
+		_, player4 := util.Get(state.GS.Players, id4)
+		if !player4.IsWinner {
+			t.Fail()
+		}
+		// _, p1 := util.Get(state.GS.Players, id1)
+		// _, p2 := util.Get(state.GS.Players, id2)
+		// _, p3 := util.Get(state.GS.Players, id3)
+		// _, p4 := util.Get(state.GS.Players, id4)
+		// p1.Print()
+		// p2.Print()
+		// p3.Print()
+		// p4.Print()
+		// fmt.Println("now:", time.Now().Unix())
+		// fmt.Println("fin:", state.GS.FinishRoundTime.Unix())
+		// for _, player := range state.GS.Players {
+		// 	player.Print()
+		// }
+	})
+}

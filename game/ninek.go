@@ -23,6 +23,7 @@ func (game NineK) Init() {
 // Start game
 func (game NineK) Start() bool {
 	if handler.IsTableStart() && !handler.IsGameStart() && handler.MakePlayersReady() {
+		handler.StartGame()
 		handler.InvestToPots(game.MinimumBet)
 		handler.SetDealer()
 		handler.BuildDeck()
@@ -51,12 +52,9 @@ func (game NineK) NextRound() bool {
 // Finish game
 func (game NineK) Finish() bool {
 	players := handler.GetPlayerState()
-	// no others to play with
-	if util.CountPlaying(players) <= 1 {
-		return true
-	}
-	// if all players have 3 cards but bet is not equal
-	if handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound() {
+	// no others to play with or all players have 3 cards but bet is not equal
+	if util.CountPlaying(players) <= 1 ||
+		(handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound()) {
 		handler.FinishGame()
 		handler.FindWinner()
 		return true
