@@ -92,6 +92,36 @@ func SetOtherActions(id string, actions model.Actions) {
 	}
 }
 
+// Connect and move user as a visitor
+func Connect(id string) {
+	owner := model.Player{ID: id}
+	owner.Action = model.Action{Name: constant.Stand}
+	owner.Actions = ActionReducer(constant.Connection)
+	state.GS.Visitors = util.Add(state.GS.Visitors, owner)
+}
+
+// Disconnect and Remove user from vistor or player list
+func Disconnect(id string) {
+	_, player := util.Get(state.GS.Players, id)
+	// if playing need to do something
+	if !player.IsPlaying {
+		// TODO broadcast default action and dont kick
+	}
+	state.GS.Players = util.Kick(state.GS.Players, id)
+	state.GS.Visitors = util.Remove(state.GS.Visitors, id)
+}
+
+// AutoSit auto find a seat
+func AutoSit(id string) bool {
+	for _, player := range state.GS.Players {
+		if player.ID == "" {
+			Sit(id, player.Slot)
+			return true
+		}
+	}
+	return false
+}
+
 // Sit for playing the game
 func Sit(id string, slot int) bool {
 	_, caller := util.Get(state.GS.Visitors, id)
@@ -122,24 +152,18 @@ func Sit(id string, slot int) bool {
 }
 
 // Stand when player need to quit
-func Stand(id string) {
+func Stand(id string) bool {
 	_, caller := util.Get(state.GS.Players, id)
-	caller.Action = model.Action{Name: constant.Stand}
-	caller.Actions = ActionReducer(constant.Stand)
 	state.GS.Players = util.Kick(state.GS.Players, caller.ID)
-	// if there are more than 1 player are playing
-	if util.CountPlaying(state.GS.Players) > 1 {
-		// set to everyone has the same actions
-		for index := range state.GS.Players {
-			if state.GS.Players[index].ID != "" && state.GS.Players[index].ID != id &&
-				!state.GS.Players[index].IsPlaying {
-				state.GS.Players[index].Actions = ActionReducer(constant.Sit)
-			}
+	// set to everyone has the same actions
+	for index := range state.GS.Players {
+		if state.GS.Players[index].ID != "" && state.GS.Players[index].ID != id &&
+			!state.GS.Players[index].IsPlaying {
+			state.GS.Players[index].Actions = ActionReducer(constant.Sit)
 		}
-		state.GS.Visitors = util.Add(state.GS.Visitors, caller)
-	} else {
-		state.GS.Gambit.Finish()
 	}
+	state.GS.Visitors = util.Add(state.GS.Visitors, caller)
+	return true
 }
 
 // Check cards and actioned by player who has turn and has the same bet

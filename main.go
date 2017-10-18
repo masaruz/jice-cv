@@ -1,0 +1,133 @@
+package main
+
+import (
+	"999k_engine/constant"
+	"999k_engine/game"
+	"999k_engine/handler"
+	"999k_engine/state"
+	"999k_engine/util"
+	"fmt"
+	"log"
+	"net/http"
+
+	"github.com/googollee/go-socket.io"
+)
+
+const port = ":3000"
+
+func main() {
+	server, err := socketio.NewServer(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	decisionTime := 5
+	ninek := game.NineK{
+		MaxPlayers:   6,
+		DecisionTime: decisionTime,
+		MinimumBet:   10}
+	handler.SetGambit(ninek)
+	// when connection happend
+	server.On(constant.Connection, func(so socketio.Socket) {
+		// join the room
+		so.Join(so.Id())
+		handler.Connect(so.Id())
+		handler.BroadcastGameState(so, constant.GetState, so.Id())
+		// when player need to get game state
+		so.On(constant.GetState, func(msg string) string {
+			return handler.CreateResponse(so.Id(), constant.GetState)
+		})
+		// when player call check
+		so.On(constant.Check, func(msg string) string {
+			success := handler.Check(so.Id())
+			if !success {
+				// if no seat then just return current state
+				return handler.CreateResponse(so.Id(), "")
+			}
+			handler.BroadcastGameState(so, constant.Check, so.Id())
+			return handler.CreateResponse(so.Id(), constant.Check)
+		})
+		// when player need to bet chips
+		so.On(constant.Bet, func(msg string) string {
+			success := handler.Bet(so.Id(), 15, decisionTime)
+			if !success {
+				// if no seat then just return current state
+				return handler.CreateResponse(so.Id(), "")
+			}
+			handler.BroadcastGameState(so, constant.Bet, so.Id())
+			return handler.CreateResponse(so.Id(), constant.Bet)
+		})
+		// when player need to raise chips
+		so.On(constant.Raise, func(msg string) string {
+			success := handler.Bet(so.Id(), 30, decisionTime)
+			if !success {
+				// if no seat then just return current state
+				return handler.CreateResponse(so.Id(), "")
+			}
+			handler.BroadcastGameState(so, constant.Raise, so.Id())
+			return handler.CreateResponse(so.Id(), constant.Raise)
+		})
+		// when player need to call chips
+		so.On(constant.Call, func(msg string) string {
+			success := handler.Call(so.Id(), decisionTime)
+			if !success {
+				// if no seat then just return current state
+				return handler.CreateResponse(so.Id(), "")
+			}
+			handler.BroadcastGameState(so, constant.Call, so.Id())
+			return handler.CreateResponse(so.Id(), constant.Call)
+		})
+		// when player fold their cards
+		so.On(constant.Fold, func(msg string) string {
+			success := handler.Fold(so.Id())
+			if !success {
+				// if no seat then just return current state
+				return handler.CreateResponse(so.Id(), "")
+			}
+			handler.BroadcastGameState(so, constant.Fold, so.Id())
+			return handler.CreateResponse(so.Id(), constant.Fold)
+		})
+		// start table and no ending until expire
+		so.On(constant.StartTable, func(msg string) string {
+			if util.CountSitting(state.GS.Players) > 1 {
+				handler.StartTable()
+				state.GS.Gambit.Start()
+				handler.BroadcastGameState(so, constant.StartTable, so.Id())
+				return handler.CreateResponse(so.Id(), constant.StartTable)
+			}
+			return handler.CreateResponse(so.Id(), "")
+		})
+		// when player sit down
+		so.On(constant.Sit, func(msg string) string {
+			success := handler.AutoSit(so.Id())
+			if !success {
+				// if no seat then just return current state
+				return handler.CreateResponse(so.Id(), "")
+			}
+			state.GS.Gambit.Start()
+			handler.BroadcastGameState(so, constant.Sit, so.Id())
+			return handler.CreateResponse(so.Id(), constant.Sit)
+		})
+		// when player stand up
+		so.On(constant.Stand, func(msg string) string {
+			handler.Stand(so.Id())
+			handler.BroadcastGameState(so, constant.Stand, so.Id())
+			return handler.CreateResponse(so.Id(), constant.Stand)
+		})
+		// when disconnected
+		so.On(constant.Disconnection, func() {
+			handler.Disconnect(so.Id())
+			handler.BroadcastGameState(so, constant.Disconnection, so.Id())
+		})
+	})
+	// listening for error
+	server.On(constant.Error, func(so socketio.Socket, err error) {
+		log.Println("error:", err)
+	})
+
+	// http.Handle("/", http.FileServer(http.Dir("../asset")))
+	http.Handle("/socket.io/", server)
+
+	log.Println(fmt.Sprintf("Serving at localhost%s", port))
+
+	log.Fatal(http.ListenAndServe(port, nil))
+}

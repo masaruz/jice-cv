@@ -6,7 +6,6 @@ import (
 	"999k_engine/handler"
 	"999k_engine/state"
 	"999k_engine/util"
-	"fmt"
 	"testing"
 	"time"
 )
@@ -326,14 +325,14 @@ func TestLoop3(t *testing.T) {
 		if !state.GS.Gambit.Start() {
 			t.Fail()
 		}
-		_, p1 := util.Get(state.GS.Players, "player1")
-		_, p2 := util.Get(state.GS.Players, "player2")
-		_, p3 := util.Get(state.GS.Players, "player3")
-		p1.Print()
-		p2.Print()
-		p3.Print()
-		fmt.Println("now:", time.Now().Unix())
-		fmt.Println("end:", state.GS.FinishRoundTime.Unix())
+		// _, p1 := util.Get(state.GS.Players, "player1")
+		// _, p2 := util.Get(state.GS.Players, "player2")
+		// _, p3 := util.Get(state.GS.Players, "player3")
+		// p1.Print()
+		// p2.Print()
+		// p3.Print()
+		// fmt.Println("now:", time.Now().Unix())
+		// fmt.Println("end:", state.GS.FinishRoundTime.Unix())
 	})
 }
 
