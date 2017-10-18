@@ -6,6 +6,8 @@ type Gambit interface {
 	Init()
 	// Start game
 	Start() bool
+	// Continue with some actions
+	Continue(action string, payload map[string]interface{}) bool
 	// NextRound game after round by round
 	NextRound() bool
 	// Finish game

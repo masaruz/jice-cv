@@ -4,6 +4,7 @@ import (
 	"999k_engine/constant"
 	"999k_engine/handler"
 	"999k_engine/util"
+	"fmt"
 	"sort"
 )
 
@@ -12,6 +13,12 @@ type NineK struct {
 	MaxPlayers   int
 	DecisionTime int
 	MinimumBet   int
+}
+
+// Payload data accessed by continue
+type Payload struct {
+	ID    string
+	Chips int
 }
 
 // Init deck and environment variables
@@ -47,6 +54,25 @@ func (game NineK) NextRound() bool {
 	handler.OverwriteActionToBehindPlayers()
 	// which mean no longer continue must be finish the round
 	return false
+}
+
+// Continue will switch case to call the player action
+func (game NineK) Continue(action string, payload map[string]interface{}) bool {
+	switch action {
+	case constant.Check:
+		return handler.Check(payload["ID"].(string))
+	case constant.Call:
+		return handler.Call(payload["ID"].(string), game.DecisionTime)
+	case constant.Fold:
+		return handler.Fold(payload["ID"].(string))
+	case constant.Bet:
+		return handler.Bet(payload["ID"].(string), payload["Chips"].(int), game.DecisionTime)
+	case constant.Raise:
+		return handler.Bet(payload["ID"].(string), payload["Chips"].(int), game.DecisionTime)
+	default:
+		fmt.Printf("%s no action match ...", action)
+		return false
+	}
 }
 
 // Finish game

@@ -6,6 +6,7 @@ import (
 	"999k_engine/handler"
 	"999k_engine/state"
 	"999k_engine/util"
+	"fmt"
 	"testing"
 	"time"
 )
@@ -670,5 +671,75 @@ func TestLoop6(t *testing.T) {
 		// for _, player := range state.GS.Players {
 		// 	player.Print()
 		// }
+	})
+}
+
+func TestLoop7(t *testing.T) {
+	t.Run("test interface", func(t *testing.T) {
+		decisionTime := 3
+		minimumBet := 10
+		ninek := game.NineK{
+			MaxPlayers:   6,
+			DecisionTime: decisionTime,
+			MinimumBet:   minimumBet}
+		handler.SetGambit(ninek)
+		state.GS.Gambit.Init() // create seats
+		// dumb player
+		id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
+		handler.Sit(id1, 2) // first
+		handler.Sit(id2, 3)
+		handler.Sit(id3, 4)
+		handler.Sit(id4, 1) // dealer
+		handler.StartTable()
+		pid1 := map[string]interface{}{"ID": id1, "Chips": 10}
+		pid2 := map[string]interface{}{"ID": id2, "Chips": 20}
+		pid3 := map[string]interface{}{"ID": id3, "Chips": 30}
+		pid4 := map[string]interface{}{"ID": id4, "Chips": 40}
+		if !state.GS.Gambit.Start() {
+			t.Fail()
+		}
+		if !state.GS.Gambit.Continue(constant.Check, pid1) {
+			t.Fail()
+		}
+		// cannot do action again
+		if state.GS.Gambit.Continue(constant.Check, pid1) {
+			t.Fail()
+		}
+		if !state.GS.Gambit.Continue(constant.Check, pid2) {
+			t.Fail()
+		}
+		if !state.GS.Gambit.Continue(constant.Bet, pid3) {
+			t.Fail()
+		}
+		if !state.GS.Gambit.Continue(constant.Call, pid4) {
+			t.Fail()
+		}
+		_, p1 := util.Get(state.GS.Players, id1)
+		_, p2 := util.Get(state.GS.Players, id2)
+		_, p3 := util.Get(state.GS.Players, id3)
+		_, p4 := util.Get(state.GS.Players, id4)
+		p1.Print()
+		p2.Print()
+		p3.Print()
+		p4.Print()
+		fmt.Println("now:", time.Now().Unix())
+		fmt.Println("fin:", state.GS.FinishRoundTime.Unix())
+		fmt.Println()
+		if !state.GS.Gambit.Continue(constant.Fold, pid1) {
+			t.Fail()
+		}
+		if !state.GS.Gambit.Continue(constant.Call, pid2) {
+			t.Fail()
+		}
+		_, p1 = util.Get(state.GS.Players, id1)
+		_, p2 = util.Get(state.GS.Players, id2)
+		_, p3 = util.Get(state.GS.Players, id3)
+		_, p4 = util.Get(state.GS.Players, id4)
+		p1.Print()
+		p2.Print()
+		p3.Print()
+		p4.Print()
+		fmt.Println("now:", time.Now().Unix())
+		fmt.Println("fin:", state.GS.FinishRoundTime.Unix())
 	})
 }
