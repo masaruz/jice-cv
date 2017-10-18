@@ -56,6 +56,21 @@ func SumBets(turn int, players model.Players) int {
 	return sum
 }
 
+// GetHighestBet for get the highest bet and make a call action
+func GetHighestBet(players model.Players) int {
+	highest := 0
+	for _, player := range players {
+		if !InGame(player) {
+			continue
+		}
+		sum := SumBet(player)
+		if sum > highest {
+			highest = sum
+		}
+	}
+	return highest
+}
+
 // SumPots to sum every pot
 func SumPots(pots []int) int {
 	sum := 0

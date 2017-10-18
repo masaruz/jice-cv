@@ -11,6 +11,7 @@ type Player struct {
 	Type      string    `json:"type"`
 	Bets      []int     `json:"bets"`
 	Slot      int       `json:"slot"`
+	Default   Action    `json:"default"`
 	Action    Action    `json:"action"`
 	Actions   []Action  `json:"actions"`
 	IsPlaying bool      `json:"isPlaying"`
@@ -21,7 +22,7 @@ type Player struct {
 
 // Print status of player only for development
 func (player Player) Print() {
-	fmt.Println(player.ID, player.Cards, player.Actions, player.Action, player.StartLine.Unix(), player.DeadLine.Unix(), player.Bets, player.Type, player.IsWinner)
+	fmt.Println(player.ID, player.IsPlaying, player.Cards, player.Default, player.Action, player.StartLine.Unix(), player.DeadLine.Unix(), player.Bets, player.Type, player.IsWinner)
 }
 
 // Players in the battle

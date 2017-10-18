@@ -63,29 +63,30 @@ func MakePlayersReady() bool {
 		state.GS.Players[index].IsWinner = false
 		state.GS.Players[index].IsPlaying = true
 		state.GS.Players[index].Actions = ActionReducer(constant.StartGame)
+		state.GS.Players[index].Default = model.Action{Name: constant.Check}
+		state.GS.Players[index].Action = model.Action{}
 	}
 	return util.CountSitting(state.GS.Players) >= 2
 }
 
-// SetDefaultAction make every has default action
-func SetDefaultAction(id string, action string) {
-	daction := model.Action{Name: action}
+// SetOtherDefaultAction make every has default action
+func SetOtherDefaultAction(id string, action model.Action) {
 	for index, player := range state.GS.Players {
-		if !player.IsPlaying {
+		if !util.InGame(player) {
 			continue
 		}
 		if id != "" && id != player.ID {
-			state.GS.Players[index].Action = daction
+			state.GS.Players[index].Default = action
 		} else if id == "" {
-			state.GS.Players[index].Action = daction
+			state.GS.Players[index].Default = action
 		}
 	}
 }
 
-// SetActions make every has default action
-func SetActions(id string, actions model.Actions) {
+// SetOtherActions make every has default action
+func SetOtherActions(id string, actions model.Actions) {
 	for index, player := range state.GS.Players {
-		if !player.IsPlaying {
+		if !util.InGame(player) {
 			continue
 		}
 		if id != "" && id != player.ID {
@@ -150,11 +151,24 @@ func Stand(id string) {
 
 // Check cards and actioned by player who has turn and has the same bet
 func Check(id string) bool {
-	_, player := util.Get(state.GS.Players, id)
 	if !IsPlayerTurn(id) {
 		return false
 	}
-	SetDefaultAction("", constant.Check)
+	index, player := util.Get(state.GS.Players, id)
+	state.GS.Players[index].Action = model.Action{Name: constant.Check}
+	diff := time.Now().Sub(player.DeadLine)
+	ShiftTimeline(diff)
+	return true
+}
+
+// Fold cards
+func Fold(id string) bool {
+	if !IsPlayerTurn(id) {
+		return false
+	}
+	index, player := util.Get(state.GS.Players, id)
+	state.GS.Players[index].Action = model.Action{Name: constant.Fold}
+	state.GS.Players[index].Actions = ActionReducer(constant.Fold)
 	diff := time.Now().Sub(player.DeadLine)
 	ShiftTimeline(diff)
 	return true
@@ -172,12 +186,60 @@ func Bet(id string, chips int, duration int) bool {
 	state.GS.Players[index].Action = model.Action{Name: constant.Bet}
 	IncreasePots(chips, 0)
 	// others automatic set to fold as default
-	SetDefaultAction(id, constant.Fold)
+	SetOtherDefaultAction(id, model.Action{Name: constant.Fold})
 	// others need to know what to do next
-	SetActions(id, ActionReducer(constant.Bet))
+	SetOtherActions(id, ActionReducer(constant.Bet))
 	diff := time.Now().Sub(player.DeadLine)
 	ShiftTimeline(diff)
 	// duration extend the timeline
-	ShiftPlayerTimeline(id, duration)
+	ShiftPlayersToEndOfTimeline(id, duration)
 	return true
+}
+
+// Call make this player to has same the highest bet
+func Call(id string, duration int) bool {
+	if !IsPlayerTurn(id) {
+		return false
+	}
+	index, player := util.Get(state.GS.Players, id)
+	turn := state.GS.Turn
+	chips := util.GetHighestBet(state.GS.Players) - player.Bets[turn]
+	state.GS.Players[index].Bets[turn] += chips
+	state.GS.Players[index].Action = model.Action{Name: constant.Call}
+	OverwriteActionWithDefault(index)
+	IncreasePots(chips, 0)
+	// others need to know what to do next
+	SetOtherActions(id, ActionReducer(constant.Bet))
+	diff := time.Now().Sub(player.DeadLine)
+	ShiftTimeline(diff)
+	return true
+}
+
+// InvestToPots added bet to everyone base on turn
+func InvestToPots(chips int) {
+	// initiate bet value to players
+	for index := range state.GS.Players {
+		if util.InGame(state.GS.Players[index]) {
+			state.GS.Players[index].Bets = append(state.GS.Players[index].Bets, chips)
+			IncreasePots(chips, GetCurrentTurn()) // start with first element in pots
+		}
+	}
+}
+
+// OverwriteActionWithDefault overwritten action with default
+func OverwriteActionWithDefault(current int) {
+	amount := len(state.GS.Players)
+	prev := -1
+	round := 0
+	for round < amount {
+		if current == 0 {
+			current = amount
+		}
+		prev = current - 1
+		if util.InGame(state.GS.Players[prev]) && state.GS.Players[prev].Action.Name == "" {
+			state.GS.Players[prev].Action = state.GS.Players[prev].Default
+		}
+		round++
+		current--
+	}
 }

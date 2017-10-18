@@ -59,7 +59,7 @@ func FindWinner() {
 	// winner := model.Player{}
 	players := state.GS.Players
 	for index, player := range players {
-		if !player.IsPlaying {
+		if !util.InGame(player) {
 			continue
 		}
 		scores, _ := state.GS.Gambit.Evaluate(player.Cards)
@@ -91,9 +91,9 @@ func CreateTimeLine(decisionTime int) {
 	for loop < amount {
 		next := (dealer + 1) % amount
 		player := state.GS.Players[next]
-		if player.IsPlaying {
-			state.GS.Players[next].Action = model.Action{Name: constant.Check}
+		if util.InGame(player) {
 			startline := start.Add(time.Second * time.Duration(delay))
+			state.GS.Players[next].Action = model.Action{}
 			state.GS.Players[next].StartLine = startline
 			state.GS.Players[next].DeadLine = startline.Add(time.Second * time.Duration(decisionTime))
 			start = state.GS.Players[next].DeadLine
@@ -101,6 +101,7 @@ func CreateTimeLine(decisionTime int) {
 		dealer++
 		loop++
 	}
+	SetOtherDefaultAction("", model.Action{Name: constant.Check})
 	state.GS.FinishRoundTime = start.Add(time.Second * time.Duration(delay))
 }
 
@@ -112,7 +113,7 @@ func IncreaseTurn() {
 // IsFullHand check if hold max cards
 func IsFullHand(maxcards int) bool {
 	for _, player := range state.GS.Players {
-		if !player.IsPlaying {
+		if !util.InGame(player) {
 			continue
 		}
 		// amount of cards are not equal
@@ -127,7 +128,7 @@ func IsFullHand(maxcards int) bool {
 func BetsEqual() bool {
 	baseBet := -1
 	for _, player := range state.GS.Players {
-		if !player.IsPlaying {
+		if !util.InGame(player) {
 			continue
 		}
 		// check if everyone has the same bet
@@ -149,12 +150,12 @@ func Deal(cardAmount int, playerAmount int) {
 	for i := 0; i < cardAmount; i++ {
 		start := dealer
 		round := 0
-		for round <= playerAmount {
+		for round < playerAmount {
 			start++
 			round++
 			index = start % playerAmount
 			// skip empty seat
-			if state.GS.Players[index].IsPlaying {
+			if util.InGame(state.GS.Players[index]) {
 				state.GS.Players[index].Cards = append(state.GS.Players[index].Cards, Draw())
 				if index == dealer {
 					break
@@ -179,8 +180,8 @@ func ShiftTimeline(diff time.Duration) {
 	state.GS.FinishRoundTime = state.GS.FinishRoundTime.Add(diff)
 }
 
-// ShiftPlayerTimeline shift player to the end timeline
-func ShiftPlayerTimeline(id string, second int) {
+// ShiftPlayerToEndOfTimeline shift player to the end of timeline
+func ShiftPlayerToEndOfTimeline(id string, second int) {
 	duration := time.Duration(time.Second * time.Duration(second))
 	extend := duration + (time.Second * time.Duration(util.GetDelay()))
 	index, _ := util.Get(state.GS.Players, id)
@@ -188,6 +189,26 @@ func ShiftPlayerTimeline(id string, second int) {
 	state.GS.Players[index].StartLine = finishRoundTime
 	state.GS.Players[index].DeadLine = finishRoundTime.Add(duration)
 	state.GS.FinishRoundTime = finishRoundTime.Add(extend)
+}
+
+// ShiftPlayersToEndOfTimeline shift current and prev player to the end of timeline
+func ShiftPlayersToEndOfTimeline(id string, second int) {
+	start, _ := util.Get(state.GS.Players, id)
+	round, amount := 0, len(state.GS.Players)
+	for round < amount {
+		if start == 0 {
+			start = amount
+		}
+		index := start - 1
+		// force shift only 2 lastest players
+		if util.InGame(state.GS.Players[index]) &&
+			time.Now().Unix() > state.GS.Players[index].DeadLine.Unix() {
+			ShiftPlayerToEndOfTimeline(state.GS.Players[index].ID, second)
+			break
+		}
+		start--
+		round++
+	}
 }
 
 // GetCurrentTurn get current turn number

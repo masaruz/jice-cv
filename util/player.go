@@ -1,6 +1,9 @@
 package util
 
-import "999k_engine/model"
+import (
+	"999k_engine/constant"
+	"999k_engine/model"
+)
 
 // Remove by remove element from array
 func Remove(slice model.Players, id string) model.Players {
@@ -50,7 +53,7 @@ func Get(slice model.Players, id string) (int, model.Player) {
 func CountPlaying(players model.Players) int {
 	playing := 0
 	for _, player := range players {
-		if player.IsPlaying {
+		if InGame(player) {
 			playing++
 		}
 	}
@@ -71,12 +74,15 @@ func CountSitting(players model.Players) int {
 // FindPrevPlayer return prev player who sit prev to current player
 func FindPrevPlayer(current int, players model.Players) (int, model.Player) {
 	amount := len(players)
-	next := -1
+	prev := -1
 	round := 0
 	for round < amount {
-		next = (current - 1) % amount
-		if players[next].IsPlaying {
-			return next, players[next]
+		if current == 0 {
+			current = amount
+		}
+		prev = current - 1
+		if InGame(players[prev]) {
+			return prev, players[prev]
 		}
 		round++
 		current--
@@ -91,11 +97,16 @@ func FindNextPlayer(current int, players model.Players) (int, model.Player) {
 	round := 0
 	for round < amount {
 		next = (current + 1) % amount
-		if players[next].IsPlaying {
+		if InGame(players[next]) {
 			return next, players[next]
 		}
 		round++
 		current++
 	}
 	return -1, model.Player{}
+}
+
+// InGame if player is not fold and playing
+func InGame(player model.Player) bool {
+	return player.Action.Name != constant.Fold && player.IsPlaying
 }

@@ -23,21 +23,12 @@ func (game NineK) Init() {
 // Start game
 func (game NineK) Start() bool {
 	if handler.IsTableStart() && !handler.IsGameStart() && handler.MakePlayersReady() {
-		// initiate bet value to players
-		for index, player := range handler.GetPlayerState() {
-			if player.IsPlaying {
-				player.Bets = append(player.Bets, game.MinimumBet)
-				handler.SetPlayer(index, player)
-				handler.IncreasePots(game.MinimumBet, handler.GetCurrentTurn()) // start with first element in pots
-			}
-		}
+		handler.InvestToPots(game.MinimumBet)
 		handler.SetDealer()
 		handler.BuildDeck()
 		handler.Shuffle()
 		handler.CreateTimeLine(game.DecisionTime)
 		handler.Deal(2, game.MaxPlayers)
-		// except player
-		handler.SetDefaultAction("", constant.Check)
 		return true
 	}
 	return false
@@ -48,9 +39,11 @@ func (game NineK) NextRound() bool {
 	if !handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound() {
 		handler.Deal(1, game.MaxPlayers)
 		handler.CreateTimeLine(game.DecisionTime)
+		handler.InvestToPots(0)
 		handler.IncreaseTurn()
 		return true
 	}
+	handler.OverwriteActionWithDefault(0)
 	// which mean no longer continue must be finish the round
 	return false
 }
