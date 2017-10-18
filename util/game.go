@@ -79,8 +79,3 @@ func SumPots(pots []int) int {
 	}
 	return sum
 }
-
-// GetDelay delay when start until to first player turn and end after last player
-func GetDelay() int {
-	return 1
-}

@@ -84,7 +84,7 @@ func FindWinner() {
 
 // CreateTimeLine set timeline for game and any players
 func CreateTimeLine(decisionTime int) {
-	loop, delay := 0, util.GetDelay()
+	loop, delay := 0, 0
 	start, amount := time.Now(), len(state.GS.Players)
 	state.GS.StartRoundTime = start
 	dealer, _ := util.FindDealer(state.GS.Players)
@@ -102,7 +102,7 @@ func CreateTimeLine(decisionTime int) {
 		loop++
 	}
 	SetOtherDefaultAction("", model.Action{Name: constant.Check})
-	state.GS.FinishRoundTime = start.Add(time.Second * time.Duration(delay))
+	state.GS.FinishRoundTime = start
 }
 
 // IncreaseTurn to seperate player bets
@@ -183,12 +183,11 @@ func ShiftTimeline(diff time.Duration) {
 // ShiftPlayerToEndOfTimeline shift player to the end of timeline
 func ShiftPlayerToEndOfTimeline(id string, second int) {
 	duration := time.Duration(time.Second * time.Duration(second))
-	extend := duration + (time.Second * time.Duration(util.GetDelay()))
 	index, _ := util.Get(state.GS.Players, id)
 	finishRoundTime := state.GS.FinishRoundTime
 	state.GS.Players[index].StartLine = finishRoundTime
 	state.GS.Players[index].DeadLine = finishRoundTime.Add(duration)
-	state.GS.FinishRoundTime = finishRoundTime.Add(extend)
+	state.GS.FinishRoundTime = finishRoundTime.Add(duration)
 }
 
 // ShiftPlayersToEndOfTimeline shift current and prev player to the end of timeline
@@ -196,18 +195,14 @@ func ShiftPlayersToEndOfTimeline(id string, second int) {
 	start, _ := util.Get(state.GS.Players, id)
 	round, amount := 0, len(state.GS.Players)
 	for round < amount {
-		if start == 0 {
-			start = amount
-		}
-		index := start - 1
+		start++
+		round++
+		index := start % amount
 		// force shift only 2 lastest players
 		if util.InGame(state.GS.Players[index]) &&
-			time.Now().Unix() > state.GS.Players[index].DeadLine.Unix() {
+			util.IsPlayerBehindTheTimeline(state.GS.Players[index]) {
 			ShiftPlayerToEndOfTimeline(state.GS.Players[index].ID, second)
-			break
 		}
-		start--
-		round++
 	}
 }
 
@@ -223,4 +218,15 @@ func IncreasePots(chips int, index int) {
 	}
 	// increase pot values
 	state.GS.Pots[0] += chips
+}
+
+// InvestToPots added bet to everyone base on turn
+func InvestToPots(chips int) {
+	// initiate bet value to players
+	for index := range state.GS.Players {
+		if util.InGame(state.GS.Players[index]) {
+			state.GS.Players[index].Bets = append(state.GS.Players[index].Bets, chips)
+			IncreasePots(chips, GetCurrentTurn()) // start with first element in pots
+		}
+	}
 }

@@ -43,7 +43,7 @@ func (game NineK) NextRound() bool {
 		handler.IncreaseTurn()
 		return true
 	}
-	handler.OverwriteActionWithDefault(0)
+	handler.OverwriteActionToBehindPlayers()
 	// which mean no longer continue must be finish the round
 	return false
 }

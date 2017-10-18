@@ -13,11 +13,6 @@ func GetPlayerState() model.Players {
 	return state.GS.Players
 }
 
-// SetPlayer set updated player to index in gamestate
-func SetPlayer(index int, player model.Player) {
-	state.GS.Players[index] = player
-}
-
 // ActionReducer reduce the actions when player act something
 func ActionReducer(event string) model.Actions {
 	switch event {
@@ -142,11 +137,9 @@ func Stand(id string) {
 			}
 		}
 		state.GS.Visitors = util.Add(state.GS.Visitors, caller)
-		// state.GS.FinishRoundTime = ShiftFinishRoundTime()
 	} else {
 		state.GS.Gambit.Finish()
 	}
-	// state.GS.Save()
 }
 
 // Check cards and actioned by player who has turn and has the same bet
@@ -155,8 +148,10 @@ func Check(id string) bool {
 		return false
 	}
 	index, player := util.Get(state.GS.Players, id)
+	state.GS.Players[index].Default = model.Action{Name: constant.Check}
 	state.GS.Players[index].Action = model.Action{Name: constant.Check}
 	diff := time.Now().Sub(player.DeadLine)
+	OverwriteActionToBehindPlayers()
 	ShiftTimeline(diff)
 	return true
 }
@@ -167,9 +162,11 @@ func Fold(id string) bool {
 		return false
 	}
 	index, player := util.Get(state.GS.Players, id)
+	state.GS.Players[index].Default = model.Action{Name: constant.Fold}
 	state.GS.Players[index].Action = model.Action{Name: constant.Fold}
 	state.GS.Players[index].Actions = ActionReducer(constant.Fold)
 	diff := time.Now().Sub(player.DeadLine)
+	OverwriteActionToBehindPlayers()
 	ShiftTimeline(diff)
 	return true
 }
@@ -183,8 +180,11 @@ func Bet(id string, chips int, duration int) bool {
 	// added value to the bet in this turn
 	state.GS.Players[index].Bets[state.GS.Turn] += chips
 	// broadcast to everyone that I bet
+	state.GS.Players[index].Default = model.Action{Name: constant.Bet}
 	state.GS.Players[index].Action = model.Action{Name: constant.Bet}
 	IncreasePots(chips, 0)
+	// set action of everyone
+	OverwriteActionToBehindPlayers()
 	// others automatic set to fold as default
 	SetOtherDefaultAction(id, model.Action{Name: constant.Fold})
 	// others need to know what to do next
@@ -202,11 +202,12 @@ func Call(id string, duration int) bool {
 		return false
 	}
 	index, player := util.Get(state.GS.Players, id)
-	turn := state.GS.Turn
-	chips := util.GetHighestBet(state.GS.Players) - player.Bets[turn]
-	state.GS.Players[index].Bets[turn] += chips
+	chips := util.GetHighestBet(state.GS.Players) - util.SumBet(player)
+	state.GS.Players[index].Bets[state.GS.Turn] += chips
+	state.GS.Players[index].Default = model.Action{Name: constant.Call}
 	state.GS.Players[index].Action = model.Action{Name: constant.Call}
-	OverwriteActionWithDefault(index)
+	// set action of everyone
+	OverwriteActionToBehindPlayers()
 	IncreasePots(chips, 0)
 	// others need to know what to do next
 	SetOtherActions(id, ActionReducer(constant.Bet))
@@ -215,31 +216,12 @@ func Call(id string, duration int) bool {
 	return true
 }
 
-// InvestToPots added bet to everyone base on turn
-func InvestToPots(chips int) {
-	// initiate bet value to players
+// OverwriteActionToBehindPlayers overwritten action with default
+func OverwriteActionToBehindPlayers() {
 	for index := range state.GS.Players {
-		if util.InGame(state.GS.Players[index]) {
-			state.GS.Players[index].Bets = append(state.GS.Players[index].Bets, chips)
-			IncreasePots(chips, GetCurrentTurn()) // start with first element in pots
+		if util.InGame(state.GS.Players[index]) &&
+			util.IsPlayerBehindTheTimeline(state.GS.Players[index]) {
+			state.GS.Players[index].Action = state.GS.Players[index].Default
 		}
-	}
-}
-
-// OverwriteActionWithDefault overwritten action with default
-func OverwriteActionWithDefault(current int) {
-	amount := len(state.GS.Players)
-	prev := -1
-	round := 0
-	for round < amount {
-		if current == 0 {
-			current = amount
-		}
-		prev = current - 1
-		if util.InGame(state.GS.Players[prev]) && state.GS.Players[prev].Action.Name == "" {
-			state.GS.Players[prev].Action = state.GS.Players[prev].Default
-		}
-		round++
-		current--
 	}
 }

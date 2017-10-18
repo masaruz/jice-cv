@@ -3,6 +3,7 @@ package util
 import (
 	"999k_engine/constant"
 	"999k_engine/model"
+	"time"
 )
 
 // Remove by remove element from array
@@ -109,4 +110,9 @@ func FindNextPlayer(current int, players model.Players) (int, model.Player) {
 // InGame if player is not fold and playing
 func InGame(player model.Player) bool {
 	return player.Action.Name != constant.Fold && player.IsPlaying
+}
+
+// IsPlayerBehindTheTimeline check if player behind the timeline
+func IsPlayerBehindTheTimeline(player model.Player) bool {
+	return time.Now().Unix() > player.DeadLine.Unix()
 }
