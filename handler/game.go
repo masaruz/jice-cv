@@ -172,7 +172,7 @@ func Deal(cardAmount int, playerAmount int) {
 	}
 }
 
-// FlushGame prepare to finish game
+// FlushGame reset everything before new game
 func FlushGame() {
 	state.GS.Pots = []int{}
 	state.GS.Turn = 0
@@ -203,6 +203,11 @@ func ShortenTimelineAfterTarget(id string, diff int64) {
 		}
 	}
 	state.GS.FinishRoundTime = state.GS.FinishRoundTime - diff
+}
+
+// ForceEndTimeline force this timeline to be ended
+func ForceEndTimeline() {
+	state.GS.FinishRoundTime = time.Now().Unix()
 }
 
 // ShiftPlayerToEndOfTimeline shift player to the end of timeline
@@ -249,7 +254,8 @@ func InvestToPots(chips int) {
 	// initiate bet value to players
 	for index := range state.GS.Players {
 		if util.InGame(state.GS.Players[index]) {
-			state.GS.Players[index].Bets = append(state.GS.Players[index].Bets, chips)
+			state.GS.Players[index].Chips -= chips
+			state.GS.Players[index].Bets = append(state.GS.Players[index].Bets, 0)
 			IncreasePots(chips, GetCurrentTurn()) // start with first element in pots
 		}
 	}

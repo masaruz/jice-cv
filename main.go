@@ -20,7 +20,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	decisionTime := int64(5)
+	decisionTime := int64(8)
 	ninek := game.NineK{
 		MaxPlayers:   6,
 		DecisionTime: decisionTime,
@@ -96,6 +96,7 @@ func main() {
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
 			}
+			state.GS.Gambit.Finish()
 			state.GS.IncreaseVersion()
 			handler.BroadcastGameState(so, constant.Fold, so.Id())
 			return handler.CreateResponse(so.Id(), constant.Fold)

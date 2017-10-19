@@ -216,6 +216,19 @@ func AllIn(id string, duration int64) bool {
 	if !IsPlayerTurn(id) {
 		return false
 	}
+	index, caller := util.Get(state.GS.Players, id)
+	chips := state.GS.Players[index].Chips
+	state.GS.Players[index].Bets[state.GS.Turn] += chips
+	state.GS.Players[index].Chips = 0
+	state.GS.Players[index].Default = model.Action{Name: constant.AllIn}
+	state.GS.Players[index].Action = model.Action{Name: constant.AllIn}
+	IncreasePots(chips, 0)
+	// set action of everyone
+	OverwriteActionToBehindPlayers()
+	diff := time.Now().Unix() - caller.DeadLine
+	ShortenTimeline(diff)
+	// duration extend the timeline
+	ShiftPlayersToEndOfTimeline(id, duration)
 	return true
 }
 

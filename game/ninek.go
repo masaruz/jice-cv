@@ -43,7 +43,8 @@ func (game NineK) Start() bool {
 
 // NextRound game after round by round
 func (game NineK) NextRound() bool {
-	if !handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound() {
+	if !handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound() &&
+		util.CountPlaying(handler.GetPlayerState()) > 1 {
 		handler.Deal(1, game.MaxPlayers)
 		handler.CreateTimeLine(game.DecisionTime)
 		handler.InvestToPots(0)
@@ -51,7 +52,6 @@ func (game NineK) NextRound() bool {
 		return true
 	}
 	handler.OverwriteActionToBehindPlayers()
-	// which mean no longer continue must be finish the round
 	return false
 }
 
@@ -82,12 +82,12 @@ func (game NineK) Fold(id string) bool {
 
 // Finish game
 func (game NineK) Finish() bool {
-	players := handler.GetPlayerState()
 	// no others to play with or all players have 3 cards but bet is not equal
-	if util.CountPlaying(players) <= 1 ||
+	if util.CountPlaying(handler.GetPlayerState()) <= 1 ||
 		(handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound()) {
-		handler.FlushGame()
+		handler.ForceEndTimeline()
 		handler.AssignWinner()
+		handler.FlushGame()
 		return true
 	}
 	return false
