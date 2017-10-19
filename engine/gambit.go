@@ -6,8 +6,14 @@ type Gambit interface {
 	Init()
 	// Start game
 	Start() bool
-	// Continue with some actions
-	Continue(action string, payload map[string]interface{}) bool
+	// Check is doing nothing
+	Check(id string) bool
+	// Bet is raise chips
+	Bet(id string, chips int) bool
+	// Call is raise chips to equal highest bet chips
+	Call(id string) bool
+	// Fold is out of the game
+	Fold(id string) bool
 	// NextRound game after round by round
 	NextRound() bool
 	// Finish game

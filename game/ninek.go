@@ -4,7 +4,6 @@ import (
 	"999k_engine/constant"
 	"999k_engine/handler"
 	"999k_engine/util"
-	"fmt"
 	"sort"
 )
 
@@ -56,23 +55,24 @@ func (game NineK) NextRound() bool {
 	return false
 }
 
-// Continue will switch case to call the player action
-func (game NineK) Continue(action string, payload map[string]interface{}) bool {
-	switch action {
-	case constant.Check:
-		return handler.Check(payload["ID"].(string))
-	case constant.Call:
-		return handler.Call(payload["ID"].(string), game.DecisionTime)
-	case constant.Fold:
-		return handler.Fold(payload["ID"].(string))
-	case constant.Bet:
-		return handler.Bet(payload["ID"].(string), payload["Chips"].(int), game.DecisionTime)
-	case constant.Raise:
-		return handler.Bet(payload["ID"].(string), payload["Chips"].(int), game.DecisionTime)
-	default:
-		fmt.Printf("%s no action match ...", action)
-		return false
-	}
+// Check is doing nothing only shift the timeline
+func (game NineK) Check(id string) bool {
+	return handler.Check(id)
+}
+
+// Bet is raising bet to the target
+func (game NineK) Bet(id string, chips int) bool {
+	return handler.Bet(id, chips, game.DecisionTime)
+}
+
+// Call is raising bet to the highest bet
+func (game NineK) Call(id string) bool {
+	return handler.Call(id, game.DecisionTime)
+}
+
+// Fold quit the game but still lost bet
+func (game NineK) Fold(id string) bool {
+	return handler.Fold(id)
 }
 
 // Finish game

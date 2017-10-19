@@ -691,27 +691,23 @@ func TestLoop7(t *testing.T) {
 		handler.Sit(id3, 4)
 		handler.Sit(id4, 1) // dealer
 		handler.StartTable()
-		pid1 := map[string]interface{}{"ID": id1, "Chips": 10}
-		pid2 := map[string]interface{}{"ID": id2, "Chips": 20}
-		pid3 := map[string]interface{}{"ID": id3, "Chips": 30}
-		pid4 := map[string]interface{}{"ID": id4, "Chips": 40}
 		if !state.GS.Gambit.Start() {
 			t.Fail()
 		}
-		if !state.GS.Gambit.Continue(constant.Check, pid1) {
+		if !state.GS.Gambit.Check(id1) {
 			t.Fail()
 		}
 		// cannot do action again
-		if state.GS.Gambit.Continue(constant.Check, pid1) {
+		if state.GS.Gambit.Check(id1) {
 			t.Fail()
 		}
-		if !state.GS.Gambit.Continue(constant.Check, pid2) {
+		if !state.GS.Gambit.Check(id2) {
 			t.Fail()
 		}
-		if !state.GS.Gambit.Continue(constant.Bet, pid3) {
+		if !state.GS.Gambit.Bet(id3, 20) {
 			t.Fail()
 		}
-		if !state.GS.Gambit.Continue(constant.Call, pid4) {
+		if !state.GS.Gambit.Call(id4) {
 			t.Fail()
 		}
 		_, p1 := util.Get(state.GS.Players, id1)
@@ -725,10 +721,10 @@ func TestLoop7(t *testing.T) {
 		fmt.Println("now:", time.Now().Unix())
 		fmt.Println("fin:", state.GS.FinishRoundTime.Unix())
 		fmt.Println()
-		if !state.GS.Gambit.Continue(constant.Fold, pid1) {
+		if !state.GS.Gambit.Fold(id1) {
 			t.Fail()
 		}
-		if !state.GS.Gambit.Continue(constant.Call, pid2) {
+		if !state.GS.Gambit.Call(id2) {
 			t.Fail()
 		}
 		_, p1 = util.Get(state.GS.Players, id1)

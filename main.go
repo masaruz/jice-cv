@@ -38,7 +38,7 @@ func main() {
 		})
 		// when player call check
 		so.On(constant.Check, func(msg string) string {
-			success := handler.Check(so.Id())
+			success := state.GS.Gambit.Check(so.Id())
 			if !success {
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
@@ -48,7 +48,7 @@ func main() {
 		})
 		// when player need to bet chips
 		so.On(constant.Bet, func(msg string) string {
-			success := handler.Bet(so.Id(), 15, decisionTime)
+			success := state.GS.Gambit.Bet(so.Id(), 20)
 			if !success {
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
@@ -58,7 +58,7 @@ func main() {
 		})
 		// when player need to raise chips
 		so.On(constant.Raise, func(msg string) string {
-			success := handler.Bet(so.Id(), 30, decisionTime)
+			success := state.GS.Gambit.Bet(so.Id(), 40)
 			if !success {
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
@@ -68,7 +68,7 @@ func main() {
 		})
 		// when player need to call chips
 		so.On(constant.Call, func(msg string) string {
-			success := handler.Call(so.Id(), decisionTime)
+			success := state.GS.Gambit.Call(so.Id())
 			if !success {
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
@@ -78,7 +78,7 @@ func main() {
 		})
 		// when player fold their cards
 		so.On(constant.Fold, func(msg string) string {
-			success := handler.Fold(so.Id())
+			success := state.GS.Gambit.Fold(so.Id())
 			if !success {
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
