@@ -6,7 +6,6 @@ import (
 	"999k_engine/handler"
 	"999k_engine/state"
 	"999k_engine/util"
-	"fmt"
 	"testing"
 	"time"
 )
@@ -737,17 +736,17 @@ func TestLoop7(t *testing.T) {
 		if !state.GS.Gambit.Call(id4) {
 			t.Fail()
 		}
-		_, p1 := util.Get(state.GS.Players, id1)
-		_, p2 := util.Get(state.GS.Players, id2)
-		_, p3 := util.Get(state.GS.Players, id3)
-		_, p4 := util.Get(state.GS.Players, id4)
-		p1.Print()
-		p2.Print()
-		p3.Print()
-		p4.Print()
-		fmt.Println("now:", time.Now().Unix())
-		fmt.Println("fin:", state.GS.FinishRoundTime)
-		fmt.Println()
+		// _, p1 := util.Get(state.GS.Players, id1)
+		// _, p2 := util.Get(state.GS.Players, id2)
+		// _, p3 := util.Get(state.GS.Players, id3)
+		// _, p4 := util.Get(state.GS.Players, id4)
+		// p1.Print()
+		// p2.Print()
+		// p3.Print()
+		// p4.Print()
+		// fmt.Println("now:", time.Now().Unix())
+		// fmt.Println("fin:", state.GS.FinishRoundTime)
+		// fmt.Println()
 		if !state.GS.Gambit.Fold(id1) {
 			t.Fail()
 		}
