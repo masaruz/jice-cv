@@ -115,8 +115,7 @@ func Disconnect(id string) {
 func AutoSit(id string) bool {
 	for _, player := range state.GS.Players {
 		if player.ID == "" {
-			Sit(id, player.Slot)
-			return true
+			return Sit(id, player.Slot)
 		}
 	}
 	return false
@@ -142,21 +141,24 @@ func Sit(id string, slot int) bool {
 	// add to players
 	state.GS.Players[caller.Slot] = caller
 	// if others who are not playing then able to starttable or only stand
-	// for index, player := range state.GS.Players {
-	// 	// not a seat and not playing
-	// 	if player.ID != "" && !player.IsPlaying {
-	// 		state.GS.Players[index].Actions = ActionReducer(constant.Sit)
-	// 	}
-	// }
+	for index, player := range state.GS.Players {
+		// not a seat and not playing
+		if player.ID != "" && !player.IsPlaying {
+			state.GS.Players[index].Actions = ActionReducer(constant.Sit)
+		}
+	}
 	return true
 }
 
 // Stand when player need to quit
 func Stand(id string) bool {
 	_, caller := util.Get(state.GS.Players, id)
+	if caller.ID == "" {
+		return false
+	}
 	// if playing need to shift timeline
 	if caller.IsPlaying {
-		diff := time.Now().Sub(caller.DeadLine)
+		diff := time.Now().Unix() - caller.DeadLine
 		OverwriteActionToBehindPlayers()
 		ShiftTimeline(diff)
 	}
@@ -176,7 +178,7 @@ func Check(id string) bool {
 	index, caller := util.Get(state.GS.Players, id)
 	state.GS.Players[index].Default = model.Action{Name: constant.Check}
 	state.GS.Players[index].Action = model.Action{Name: constant.Check}
-	diff := time.Now().Sub(caller.DeadLine)
+	diff := time.Now().Unix() - caller.DeadLine
 	OverwriteActionToBehindPlayers()
 	ShiftTimeline(diff)
 	return true
@@ -191,14 +193,14 @@ func Fold(id string) bool {
 	state.GS.Players[index].Default = model.Action{Name: constant.Fold}
 	state.GS.Players[index].Action = model.Action{Name: constant.Fold}
 	state.GS.Players[index].Actions = ActionReducer(constant.Fold)
-	diff := time.Now().Sub(caller.DeadLine)
+	diff := time.Now().Unix() - caller.DeadLine
 	OverwriteActionToBehindPlayers()
 	ShiftTimeline(diff)
 	return true
 }
 
 // Bet when previous chips are equally but we want to add more chips to the pots
-func Bet(id string, chips int, duration int) bool {
+func Bet(id string, chips int, duration int64) bool {
 	if !IsPlayerTurn(id) {
 		return false
 	}
@@ -215,7 +217,7 @@ func Bet(id string, chips int, duration int) bool {
 	SetOtherDefaultAction(id, model.Action{Name: constant.Fold})
 	// others need to know what to do next
 	SetOtherActions(id, ActionReducer(constant.Bet))
-	diff := time.Now().Sub(caller.DeadLine)
+	diff := time.Now().Unix() - caller.DeadLine
 	ShiftTimeline(diff)
 	// duration extend the timeline
 	ShiftPlayersToEndOfTimeline(id, duration)
@@ -223,7 +225,7 @@ func Bet(id string, chips int, duration int) bool {
 }
 
 // Call make this player to has same the highest bet
-func Call(id string, duration int) bool {
+func Call(id string, duration int64) bool {
 	if !IsPlayerTurn(id) {
 		return false
 	}
@@ -237,7 +239,7 @@ func Call(id string, duration int) bool {
 	IncreasePots(chips, 0)
 	// others need to know what to do next
 	SetOtherActions(id, ActionReducer(constant.Bet))
-	diff := time.Now().Sub(caller.DeadLine)
+	diff := time.Now().Unix() - caller.DeadLine
 	ShiftTimeline(diff)
 	return true
 }

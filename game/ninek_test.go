@@ -13,11 +13,15 @@ import (
 
 func TestLoop1(t *testing.T) {
 	t.Run("no actions in this game", func(t *testing.T) {
-		decisionTime := 1
+		decisionTime := int64(1)
 		ninek := game.NineK{
 			MaxPlayers:   6,
 			DecisionTime: decisionTime,
 			MinimumBet:   10}
+		handler.Connect("player1")
+		handler.Connect("player2")
+		handler.Connect("player3")
+		handler.Connect("player4")
 		handler.SetGambit(ninek)
 		state.GS.Gambit.Init() // create seats
 		if len(state.GS.Players) != 6 {
@@ -63,14 +67,14 @@ func TestLoop1(t *testing.T) {
 		_, p3 := util.Get(state.GS.Players, "player3")
 		_, p4 := util.Get(state.GS.Players, "player4")
 		newDecisionTime := decisionTime
-		if p4.DeadLine.Sub(state.GS.StartRoundTime).Seconds() != float64(4*newDecisionTime) ||
-			p3.DeadLine.Sub(state.GS.StartRoundTime).Seconds() != float64(2*newDecisionTime) ||
-			p1.DeadLine.Sub(state.GS.StartRoundTime).Seconds() != float64(1*newDecisionTime) ||
-			p2.DeadLine.Sub(state.GS.StartRoundTime).Seconds() != float64(3*newDecisionTime) {
+		if p4.DeadLine-state.GS.StartRoundTime != 4*newDecisionTime ||
+			p3.DeadLine-state.GS.StartRoundTime != 2*newDecisionTime ||
+			p1.DeadLine-state.GS.StartRoundTime != 1*newDecisionTime ||
+			p2.DeadLine-state.GS.StartRoundTime != 3*newDecisionTime {
 			t.Fail()
 		}
 		// nothing happend in 2 seconds and assume players act default action
-		time.Sleep(state.GS.FinishRoundTime.Sub(state.GS.StartRoundTime))
+		time.Sleep(time.Second * time.Duration(state.GS.FinishRoundTime-state.GS.StartRoundTime))
 		// should draw one more card
 		if !state.GS.Gambit.NextRound() {
 			t.Fail()
@@ -92,7 +96,7 @@ func TestLoop1(t *testing.T) {
 				t.Fail()
 			}
 		}
-		time.Sleep(state.GS.FinishRoundTime.Sub(state.GS.StartRoundTime))
+		time.Sleep(time.Second * time.Duration(state.GS.FinishRoundTime-state.GS.StartRoundTime))
 		if state.GS.Gambit.NextRound() {
 			t.Fail()
 		}
@@ -112,13 +116,16 @@ func TestLoop1(t *testing.T) {
 
 func TestLoop2(t *testing.T) {
 	t.Run("no actions but someone sit during game", func(t *testing.T) {
-		decisionTime := 1
+		decisionTime := int64(1)
 		ninek := game.NineK{
 			MaxPlayers:   6,
 			DecisionTime: decisionTime,
 			MinimumBet:   10}
 		handler.SetGambit(ninek)
 		state.GS.Gambit.Init() // create seats
+		handler.Connect("player1")
+		handler.Connect("player2")
+		handler.Connect("player3")
 		// dumb player
 		handler.Sit("player1", 2)
 		if util.CountSitting(state.GS.Players) != 1 {
@@ -156,7 +163,7 @@ func TestLoop2(t *testing.T) {
 		if util.CountPlaying(state.GS.Players) != 2 {
 			t.Fail()
 		}
-		time.Sleep(state.GS.FinishRoundTime.Sub(state.GS.StartRoundTime))
+		time.Sleep(time.Second * time.Duration(state.GS.FinishRoundTime-state.GS.StartRoundTime))
 		if !state.GS.Gambit.NextRound() {
 			t.Fail()
 		}
@@ -177,7 +184,7 @@ func TestLoop2(t *testing.T) {
 				t.Fail()
 			}
 		}
-		time.Sleep(state.GS.FinishRoundTime.Sub(state.GS.StartRoundTime))
+		time.Sleep(time.Second * time.Duration(state.GS.FinishRoundTime-state.GS.StartRoundTime))
 		if state.GS.Gambit.NextRound() {
 			t.Fail()
 		}
@@ -205,7 +212,7 @@ func TestLoop2(t *testing.T) {
 		if util.CountPlaying(state.GS.Players) != 3 {
 			t.Fail()
 		}
-		time.Sleep(state.GS.FinishRoundTime.Sub(state.GS.StartRoundTime))
+		time.Sleep(time.Second * time.Duration(state.GS.FinishRoundTime-state.GS.StartRoundTime))
 		if !state.GS.Gambit.NextRound() {
 			t.Fail()
 		}
@@ -226,23 +233,28 @@ func TestLoop2(t *testing.T) {
 				t.Fail()
 			}
 		}
-		time.Sleep(state.GS.FinishRoundTime.Sub(state.GS.StartRoundTime))
+		time.Sleep(time.Second * time.Duration(state.GS.FinishRoundTime-state.GS.StartRoundTime))
 		if state.GS.Gambit.NextRound() {
 			t.Fail()
 		}
 		if !state.GS.Gambit.Finish() {
 			t.Fail()
 		}
+		// _, p1 := util.Get(state.GS.Players, "player1")
+		// _, p2 := util.Get(state.GS.Players, "player2")
+		// _, p3 := util.Get(state.GS.Players, "player3")
 		// p1.Print()
 		// p2.Print()
 		// p3.Print()
+		// fmt.Println("now:", time.Now().Unix())
+		// fmt.Println("end:", state.GS.FinishRoundTime)
 	})
 }
 
 func TestLoop3(t *testing.T) {
 	t.Run("when someone take check action", func(t *testing.T) {
-		decisionTime := 3
-		delay := 0
+		decisionTime := int64(3)
+		delay := int64(0)
 		minimumBet := 10
 		ninek := game.NineK{
 			MaxPlayers:   6,
@@ -250,6 +262,9 @@ func TestLoop3(t *testing.T) {
 			MinimumBet:   minimumBet}
 		handler.SetGambit(ninek)
 		state.GS.Gambit.Init() // create seats
+		handler.Connect("player1")
+		handler.Connect("player2")
+		handler.Connect("player3")
 		// dumb player
 		handler.Sit("player1", 2) // dealer
 		handler.Sit("player2", 5)
@@ -339,13 +354,17 @@ func TestLoop3(t *testing.T) {
 
 func TestLoop4(t *testing.T) {
 	t.Run("when someone take bet and fold action", func(t *testing.T) {
-		decisionTime := 3
-		delay := 0
+		decisionTime := int64(3)
+		delay := int64(0)
 		minimumBet := 10
 		ninek := game.NineK{
 			MaxPlayers:   6,
 			DecisionTime: decisionTime,
 			MinimumBet:   minimumBet}
+		handler.Connect("player1")
+		handler.Connect("player2")
+		handler.Connect("player3")
+		handler.Connect("player4")
 		handler.SetGambit(ninek)
 		state.GS.Gambit.Init() // create seats
 		// dumb player
@@ -438,8 +457,8 @@ func TestLoop4(t *testing.T) {
 
 func TestLoop5(t *testing.T) {
 	t.Run("when someone take bet and raise and fold action", func(t *testing.T) {
-		decisionTime := 3
-		delay := 0
+		decisionTime := int64(3)
+		delay := int64(0)
 		minimumBet := 10
 		ninek := game.NineK{
 			MaxPlayers:   6,
@@ -447,6 +466,10 @@ func TestLoop5(t *testing.T) {
 			MinimumBet:   minimumBet}
 		handler.SetGambit(ninek)
 		state.GS.Gambit.Init() // create seats
+		handler.Connect("player1")
+		handler.Connect("player2")
+		handler.Connect("player3")
+		handler.Connect("player4")
 		// dumb player
 		handler.Sit("player1", 2) // first
 		handler.Sit("player2", 4)
@@ -531,7 +554,7 @@ func TestLoop5(t *testing.T) {
 
 func TestLoop6(t *testing.T) {
 	t.Run("when someone take bet and raise and fold action", func(t *testing.T) {
-		decisionTime := 3
+		decisionTime := int64(3)
 		minimumBet := 10
 		ninek := game.NineK{
 			MaxPlayers:   6,
@@ -676,17 +699,21 @@ func TestLoop6(t *testing.T) {
 
 func TestLoop7(t *testing.T) {
 	t.Run("test interface", func(t *testing.T) {
-		decisionTime := 3
+		decisionTime := int64(3)
 		minimumBet := 10
 		ninek := game.NineK{
 			MaxPlayers:   6,
 			DecisionTime: decisionTime,
 			MinimumBet:   minimumBet}
-		handler.SetGambit(ninek)
-		state.GS.Gambit.Init() // create seats
 		// dumb player
 		id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
-		handler.Sit(id1, 2) // first
+		handler.Connect(id1)
+		handler.Connect(id2)
+		handler.Connect(id3)
+		handler.Connect(id4)
+		handler.SetGambit(ninek)
+		state.GS.Gambit.Init() // create seats
+		handler.Sit(id1, 2)    // first
 		handler.Sit(id2, 3)
 		handler.Sit(id3, 4)
 		handler.Sit(id4, 1) // dealer
@@ -719,7 +746,7 @@ func TestLoop7(t *testing.T) {
 		p3.Print()
 		p4.Print()
 		fmt.Println("now:", time.Now().Unix())
-		fmt.Println("fin:", state.GS.FinishRoundTime.Unix())
+		fmt.Println("fin:", state.GS.FinishRoundTime)
 		fmt.Println()
 		if !state.GS.Gambit.Fold(id1) {
 			t.Fail()
@@ -727,15 +754,15 @@ func TestLoop7(t *testing.T) {
 		if !state.GS.Gambit.Call(id2) {
 			t.Fail()
 		}
-		_, p1 = util.Get(state.GS.Players, id1)
-		_, p2 = util.Get(state.GS.Players, id2)
-		_, p3 = util.Get(state.GS.Players, id3)
-		_, p4 = util.Get(state.GS.Players, id4)
-		p1.Print()
-		p2.Print()
-		p3.Print()
-		p4.Print()
-		fmt.Println("now:", time.Now().Unix())
-		fmt.Println("fin:", state.GS.FinishRoundTime.Unix())
+		// _, p1 = util.Get(state.GS.Players, id1)
+		// _, p2 = util.Get(state.GS.Players, id2)
+		// _, p3 = util.Get(state.GS.Players, id3)
+		// _, p4 = util.Get(state.GS.Players, id4)
+		// p1.Print()
+		// p2.Print()
+		// p3.Print()
+		// p4.Print()
+		// fmt.Println("now:", time.Now().Unix())
+		// fmt.Println("fin:", state.GS.FinishRoundTime)
 	})
 }

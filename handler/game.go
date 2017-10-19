@@ -43,15 +43,15 @@ func IsGameStart() bool {
 
 // IsEndRound if current time is more than finish time
 func IsEndRound() bool {
-	return state.GS.FinishRoundTime.Unix() <= time.Now().Unix()
+	return state.GS.FinishRoundTime <= time.Now().Unix()
 }
 
 // IsPlayerTurn if player do something before deadline
 func IsPlayerTurn(id string) bool {
 	index, _ := util.Get(state.GS.Players, id)
 	nowline := time.Now().Unix()
-	startline := state.GS.Players[index].StartLine.Unix()
-	deadline := state.GS.Players[index].DeadLine.Unix()
+	startline := state.GS.Players[index].StartLine
+	deadline := state.GS.Players[index].DeadLine
 	return nowline >= startline && nowline < deadline
 }
 
@@ -88,19 +88,20 @@ func FindWinner() {
 }
 
 // CreateTimeLine set timeline for game and any players
-func CreateTimeLine(decisionTime int) {
-	loop, delay := 0, 0
-	start, amount := time.Now(), len(state.GS.Players)
+func CreateTimeLine(decisionTime int64) {
+	loop := 0
+	delay := int64(0)
+	start, amount := time.Now().Unix(), len(state.GS.Players)
 	state.GS.StartRoundTime = start
 	dealer, _ := util.FindDealer(state.GS.Players)
 	for loop < amount {
 		next := (dealer + 1) % amount
 		player := state.GS.Players[next]
 		if util.InGame(player) {
-			startline := start.Add(time.Second * time.Duration(delay))
+			startline := start + delay
 			state.GS.Players[next].Action = model.Action{}
 			state.GS.Players[next].StartLine = startline
-			state.GS.Players[next].DeadLine = startline.Add(time.Second * time.Duration(decisionTime))
+			state.GS.Players[next].DeadLine = startline + decisionTime
 			start = state.GS.Players[next].DeadLine
 		}
 		dealer++
@@ -177,26 +178,26 @@ func FinishGame() {
 }
 
 // ShiftTimeline shift timeline of everyone because someone take action
-func ShiftTimeline(diff time.Duration) {
+func ShiftTimeline(diff int64) {
 	for index := range state.GS.Players {
-		state.GS.Players[index].StartLine = state.GS.Players[index].StartLine.Add(diff)
-		state.GS.Players[index].DeadLine = state.GS.Players[index].DeadLine.Add(diff)
+		state.GS.Players[index].StartLine = state.GS.Players[index].StartLine + diff
+		state.GS.Players[index].DeadLine = state.GS.Players[index].DeadLine + diff
 	}
-	state.GS.FinishRoundTime = state.GS.FinishRoundTime.Add(diff)
+	state.GS.FinishRoundTime = state.GS.FinishRoundTime + diff
 }
 
 // ShiftPlayerToEndOfTimeline shift player to the end of timeline
-func ShiftPlayerToEndOfTimeline(id string, second int) {
-	duration := time.Duration(time.Second * time.Duration(second))
+func ShiftPlayerToEndOfTimeline(id string, second int64) {
+	duration := int64(time.Duration(time.Second * time.Duration(second)).Seconds())
 	index, _ := util.Get(state.GS.Players, id)
 	finishRoundTime := state.GS.FinishRoundTime
 	state.GS.Players[index].StartLine = finishRoundTime
-	state.GS.Players[index].DeadLine = finishRoundTime.Add(duration)
-	state.GS.FinishRoundTime = finishRoundTime.Add(duration)
+	state.GS.Players[index].DeadLine = finishRoundTime + duration
+	state.GS.FinishRoundTime = finishRoundTime + duration
 }
 
 // ShiftPlayersToEndOfTimeline shift current and prev player to the end of timeline
-func ShiftPlayersToEndOfTimeline(id string, second int) {
+func ShiftPlayersToEndOfTimeline(id string, second int64) {
 	start, _ := util.Get(state.GS.Players, id)
 	round, amount := 0, len(state.GS.Players)
 	for round < amount {

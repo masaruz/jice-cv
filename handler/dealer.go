@@ -15,7 +15,6 @@ func BuildDeck() {
 		cards = append(cards, v)
 	}
 	state.GS.Deck.Cards = cards
-	state.GS.Save()
 }
 
 // Shuffle cards in deck
@@ -28,14 +27,12 @@ func Shuffle() {
 		cards[i], cards[j] = cards[j], cards[i]
 	}
 	state.GS.Deck.Cards = cards
-	state.GS.Save()
 }
 
 // Draw a card by poping the deck
 func Draw() int {
 	c := state.GS.Deck.Cards
 	state.GS.Deck.Cards = c[:len(c)-1]
-	state.GS.Save()
 	return c[len(c)-1]
 }
 

@@ -47,7 +47,7 @@ func Get(slice model.Players, id string) (int, model.Player) {
 			return index, player
 		}
 	}
-	return -1, model.Player{ID: id}
+	return -1, model.Player{}
 }
 
 // CountPlaying who is actually playing
@@ -114,5 +114,5 @@ func InGame(player model.Player) bool {
 
 // IsPlayerBehindTheTimeline check if player behind the timeline
 func IsPlayerBehindTheTimeline(player model.Player) bool {
-	return time.Now().Unix() > player.DeadLine.Unix()
+	return time.Now().Unix() > player.DeadLine
 }

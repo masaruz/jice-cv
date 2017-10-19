@@ -10,7 +10,7 @@ import (
 // NineK is 9K
 type NineK struct {
 	MaxPlayers   int
-	DecisionTime int
+	DecisionTime int64
 	MinimumBet   int
 }
 

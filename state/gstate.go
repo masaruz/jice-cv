@@ -3,7 +3,6 @@ package state
 import (
 	"999k_engine/engine"
 	"999k_engine/model"
-	"time"
 )
 
 // GameState to record current game
@@ -15,10 +14,10 @@ type GameState struct {
 	Turn            int
 	IsTableStart    bool
 	IsGameStart     bool
-	StartTableTime  time.Time
-	FinishTableTime time.Time
-	StartRoundTime  time.Time
-	FinishRoundTime time.Time
+	StartTableTime  int64
+	FinishTableTime int64
+	StartRoundTime  int64
+	FinishRoundTime int64
 	Gambit          engine.Gambit
 	Pots            []int
 	Event           string
@@ -30,8 +29,8 @@ var gameStates []GameState
 // GS is global variable of GameState can be accessed from any where
 var GS = GameState{}
 
-// Save a gstate to gamestates
-func (gstate GameState) Save() {
+// IncreaseVersion validate with client
+func (gstate GameState) IncreaseVersion() {
 	// gameStates = append(gameStates, gstate)
 	GS.Version++
 }
