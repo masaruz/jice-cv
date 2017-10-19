@@ -70,6 +70,11 @@ func (game NineK) Call(id string) bool {
 	return handler.Call(id, game.DecisionTime)
 }
 
+// AllIn give all chips
+func (game NineK) AllIn(id string) bool {
+	return false
+}
+
 // Fold quit the game but still lost bet
 func (game NineK) Fold(id string) bool {
 	return handler.Fold(id)
@@ -81,8 +86,8 @@ func (game NineK) Finish() bool {
 	// no others to play with or all players have 3 cards but bet is not equal
 	if util.CountPlaying(players) <= 1 ||
 		(handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound()) {
-		handler.FinishGame()
-		handler.FindWinner()
+		handler.FlushGame()
+		handler.AssignWinner()
 		return true
 	}
 	return false

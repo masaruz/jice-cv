@@ -17,6 +17,10 @@ const (
 	Raise = "raise"
 	// Fold event
 	Fold = "fold"
+	// AllIn event
+	AllIn = "allin"
+	// Stimulate event
+	Stimulate = "stimulate"
 	// GetState event
 	GetState = "getstate"
 	// PushState event

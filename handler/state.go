@@ -6,6 +6,7 @@ import (
 	"999k_engine/state"
 	"999k_engine/util"
 	"encoding/json"
+	"time"
 
 	"github.com/googollee/go-socket.io"
 )
@@ -64,11 +65,14 @@ func CreateResponse(id string, event string) string {
 				EventName: state.GS.Event,
 				Actions:   actions,
 				GameState: state.PlayerState{
-					Player:      player,
-					Competitors: competitors,
-					Visitors:    visitors,
-					Pots:        state.GS.Pots,
-					Version:     state.GS.Version}},
+					Player:          player,
+					Competitors:     competitors,
+					Visitors:        visitors,
+					Pots:            state.GS.Pots,
+					Version:         state.GS.Version,
+					CurrentTime:     time.Now().Unix(),
+					StartRoundTime:  state.GS.StartRoundTime,
+					FinishRoundTime: state.GS.FinishRoundTime}},
 			Signature: state.Signature{}})
 	return string(data)
 }
@@ -77,19 +81,7 @@ func CreateResponse(id string, event string) string {
 func createSharedState(players model.Players) model.Players {
 	others := model.Players{}
 	for _, player := range players {
-		tmp := model.Player{
-			ID:     player.ID,
-			Cards:  player.Cards,
-			Chips:  player.Chips,
-			Bets:   player.Bets,
-			Slot:   player.Slot,
-			Type:   player.Type,
-			Action: player.Action}
-		if !state.GS.IsGameStart {
-			tmp.Cards = player.Cards
-			tmp.IsWinner = player.IsWinner
-		}
-		others = append(others, tmp)
+		others = append(others, player)
 	}
 	return others
 }

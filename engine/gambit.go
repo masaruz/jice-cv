@@ -14,6 +14,8 @@ type Gambit interface {
 	Call(id string) bool
 	// Fold is out of the game
 	Fold(id string) bool
+	// AllIn invest everything
+	AllIn(id string) bool
 	// NextRound game after round by round
 	NextRound() bool
 	// Finish game

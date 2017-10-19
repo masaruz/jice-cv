@@ -116,3 +116,8 @@ func InGame(player model.Player) bool {
 func IsPlayerBehindTheTimeline(player model.Player) bool {
 	return time.Now().Unix() > player.DeadLine
 }
+
+// SyncPlayer to retrieve player's data from database
+func SyncPlayer(id string) model.Player {
+	return model.Player{ID: id, Chips: 1000}
+}

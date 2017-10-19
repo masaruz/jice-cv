@@ -55,8 +55,8 @@ func IsPlayerTurn(id string) bool {
 	return nowline >= startline && nowline < deadline
 }
 
-// FindWinner find a winner by evaluate his cards
-func FindWinner() {
+// AssignWinner find a winner by evaluate his cards
+func AssignWinner() {
 	hscore := -1
 	hbonus := -1
 	pos := -1
@@ -85,6 +85,7 @@ func FindWinner() {
 		}
 	}
 	state.GS.Players[pos].IsWinner = true
+	state.GS.Players[pos].Chips += util.SumPots(state.GS.Pots)
 }
 
 // CreateTimeLine set timeline for game and any players
@@ -171,29 +172,46 @@ func Deal(cardAmount int, playerAmount int) {
 	}
 }
 
-// FinishGame prepare to finish game
-func FinishGame() {
+// FlushGame prepare to finish game
+func FlushGame() {
+	state.GS.Pots = []int{}
 	state.GS.Turn = 0
 	state.GS.IsGameStart = false
 }
 
-// ShiftTimeline shift timeline of everyone because someone take action
-func ShiftTimeline(diff int64) {
-	for index := range state.GS.Players {
-		state.GS.Players[index].StartLine = state.GS.Players[index].StartLine + diff
-		state.GS.Players[index].DeadLine = state.GS.Players[index].DeadLine + diff
+// ShortenTimeline shift timeline of everyone because someone take action
+func ShortenTimeline(diff int64) {
+	diff = util.Absolute(diff)
+	for index, player := range state.GS.Players {
+		if util.InGame(player) {
+			state.GS.Players[index].StartLine = state.GS.Players[index].StartLine - diff
+			state.GS.Players[index].DeadLine = state.GS.Players[index].DeadLine - diff
+		}
 	}
-	state.GS.FinishRoundTime = state.GS.FinishRoundTime + diff
+	state.GS.FinishRoundTime = state.GS.FinishRoundTime - diff
+}
+
+// ShortenTimelineAfterTarget shift timeline of everyone behind target player
+func ShortenTimelineAfterTarget(id string, diff int64) {
+	diff = util.Absolute(diff)
+	_, caller := util.Get(state.GS.Players, id)
+	for index, player := range state.GS.Players {
+		// who start behind caller will be shifted
+		if util.InGame(player) && player.StartLine >= caller.DeadLine {
+			state.GS.Players[index].StartLine = state.GS.Players[index].StartLine - diff
+			state.GS.Players[index].DeadLine = state.GS.Players[index].DeadLine - diff
+		}
+	}
+	state.GS.FinishRoundTime = state.GS.FinishRoundTime - diff
 }
 
 // ShiftPlayerToEndOfTimeline shift player to the end of timeline
 func ShiftPlayerToEndOfTimeline(id string, second int64) {
-	duration := int64(time.Duration(time.Second * time.Duration(second)).Seconds())
 	index, _ := util.Get(state.GS.Players, id)
 	finishRoundTime := state.GS.FinishRoundTime
 	state.GS.Players[index].StartLine = finishRoundTime
-	state.GS.Players[index].DeadLine = finishRoundTime + duration
-	state.GS.FinishRoundTime = finishRoundTime + duration
+	state.GS.Players[index].DeadLine = finishRoundTime + second
+	state.GS.FinishRoundTime = finishRoundTime + second
 }
 
 // ShiftPlayersToEndOfTimeline shift current and prev player to the end of timeline

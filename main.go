@@ -20,7 +20,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	decisionTime := int64(30)
+	decisionTime := int64(5)
 	ninek := game.NineK{
 		MaxPlayers:   6,
 		DecisionTime: decisionTime,
@@ -34,6 +34,18 @@ func main() {
 		handler.Connect(so.Id())
 		handler.BroadcastGameState(so, constant.GetState, so.Id())
 		state.GS.IncreaseVersion()
+		// when player need server to check something
+		so.On(constant.Stimulate, func(msg string) string {
+			// if cannot start, next and finish then it is during gameplay
+			if !state.GS.Gambit.Start() &&
+				!state.GS.Gambit.NextRound() &&
+				!state.GS.Gambit.Finish() {
+				return handler.CreateResponse(so.Id(), "")
+			}
+			state.GS.IncreaseVersion()
+			// if no seat then just return current state
+			return handler.CreateResponse(so.Id(), constant.PushState)
+		})
 		// when player need to get game state
 		so.On(constant.GetState, func(msg string) string {
 			return handler.CreateResponse(so.Id(), constant.GetState)

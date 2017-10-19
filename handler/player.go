@@ -14,7 +14,7 @@ func GetPlayerState() model.Players {
 }
 
 // ActionReducer reduce the actions when player act something
-func ActionReducer(event string) model.Actions {
+func ActionReducer(event string, id string) model.Actions {
 	switch event {
 	case constant.StartGame:
 		return model.Actions{
@@ -22,6 +22,13 @@ func ActionReducer(event string) model.Actions {
 			model.Action{Name: constant.Check},
 			model.Action{Name: constant.Bet}}
 	case constant.Bet:
+		highestbet := util.GetHighestBet(state.GS.Players)
+		_, player := util.Get(state.GS.Players, id)
+		if player.Chips < highestbet {
+			return model.Actions{
+				model.Action{Name: constant.Fold},
+				model.Action{Name: constant.AllIn}}
+		}
 		return model.Actions{
 			model.Action{Name: constant.Fold},
 			model.Action{Name: constant.Call},
@@ -57,7 +64,7 @@ func MakePlayersReady() bool {
 		state.GS.Players[index].Bets = []int{}
 		state.GS.Players[index].IsWinner = false
 		state.GS.Players[index].IsPlaying = true
-		state.GS.Players[index].Actions = ActionReducer(constant.StartGame)
+		state.GS.Players[index].Actions = ActionReducer(constant.StartGame, state.GS.Players[index].ID)
 		state.GS.Players[index].Default = model.Action{Name: constant.Check}
 		state.GS.Players[index].Action = model.Action{}
 	}
@@ -94,9 +101,9 @@ func SetOtherActions(id string, actions model.Actions) {
 
 // Connect and move user as a visitor
 func Connect(id string) {
-	caller := model.Player{ID: id}
+	caller := util.SyncPlayer(id)
 	caller.Action = model.Action{Name: constant.Stand}
-	caller.Actions = ActionReducer(constant.Connection)
+	caller.Actions = ActionReducer(constant.Connection, id)
 	state.GS.Visitors = util.Add(state.GS.Visitors, caller)
 }
 
@@ -144,7 +151,7 @@ func Sit(id string, slot int) bool {
 	for index, player := range state.GS.Players {
 		// not a seat and not playing
 		if player.ID != "" && !player.IsPlaying {
-			state.GS.Players[index].Actions = ActionReducer(constant.Sit)
+			state.GS.Players[index].Actions = ActionReducer(constant.Sit, player.ID)
 		}
 	}
 	return true
@@ -158,13 +165,18 @@ func Stand(id string) bool {
 	}
 	// if playing need to shift timeline
 	if caller.IsPlaying {
-		diff := time.Now().Unix() - caller.DeadLine
+		if IsPlayerTurn(id) {
+			diff := time.Now().Unix() - caller.DeadLine
+			ShortenTimeline(diff)
+		} else if !util.IsPlayerBehindTheTimeline(caller) {
+			diff := caller.StartLine - caller.DeadLine
+			ShortenTimelineAfterTarget(id, diff)
+		}
 		OverwriteActionToBehindPlayers()
-		ShiftTimeline(diff)
 	}
-	visitor := model.Player{ID: id}
+	visitor := util.SyncPlayer(id)
 	visitor.Action = model.Action{Name: constant.Stand}
-	visitor.Actions = ActionReducer(constant.Connection)
+	visitor.Actions = ActionReducer(constant.Connection, id)
 	state.GS.Players = util.Kick(state.GS.Players, caller.ID)
 	state.GS.Visitors = util.Add(state.GS.Visitors, visitor)
 	return true
@@ -180,7 +192,7 @@ func Check(id string) bool {
 	state.GS.Players[index].Action = model.Action{Name: constant.Check}
 	diff := time.Now().Unix() - caller.DeadLine
 	OverwriteActionToBehindPlayers()
-	ShiftTimeline(diff)
+	ShortenTimeline(diff)
 	return true
 }
 
@@ -192,10 +204,18 @@ func Fold(id string) bool {
 	index, caller := util.Get(state.GS.Players, id)
 	state.GS.Players[index].Default = model.Action{Name: constant.Fold}
 	state.GS.Players[index].Action = model.Action{Name: constant.Fold}
-	state.GS.Players[index].Actions = ActionReducer(constant.Fold)
+	state.GS.Players[index].Actions = ActionReducer(constant.Fold, id)
 	diff := time.Now().Unix() - caller.DeadLine
 	OverwriteActionToBehindPlayers()
-	ShiftTimeline(diff)
+	ShortenTimeline(diff)
+	return true
+}
+
+// AllIn when player has chips less than highest bet
+func AllIn(id string, duration int64) bool {
+	if !IsPlayerTurn(id) {
+		return false
+	}
 	return true
 }
 
@@ -205,7 +225,11 @@ func Bet(id string, chips int, duration int64) bool {
 		return false
 	}
 	index, caller := util.Get(state.GS.Players, id)
+	if state.GS.Players[index].Chips < chips {
+		return false
+	}
 	// added value to the bet in this turn
+	state.GS.Players[index].Chips -= chips
 	state.GS.Players[index].Bets[state.GS.Turn] += chips
 	// broadcast to everyone that I bet
 	state.GS.Players[index].Default = model.Action{Name: constant.Bet}
@@ -216,9 +240,9 @@ func Bet(id string, chips int, duration int64) bool {
 	// others automatic set to fold as default
 	SetOtherDefaultAction(id, model.Action{Name: constant.Fold})
 	// others need to know what to do next
-	SetOtherActions(id, ActionReducer(constant.Bet))
+	SetOtherActions(id, ActionReducer(constant.Bet, id))
 	diff := time.Now().Unix() - caller.DeadLine
-	ShiftTimeline(diff)
+	ShortenTimeline(diff)
 	// duration extend the timeline
 	ShiftPlayersToEndOfTimeline(id, duration)
 	return true
@@ -231,6 +255,7 @@ func Call(id string, duration int64) bool {
 	}
 	index, caller := util.Get(state.GS.Players, id)
 	chips := util.GetHighestBet(state.GS.Players) - util.SumBet(caller)
+	state.GS.Players[index].Chips -= chips
 	state.GS.Players[index].Bets[state.GS.Turn] += chips
 	state.GS.Players[index].Default = model.Action{Name: constant.Call}
 	state.GS.Players[index].Action = model.Action{Name: constant.Call}
@@ -238,9 +263,9 @@ func Call(id string, duration int64) bool {
 	OverwriteActionToBehindPlayers()
 	IncreasePots(chips, 0)
 	// others need to know what to do next
-	SetOtherActions(id, ActionReducer(constant.Bet))
+	SetOtherActions(id, ActionReducer(constant.Bet, id))
 	diff := time.Now().Unix() - caller.DeadLine
-	ShiftTimeline(diff)
+	ShortenTimeline(diff)
 	return true
 }
 
