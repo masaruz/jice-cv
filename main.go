@@ -20,7 +20,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	decisionTime := int64(8)
+	decisionTime := int64(20)
 	ninek := game.NineK{
 		MaxPlayers:   6,
 		DecisionTime: decisionTime,
@@ -37,13 +37,14 @@ func main() {
 		fmt.Println(so.Id(), "Connect")
 		// when player need server to check something
 		so.On(constant.Stimulate, func(msg string) string {
-			fmt.Println(so.Id(), "Stimulate", msg)
 			// if cannot start, next and finish then it is during gameplay
 			if !state.GS.Gambit.Start() &&
 				!state.GS.Gambit.NextRound() &&
 				!state.GS.Gambit.Finish() {
+				fmt.Println(so.Id(), "Stimulate", "Nothing", msg)
 				return handler.CreateResponse(so.Id(), "")
 			}
+			fmt.Println(so.Id(), "Stimulate", "Success", msg)
 			state.GS.IncreaseVersion()
 			// if no seat then just return current state
 			return handler.CreateResponse(so.Id(), constant.PushState)
@@ -54,55 +55,60 @@ func main() {
 		})
 		// when player call check
 		so.On(constant.Check, func(msg string) string {
-			fmt.Println(so.Id(), "Check", msg)
 			if !state.GS.Gambit.Check(so.Id()) {
+				fmt.Println(so.Id(), "Check", "Nothing", msg)
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
 			}
+			fmt.Println(so.Id(), "Check", "Success", msg)
 			state.GS.IncreaseVersion()
 			handler.BroadcastGameState(so, constant.Check, so.Id())
 			return handler.CreateResponse(so.Id(), constant.Check)
 		})
 		// when player need to bet chips
 		so.On(constant.Bet, func(msg string) string {
-			fmt.Println(so.Id(), "Bet", msg)
-			if !state.GS.Gambit.Bet(so.Id(), 20) {
+			if !state.GS.Gambit.Bet(so.Id(), state.GS.MinimumBet) {
+				fmt.Println(so.Id(), "Bet", "Nothing", msg)
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
 			}
+			fmt.Println(so.Id(), "Bet", "Success", msg)
 			state.GS.IncreaseVersion()
 			handler.BroadcastGameState(so, constant.Bet, so.Id())
 			return handler.CreateResponse(so.Id(), constant.Bet)
 		})
 		// when player need to raise chips
 		so.On(constant.Raise, func(msg string) string {
-			fmt.Println(so.Id(), "Raise", msg)
-			if !state.GS.Gambit.Bet(so.Id(), 40) {
+			if !state.GS.Gambit.Bet(so.Id(), state.GS.MaximumBet) {
+				fmt.Println(so.Id(), "Raise", "Nothing", msg)
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
 			}
+			fmt.Println(so.Id(), "Raise", "Success", msg)
 			state.GS.IncreaseVersion()
 			handler.BroadcastGameState(so, constant.Raise, so.Id())
 			return handler.CreateResponse(so.Id(), constant.Raise)
 		})
 		// when player need to call chips
 		so.On(constant.Call, func(msg string) string {
-			fmt.Println(so.Id(), "Call", msg)
 			if !state.GS.Gambit.Call(so.Id()) {
+				fmt.Println(so.Id(), "Call", "Nothing", msg)
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
 			}
+			fmt.Println(so.Id(), "Call", "Success", msg)
 			state.GS.IncreaseVersion()
 			handler.BroadcastGameState(so, constant.Call, so.Id())
 			return handler.CreateResponse(so.Id(), constant.Call)
 		})
 		// when player fold their cards
 		so.On(constant.Fold, func(msg string) string {
-			fmt.Println(so.Id(), "Fold", msg)
 			if !state.GS.Gambit.Fold(so.Id()) {
+				fmt.Println(so.Id(), "Fold", "Nothing", msg)
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
 			}
+			fmt.Println(so.Id(), "Fold", "Success", msg)
 			state.GS.Gambit.Finish()
 			state.GS.IncreaseVersion()
 			handler.BroadcastGameState(so, constant.Fold, so.Id())
@@ -110,10 +116,11 @@ func main() {
 		})
 		// start table and no ending until expire
 		so.On(constant.StartTable, func(msg string) string {
-			fmt.Println(so.Id(), "StartTable", msg)
 			if util.CountSitting(state.GS.Players) <= 1 {
+				fmt.Println(so.Id(), "StartTable", "Nothing", msg)
 				return handler.CreateResponse(so.Id(), "")
 			}
+			fmt.Println(so.Id(), "StartTable", "Success", msg)
 			handler.StartTable()
 			state.GS.Gambit.Start()
 			state.GS.IncreaseVersion()
@@ -122,11 +129,12 @@ func main() {
 		})
 		// when player sit down
 		so.On(constant.Sit, func(msg string) string {
-			fmt.Println(so.Id(), "Sit", msg)
 			if !handler.AutoSit(so.Id()) {
+				fmt.Println(so.Id(), "Sit", "Nothing", msg)
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
 			}
+			fmt.Println(so.Id(), "Sit", "Success", msg)
 			state.GS.Gambit.Start()
 			state.GS.IncreaseVersion()
 			handler.BroadcastGameState(so, constant.Sit, so.Id())
@@ -134,10 +142,11 @@ func main() {
 		})
 		// when player stand up
 		so.On(constant.Stand, func(msg string) string {
-			fmt.Println(so.Id(), "Stand", msg)
 			if !handler.Stand(so.Id()) {
+				fmt.Println(so.Id(), "Stand", "Nothing", msg)
 				return handler.CreateResponse(so.Id(), "")
 			}
+			fmt.Println(so.Id(), "Stand", "Success", msg)
 			state.GS.Gambit.Finish()
 			state.GS.IncreaseVersion()
 			handler.BroadcastGameState(so, constant.Stand, so.Id())

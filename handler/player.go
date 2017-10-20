@@ -35,9 +35,9 @@ func ActionReducer(event string, id string) model.Actions {
 					model.Hint{
 						Name: "amount", Type: "integer", Value: diff}}},
 			model.Action{Name: constant.Raise,
-				Parameters: model.Parameters{
-					model.Parameter{
-						Name: "amount", Type: "integer"}},
+				// Parameters: model.Parameters{
+				// 	model.Parameter{
+				// 		Name: "amount", Type: "integer"}},
 				Hints: model.Hints{
 					model.Hint{
 						Name: "amount", Type: "integer", Value: diff + 1}}}}
@@ -120,7 +120,7 @@ func Disconnect(id string) {
 	_, caller := util.Get(state.GS.Players, id)
 	// if playing need to do something
 	if !caller.IsPlaying {
-		// TODO broadcast default action and dont kick
+		// TODO shift timeline
 	}
 	state.GS.Players = util.Kick(state.GS.Players, id)
 	state.GS.Visitors = util.Remove(state.GS.Visitors, id)

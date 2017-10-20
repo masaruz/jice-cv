@@ -49,6 +49,9 @@ func IsEndRound() bool {
 // IsPlayerTurn if player do something before deadline
 func IsPlayerTurn(id string) bool {
 	index, _ := util.Get(state.GS.Players, id)
+	if index == -1 {
+		return false
+	}
 	nowline := time.Now().Unix()
 	startline := state.GS.Players[index].StartLine
 	deadline := state.GS.Players[index].DeadLine
