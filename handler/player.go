@@ -27,12 +27,20 @@ func ActionReducer(event string, id string) model.Actions {
 		if highestbet <= player.Bets[state.GS.Turn] {
 			return ActionReducer(constant.Check, id)
 		}
+		diff := highestbet - player.Bets[state.GS.Turn]
 		return model.Actions{
 			model.Action{Name: constant.Fold},
-			model.Action{Name: constant.Call},
-			model.Action{Name: constant.Raise, Parameters: model.Parameters{
-				model.Parameter{
-					Name: "amount", Type: "integer", Value: util.GetHighestBet(state.GS.Players)}}}}
+			model.Action{Name: constant.Call,
+				Hints: model.Hints{
+					model.Hint{
+						Name: "amount", Type: "integer", Value: diff}}},
+			model.Action{Name: constant.Raise,
+				Parameters: model.Parameters{
+					model.Parameter{
+						Name: "amount", Type: "integer"}},
+				Hints: model.Hints{
+					model.Hint{
+						Name: "amount", Type: "integer", Value: diff + 1}}}}
 	case constant.Sit:
 		if util.CountSitting(state.GS.Players) >= 2 && !state.GS.IsTableStart {
 			return model.Actions{

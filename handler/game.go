@@ -250,7 +250,7 @@ func InvestToPots(chips int) {
 	for index := range state.GS.Players {
 		if util.InGame(state.GS.Players[index]) {
 			state.GS.Players[index].Chips -= chips
-			state.GS.Players[index].Bets = append(state.GS.Players[index].Bets, 0)
+			state.GS.Players[index].Bets = append(state.GS.Players[index].Bets, chips)
 			IncreasePots(chips, state.GS.Turn) // start with first element in pots
 		}
 	}

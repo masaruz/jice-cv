@@ -400,11 +400,11 @@ func TestLoop04(t *testing.T) {
 	_, p2 = util.Get(state.GS.Players, "player2")
 	_, p3 = util.Get(state.GS.Players, "player3")
 	_, p4 = util.Get(state.GS.Players, "player4")
-	if p2.Bets[0] != 15 || p2.Action.Name != constant.Bet ||
+	if p2.Bets[0] != 25 || p2.Action.Name != constant.Bet ||
 		p1.Default.Name != constant.Fold ||
 		p3.Default.Name != constant.Fold ||
 		p4.Default.Name != constant.Fold {
-		t.Error("p2 bets != 15, p2 action name != bet, p1,p3,p4 default != fold")
+		t.Error("p2 bets != 25, p2 action name != bet, p1,p3,p4 default != fold")
 	}
 	time.Sleep(time.Second * time.Duration(delay))
 	if !handler.Fold("player4") {
@@ -880,8 +880,8 @@ func TestLoop08(t *testing.T) {
 	_, p1 := util.Get(state.GS.Players, id1)
 	_, p2 := util.Get(state.GS.Players, id2)
 	_, p3 := util.Get(state.GS.Players, id3)
-	if p2.Chips != 960 || p2.Bets[state.GS.Turn] != 30 {
-		t.Error("player2 chips != 960 or player2 bets[0] != 30")
+	if p2.Chips != 960 || p2.Bets[state.GS.Turn] != 40 {
+		t.Error()
 	}
 	if state.GS.Gambit.Bet(id3, 1500) {
 		t.Error("player3 bet more than 1000")
@@ -892,7 +892,7 @@ func TestLoop08(t *testing.T) {
 	// _, p1 = util.Get(state.GS.Players, id1)
 	_, p2 = util.Get(state.GS.Players, id2)
 	_, p3 = util.Get(state.GS.Players, id3)
-	if p3.Chips != 90 || p3.Bets[state.GS.Turn] != 900 {
+	if p3.Chips != 90 || p3.Bets[state.GS.Turn] != 910 {
 		t.Error("player3 chips != 90 or player2 bets[0] != 900")
 	}
 	if !state.GS.Gambit.Call(id1) {

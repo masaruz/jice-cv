@@ -72,6 +72,16 @@ func TestReducer01(t *testing.T) {
 		p3.Actions[2].Name != constant.Raise {
 		t.Error()
 	}
+	if p3.Actions[1].Hints[0].Name != "amount" ||
+		p3.Actions[1].Hints[0].Type != "integer" ||
+		p3.Actions[1].Hints[0].Value != 30 ||
+		p3.Actions[2].Parameters[0].Name != "amount" ||
+		p3.Actions[2].Parameters[0].Type != "integer" ||
+		p3.Actions[2].Hints[0].Name != "amount" ||
+		p3.Actions[2].Hints[0].Type != "integer" ||
+		p3.Actions[2].Hints[0].Value != 31 {
+		t.Error()
+	}
 	if !state.GS.Gambit.Call(id3) {
 		t.Error()
 	}
@@ -112,6 +122,16 @@ func TestReducer01(t *testing.T) {
 	if p3.Actions[0].Name != constant.Fold ||
 		p3.Actions[1].Name != constant.Call ||
 		p3.Actions[2].Name != constant.Raise {
+		t.Error()
+	}
+	if p2.Actions[1].Hints[0].Name != "amount" ||
+		p2.Actions[1].Hints[0].Type != "integer" ||
+		p2.Actions[1].Hints[0].Value != 10 ||
+		p2.Actions[2].Parameters[0].Name != "amount" ||
+		p2.Actions[2].Parameters[0].Type != "integer" ||
+		p2.Actions[2].Hints[0].Name != "amount" ||
+		p2.Actions[2].Hints[0].Type != "integer" ||
+		p2.Actions[2].Hints[0].Value != 11 {
 		t.Error()
 	}
 	if state.GS.Gambit.Check(id2) || !state.GS.Gambit.Fold(id2) {
