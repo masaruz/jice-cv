@@ -245,7 +245,7 @@ func AllIn(id string, duration int64) bool {
 
 // Bet when previous chips are equally but we want to add more chips to the pots
 func Bet(id string, chips int, duration int64) bool {
-	if !IsPlayerTurn(id) {
+	if !IsPlayerTurn(id) || chips < state.GS.MinimumBet {
 		return false
 	}
 	index, caller := util.Get(state.GS.Players, id)
@@ -260,6 +260,8 @@ func Bet(id string, chips int, duration int64) bool {
 	state.GS.Players[index].Default = model.Action{Name: constant.Bet}
 	state.GS.Players[index].Action = model.Action{Name: constant.Bet}
 	state.GS.Players[index].Actions = ActionReducer(constant.Check, id)
+	// assign minimum bet
+	state.GS.MinimumBet = state.GS.Players[index].Bets[state.GS.Turn]
 	IncreasePots(chips, 0)
 	// set action of everyone
 	OverwriteActionToBehindPlayers()

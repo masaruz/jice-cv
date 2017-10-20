@@ -64,7 +64,7 @@ func AssignWinner() {
 	// winner := model.Player{}
 	players := state.GS.Players
 	for index, player := range players {
-		if !util.InGame(player) {
+		if !util.InGame(player) || len(player.Cards) == 0 {
 			continue
 		}
 		scores, _ := state.GS.Gambit.Evaluate(player.Cards)
@@ -84,8 +84,10 @@ func AssignWinner() {
 			pos = index
 		}
 	}
-	state.GS.Players[pos].IsWinner = true
-	state.GS.Players[pos].Chips += util.SumPots(state.GS.Pots)
+	if pos != -1 {
+		state.GS.Players[pos].IsWinner = true
+		state.GS.Players[pos].Chips += util.SumPots(state.GS.Pots)
+	}
 }
 
 // CreateTimeLine set timeline for game and any players
@@ -128,7 +130,7 @@ func IsFullHand(maxcards int) bool {
 			return false
 		}
 	}
-	return true
+	return util.CountPlaying(state.GS.Players) > 1
 }
 
 // BetsEqual check if same bet
@@ -174,6 +176,9 @@ func Deal(cardAmount int, playerAmount int) {
 
 // FlushGame reset everything before new game
 func FlushGame() {
+	for index := range state.GS.Players {
+		state.GS.Players[index].IsPlaying = false
+	}
 	state.GS.Pots = []int{}
 	state.GS.Turn = 0
 	state.GS.IsGameStart = false
@@ -242,6 +247,7 @@ func IncreasePots(chips int, index int) {
 	}
 	// increase pot values
 	state.GS.Pots[0] += chips
+	SetMaximumBet(util.SumPots(state.GS.Pots))
 }
 
 // InvestToPots added bet to everyone base on turn
@@ -254,4 +260,14 @@ func InvestToPots(chips int) {
 			IncreasePots(chips, state.GS.Turn) // start with first element in pots
 		}
 	}
+}
+
+// SetMinimumBet show that minimum players can bet
+func SetMinimumBet(chips int) {
+	state.GS.MinimumBet = chips
+}
+
+// SetMaximumBet show that maximum players can bet
+func SetMaximumBet(chips int) {
+	state.GS.MaximumBet = chips
 }

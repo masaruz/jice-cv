@@ -491,7 +491,7 @@ func TestLoop05(t *testing.T) {
 	if state.GS.Gambit.NextRound() || state.GS.Gambit.Finish() {
 		t.Error()
 	}
-	if !handler.Bet("player2", 20, decisionTime) {
+	if !handler.Bet("player2", 40, decisionTime) {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay))
@@ -1123,5 +1123,30 @@ func TestLoop12(t *testing.T) {
 	}
 	if state.GS.Gambit.Check(id2) {
 		t.Error("player2 can check")
+	}
+}
+
+func TestLoop13(t *testing.T) {
+	decisionTime := int64(3)
+	minimumBet := 10
+	ninek := game.NineK{
+		MaxPlayers:   6,
+		DecisionTime: decisionTime,
+		MinimumBet:   minimumBet}
+	handler.SetGambit(ninek)
+	state.GS.Gambit.Init() // create seats
+	id1, id2 := "player1", "player2"
+	handler.Connect(id1)
+	handler.Connect(id2)
+	handler.StartTable()
+	// dumb player
+	handler.Sit(id1, 2) // first
+	handler.Sit(id2, 4)
+	if !state.GS.Gambit.Start() {
+		t.Error("has 3 players game should be start")
+	}
+	handler.Disconnect(id1)
+	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() || state.GS.Gambit.Finish() {
+		t.Error("can go to next round or unable to finish game")
 	}
 }

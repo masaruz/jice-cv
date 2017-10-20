@@ -30,6 +30,7 @@ func (game NineK) Init() {
 func (game NineK) Start() bool {
 	if handler.IsTableStart() && !handler.IsGameStart() && handler.MakePlayersReady() {
 		handler.StartGame()
+		handler.SetMinimumBet(game.MinimumBet)
 		handler.InvestToPots(game.MinimumBet)
 		handler.SetDealer()
 		handler.BuildDeck()
@@ -47,6 +48,7 @@ func (game NineK) NextRound() bool {
 		util.CountPlaying(handler.GetPlayerState()) > 1 {
 		handler.Deal(1, game.MaxPlayers)
 		handler.CreateTimeLine(game.DecisionTime)
+		handler.SetMinimumBet(game.MinimumBet)
 		handler.InvestToPots(0)
 		handler.IncreaseTurn()
 		return true
@@ -83,7 +85,7 @@ func (game NineK) Fold(id string) bool {
 // Finish game
 func (game NineK) Finish() bool {
 	// no others to play with or all players have 3 cards but bet is not equal
-	if util.CountPlaying(handler.GetPlayerState()) <= 1 ||
+	if (util.CountPlaying(handler.GetPlayerState()) <= 1 && handler.IsGameStart()) ||
 		(handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound()) {
 		handler.ForceEndTimeline()
 		handler.AssignWinner()

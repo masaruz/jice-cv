@@ -18,6 +18,8 @@ type GameState struct {
 	FinishTableTime int64
 	StartRoundTime  int64
 	FinishRoundTime int64
+	MinimumBet      int
+	MaximumBet      int
 	Gambit          engine.Gambit
 	Pots            []int
 	Event           string

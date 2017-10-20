@@ -34,8 +34,10 @@ func main() {
 		handler.Connect(so.Id())
 		handler.BroadcastGameState(so, constant.GetState, so.Id())
 		state.GS.IncreaseVersion()
+		fmt.Println(so.Id(), "Connect")
 		// when player need server to check something
 		so.On(constant.Stimulate, func(msg string) string {
+			fmt.Println(so.Id(), "Stimulate", msg)
 			// if cannot start, next and finish then it is during gameplay
 			if !state.GS.Gambit.Start() &&
 				!state.GS.Gambit.NextRound() &&
@@ -52,6 +54,7 @@ func main() {
 		})
 		// when player call check
 		so.On(constant.Check, func(msg string) string {
+			fmt.Println(so.Id(), "Check", msg)
 			if !state.GS.Gambit.Check(so.Id()) {
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
@@ -62,6 +65,7 @@ func main() {
 		})
 		// when player need to bet chips
 		so.On(constant.Bet, func(msg string) string {
+			fmt.Println(so.Id(), "Bet", msg)
 			if !state.GS.Gambit.Bet(so.Id(), 20) {
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
@@ -72,6 +76,7 @@ func main() {
 		})
 		// when player need to raise chips
 		so.On(constant.Raise, func(msg string) string {
+			fmt.Println(so.Id(), "Raise", msg)
 			if !state.GS.Gambit.Bet(so.Id(), 40) {
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
@@ -82,6 +87,7 @@ func main() {
 		})
 		// when player need to call chips
 		so.On(constant.Call, func(msg string) string {
+			fmt.Println(so.Id(), "Call", msg)
 			if !state.GS.Gambit.Call(so.Id()) {
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
@@ -92,6 +98,7 @@ func main() {
 		})
 		// when player fold their cards
 		so.On(constant.Fold, func(msg string) string {
+			fmt.Println(so.Id(), "Fold", msg)
 			if !state.GS.Gambit.Fold(so.Id()) {
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
@@ -103,6 +110,7 @@ func main() {
 		})
 		// start table and no ending until expire
 		so.On(constant.StartTable, func(msg string) string {
+			fmt.Println(so.Id(), "StartTable", msg)
 			if util.CountSitting(state.GS.Players) <= 1 {
 				return handler.CreateResponse(so.Id(), "")
 			}
@@ -114,6 +122,7 @@ func main() {
 		})
 		// when player sit down
 		so.On(constant.Sit, func(msg string) string {
+			fmt.Println(so.Id(), "Sit", msg)
 			if !handler.AutoSit(so.Id()) {
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
@@ -125,6 +134,7 @@ func main() {
 		})
 		// when player stand up
 		so.On(constant.Stand, func(msg string) string {
+			fmt.Println(so.Id(), "Stand", msg)
 			if !handler.Stand(so.Id()) {
 				return handler.CreateResponse(so.Id(), "")
 			}
@@ -135,6 +145,7 @@ func main() {
 		})
 		// when disconnected
 		so.On(constant.Disconnection, func() {
+			fmt.Println(so.Id(), "Disconnect")
 			handler.Disconnect(so.Id())
 			state.GS.Gambit.Finish()
 			state.GS.IncreaseVersion()
