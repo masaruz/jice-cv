@@ -11,8 +11,9 @@ type Actions []Action
 
 // Parameter action value
 type Parameter struct {
-	Name string `json:"name"`
-	Type string `json:"type"`
+	Name  string `json:"name"`
+	Type  string `json:"type"`
+	Value int    `json:"value"`
 }
 
 // Parameters action values

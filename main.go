@@ -128,6 +128,7 @@ func main() {
 			if !handler.Stand(so.Id()) {
 				return handler.CreateResponse(so.Id(), "")
 			}
+			state.GS.Gambit.Finish()
 			state.GS.IncreaseVersion()
 			handler.BroadcastGameState(so, constant.Stand, so.Id())
 			return handler.CreateResponse(so.Id(), constant.Stand)
@@ -135,6 +136,7 @@ func main() {
 		// when disconnected
 		so.On(constant.Disconnection, func() {
 			handler.Disconnect(so.Id())
+			state.GS.Gambit.Finish()
 			state.GS.IncreaseVersion()
 			handler.BroadcastGameState(so, constant.Disconnection, so.Id())
 		})

@@ -44,8 +44,8 @@ func SumBet(player model.Player) int {
 	return sum
 }
 
-// SumBets to sum every player chips bet
-func SumBets(turn int, players model.Players) int {
+// SumBetsInTurn to sum every player chips bet
+func SumBetsInTurn(turn int, players model.Players) int {
 	sum := 0
 	for _, player := range players {
 		if !player.IsPlaying {
@@ -66,6 +66,21 @@ func GetHighestBet(players model.Players) int {
 		sum := SumBet(player)
 		if sum > highest {
 			highest = sum
+		}
+	}
+	return highest
+}
+
+// GetHighestBetInTurn for get the highest bet in specific turn
+func GetHighestBetInTurn(turn int, players model.Players) int {
+	highest := 0
+	for _, player := range players {
+		if !InGame(player) || len(player.Bets) <= turn {
+			continue
+		}
+		bet := player.Bets[turn]
+		if bet > highest {
+			highest = bet
 		}
 	}
 	return highest

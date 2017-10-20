@@ -108,7 +108,7 @@ func CreateTimeLine(decisionTime int64) {
 		dealer++
 		loop++
 	}
-	SetOtherDefaultAction("", model.Action{Name: constant.Check})
+	SetOtherDefaultAction("", constant.Check)
 	state.GS.FinishRoundTime = start
 }
 
@@ -235,15 +235,10 @@ func ShiftPlayersToEndOfTimeline(id string, second int64) {
 	}
 }
 
-// GetCurrentTurn get current turn number
-func GetCurrentTurn() int {
-	return state.GS.Turn
-}
-
 // IncreasePots when increase pots values
 func IncreasePots(chips int, index int) {
-	if len(state.GS.Pots) <= 0 {
-		state.GS.Pots = []int{0}
+	for len(state.GS.Pots)-1 <= index {
+		state.GS.Pots = append(state.GS.Pots, 0)
 	}
 	// increase pot values
 	state.GS.Pots[0] += chips
@@ -256,7 +251,7 @@ func InvestToPots(chips int) {
 		if util.InGame(state.GS.Players[index]) {
 			state.GS.Players[index].Chips -= chips
 			state.GS.Players[index].Bets = append(state.GS.Players[index].Bets, 0)
-			IncreasePots(chips, GetCurrentTurn()) // start with first element in pots
+			IncreasePots(chips, state.GS.Turn) // start with first element in pots
 		}
 	}
 }
