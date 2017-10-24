@@ -189,6 +189,9 @@ func BetsEqual() bool {
 		if !util.IsPlayingAndNotFold(player) {
 			continue
 		}
+		if len(player.Bets)-1 < state.GS.Turn {
+			return false
+		}
 		// check if everyone has the same bet
 		if baseBet != player.Bets[state.GS.Turn] && player.Chips != 0 && baseBet != 0 {
 			return false

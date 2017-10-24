@@ -101,6 +101,18 @@ func main() {
 			handler.BroadcastGameState(so, constant.Call, so.Id())
 			return handler.CreateResponse(so.Id(), constant.Call)
 		})
+		// when player need to all in
+		so.On(constant.AllIn, func(msg string) string {
+			if !state.GS.Gambit.AllIn(so.Id()) {
+				fmt.Println(so.Id(), "AllIn", "Nothing", msg)
+				// if no seat then just return current state
+				return handler.CreateResponse(so.Id(), "")
+			}
+			fmt.Println(so.Id(), "AllIn", "Success", msg)
+			state.GS.IncreaseVersion()
+			handler.BroadcastGameState(so, constant.Raise, so.Id())
+			return handler.CreateResponse(so.Id(), constant.Raise)
+		})
 		// when player fold their cards
 		so.On(constant.Fold, func(msg string) string {
 			if !state.GS.Gambit.Fold(so.Id()) {
