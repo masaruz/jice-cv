@@ -50,11 +50,22 @@ func Get(slice model.Players, id string) (int, model.Player) {
 	return -1, model.Player{}
 }
 
-// CountPlaying who is actually playing
-func CountPlaying(players model.Players) int {
+// CountPlayerNotFoldAndNotAllIn who has right to play
+func CountPlayerNotFoldAndNotAllIn(players model.Players) int {
 	playing := 0
 	for _, player := range players {
-		if InGame(player) {
+		if IsPlayingAndNotFoldAndNotAllIn(player) {
+			playing++
+		}
+	}
+	return playing
+}
+
+// CountPlayerNotFold count who is not fold
+func CountPlayerNotFold(players model.Players) int {
+	playing := 0
+	for _, player := range players {
+		if IsPlayingAndNotFold(player) {
 			playing++
 		}
 	}
@@ -82,7 +93,7 @@ func FindPrevPlayer(current int, players model.Players) (int, model.Player) {
 			current = amount
 		}
 		prev = current - 1
-		if InGame(players[prev]) {
+		if IsPlayingAndNotFold(players[prev]) {
 			return prev, players[prev]
 		}
 		round++
@@ -98,7 +109,7 @@ func FindNextPlayer(current int, players model.Players) (int, model.Player) {
 	round := 0
 	for round < amount {
 		next = (current + 1) % amount
-		if InGame(players[next]) {
+		if IsPlayingAndNotFold(players[next]) {
 			return next, players[next]
 		}
 		round++
@@ -107,9 +118,14 @@ func FindNextPlayer(current int, players model.Players) (int, model.Player) {
 	return -1, model.Player{}
 }
 
-// InGame if player is not fold and playing
-func InGame(player model.Player) bool {
+// IsPlayingAndNotFold if player is not fold and playing
+func IsPlayingAndNotFold(player model.Player) bool {
 	return player.Action.Name != constant.Fold && player.IsPlaying
+}
+
+// IsPlayingAndNotFoldAndNotAllIn if player is not fold and playing and not allin
+func IsPlayingAndNotFoldAndNotAllIn(player model.Player) bool {
+	return IsPlayingAndNotFold(player) && player.Action.Name != constant.AllIn
 }
 
 // IsPlayerBehindTheTimeline check if player behind the timeline

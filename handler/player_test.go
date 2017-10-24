@@ -181,3 +181,41 @@ func TestReducer01(t *testing.T) {
 	fmt.Println("now:", time.Now().Unix())
 	fmt.Println("end:", state.GS.FinishRoundTime)
 }
+
+func TestAllIne01(t *testing.T) {
+	decisionTime := int64(3)
+	minimumBet := 10
+	ninek := game.NineK{
+		MaxPlayers:   6,
+		DecisionTime: decisionTime,
+		MinimumBet:   minimumBet}
+	handler.SetGambit(ninek)
+	state.GS.Gambit.Init() // create seats
+	id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
+	handler.Connect(id1)
+	handler.Connect(id2)
+	handler.Connect(id3)
+	handler.Connect(id4)
+	handler.StartTable()
+	// dumb player
+	handler.Sit(id1, 2) // first
+	handler.Sit(id2, 4)
+	handler.Sit(id3, 5)
+	handler.Sit(id4, 1)
+	state.GS.Gambit.Start()
+	state.GS.Players[2].Chips = 990
+	state.GS.Players[4].Chips = 690
+	state.GS.Players[1].Chips = 790
+}
+
+func TestIncreasePot(t *testing.T) {
+	state.GS.MinimumBet = 10
+	handler.IncreasePotsV2(300)
+	state.GS.MinimumBet = 300
+	handler.IncreasePotsV2(300)
+	handler.IncreasePotsV2(100)
+	handler.IncreasePotsV2(100)
+	handler.IncreasePotsV2(200)
+	// state.GS.MinimumBet = 400
+	state.GS.VirtualPots.Print()
+}

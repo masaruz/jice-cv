@@ -21,6 +21,7 @@ type GameState struct {
 	Gambit          engine.Gambit
 	Pots            []int
 	Event           string
+	MinimumBet      int
 }
 
 // gameStates to record all gamestates

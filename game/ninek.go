@@ -24,6 +24,7 @@ type Payload struct {
 func (game NineK) Init() {
 	// set the seats
 	handler.CreateSeats(game.MaxPlayers)
+	handler.SetMinimumBet(game.MinimumBet)
 }
 
 // Start game
@@ -34,6 +35,7 @@ func (game NineK) Start() bool {
 		handler.SetDealer()
 		handler.BuildDeck()
 		handler.Shuffle()
+		handler.AssignPlayersCheckOrAllIn()
 		handler.CreateTimeLine(game.DecisionTime)
 		handler.Deal(2, game.MaxPlayers)
 		return true
@@ -44,8 +46,9 @@ func (game NineK) Start() bool {
 // NextRound game after round by round
 func (game NineK) NextRound() bool {
 	if !handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound() &&
-		util.CountPlaying(handler.GetPlayerState()) > 1 {
+		util.CountPlayerNotFold(handler.GetPlayerState()) > 1 {
 		handler.Deal(1, game.MaxPlayers)
+		handler.AssignPlayersCheckOrAllIn()
 		handler.CreateTimeLine(game.DecisionTime)
 		handler.InvestToPots(0)
 		handler.IncreaseTurn()
@@ -72,7 +75,7 @@ func (game NineK) Call(id string) bool {
 
 // AllIn give all chips
 func (game NineK) AllIn(id string) bool {
-	return false
+	return handler.AllIn(id, game.DecisionTime)
 }
 
 // Fold quit the game but still lost bet
@@ -83,10 +86,11 @@ func (game NineK) Fold(id string) bool {
 // Finish game
 func (game NineK) Finish() bool {
 	// no others to play with or all players have 3 cards but bet is not equal
-	if util.CountPlaying(handler.GetPlayerState()) <= 1 ||
+	if (util.CountPlayerNotFold(handler.GetPlayerState()) <= 1 && handler.IsGameStart()) ||
+		// if has 3 cards bet equal
 		(handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound()) {
 		handler.ForceEndTimeline()
-		handler.AssignWinner()
+		handler.AssignWinners()
 		handler.FlushGame()
 		return true
 	}

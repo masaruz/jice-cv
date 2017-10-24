@@ -60,7 +60,7 @@ func SumBetsInTurn(turn int, players model.Players) int {
 func GetHighestBet(players model.Players) int {
 	highest := 0
 	for _, player := range players {
-		if !InGame(player) {
+		if !IsPlayingAndNotFold(player) {
 			continue
 		}
 		sum := SumBet(player)
@@ -75,7 +75,7 @@ func GetHighestBet(players model.Players) int {
 func GetHighestBetInTurn(turn int, players model.Players) int {
 	highest := 0
 	for _, player := range players {
-		if !InGame(player) || len(player.Bets) <= turn {
+		if !IsPlayingAndNotFold(player) || len(player.Bets) <= turn {
 			continue
 		}
 		bet := player.Bets[turn]

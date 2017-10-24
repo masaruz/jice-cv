@@ -14,6 +14,11 @@ func SetGambit(game engine.Gambit) {
 	state.GS.Gambit = game
 }
 
+// SetMinimumBet minimum bet for validate action
+func SetMinimumBet(minbet int) {
+	state.GS.MinimumBet = minbet
+}
+
 // CreateSeats prepare empty seat for players
 func CreateSeats(seats int) {
 	for i := 0; i < seats; i++ {
@@ -55,41 +60,67 @@ func IsPlayerTurn(id string) bool {
 	return nowline >= startline && nowline < deadline
 }
 
-// AssignWinner find a winner by evaluate his cards
-func AssignWinner() {
+// AssignWinners find a winner by evaluate his cards
+func AssignWinners() {
 	hscore := -1
 	hbonus := -1
 	pos := -1
 	// hkind := ""
 	// winner := model.Player{}
-	players := state.GS.Players
-	for index, player := range players {
-		if !util.InGame(player) {
-			continue
+	for i := 0; i < util.CountPlayerNotFold(state.GS.Players); i++ {
+		for index, player := range state.GS.Players {
+			if !util.IsPlayingAndNotFold(player) || len(player.Cards) == 0 {
+				continue
+			}
+			scores, _ := state.GS.Gambit.Evaluate(player.Cards)
+			score := scores[0]
+			bonus := scores[1]
+			if hscore < score {
+				hscore = score
+				hbonus = bonus
+				// winner = player
+				// hkind = kind
+				pos = index
+			} else if hscore == score && hbonus < bonus {
+				hscore = score
+				hbonus = bonus
+				// winner = player
+				// hkind = kind
+				pos = index
+			}
 		}
-		scores, _ := state.GS.Gambit.Evaluate(player.Cards)
-		score := scores[0]
-		bonus := scores[1]
-		if hscore < score {
-			hscore = score
-			hbonus = bonus
-			// winner = player
-			// hkind = kind
-			pos = index
-		} else if hscore == score && hbonus < bonus {
-			hscore = score
-			hbonus = bonus
-			// winner = player
-			// hkind = kind
-			pos = index
+		if pos != -1 {
+			for index, player := range state.GS.Players {
+				if !player.IsPlaying || len(player.Cards) == 0 {
+					continue
+				}
+				// if winner has higher bet
+				playerbet := util.SumBet(player)
+				winnerbet := util.SumBet(state.GS.Players[pos])
+				if winnerbet > playerbet {
+					state.GS.Players[pos].Chips += playerbet
+					BurnBet(player.ID, playerbet)
+				} else {
+					// if winner has lower bet
+					state.GS.Players[pos].Chips += winnerbet
+					// if not caller
+					if index != pos {
+						BurnBet(player.ID, winnerbet)
+					}
+				}
+			}
+			state.GS.Players[pos].Cards = model.Cards{}
 		}
 	}
-	state.GS.Players[pos].IsWinner = true
-	state.GS.Players[pos].Chips += util.SumPots(state.GS.Pots)
 }
 
 // CreateTimeLine set timeline for game and any players
 func CreateTimeLine(decisionTime int64) {
+	// need at least one competitors
+	if util.CountPlayerNotFoldAndNotAllIn(
+		GetPlayerState()) <= 1 {
+		return
+	}
 	loop := 0
 	delay := int64(0)
 	start, amount := time.Now().Unix(), len(state.GS.Players)
@@ -98,9 +129,8 @@ func CreateTimeLine(decisionTime int64) {
 	for loop < amount {
 		next := (dealer + 1) % amount
 		player := state.GS.Players[next]
-		if util.InGame(player) {
+		if util.IsPlayingAndNotFoldAndNotAllIn(player) {
 			startline := start + delay
-			state.GS.Players[next].Action = model.Action{}
 			state.GS.Players[next].StartLine = startline
 			state.GS.Players[next].DeadLine = startline + decisionTime
 			start = state.GS.Players[next].DeadLine
@@ -108,8 +138,24 @@ func CreateTimeLine(decisionTime int64) {
 		dealer++
 		loop++
 	}
-	SetOtherDefaultAction("", constant.Check)
 	state.GS.FinishRoundTime = start
+}
+
+// AssignPlayersCheckOrAllIn when go to next turn
+func AssignPlayersCheckOrAllIn() {
+	for index, player := range state.GS.Players {
+		if !util.IsPlayingAndNotFold(player) {
+			continue
+		}
+		action := model.Action{}
+		if state.GS.Players[index].Chips == 0 {
+			action = model.Action{Name: constant.AllIn}
+		} else {
+			action = model.Action{Name: constant.Check}
+		}
+		state.GS.Players[index].Action = action
+		state.GS.Players[index].Default = action
+	}
 }
 
 // IncreaseTurn to seperate player bets
@@ -120,7 +166,7 @@ func IncreaseTurn() {
 // IsFullHand check if hold max cards
 func IsFullHand(maxcards int) bool {
 	for _, player := range state.GS.Players {
-		if !util.InGame(player) {
+		if !util.IsPlayingAndNotFold(player) {
 			continue
 		}
 		// amount of cards are not equal
@@ -128,21 +174,18 @@ func IsFullHand(maxcards int) bool {
 			return false
 		}
 	}
-	return true
+	return util.CountPlayerNotFold(state.GS.Players) > 1
 }
 
 // BetsEqual check if same bet
 func BetsEqual() bool {
-	baseBet := -1
+	baseBet := util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players)
 	for _, player := range state.GS.Players {
-		if !util.InGame(player) {
+		if !util.IsPlayingAndNotFold(player) {
 			continue
 		}
 		// check if everyone has the same bet
-		bet := util.SumBet(player)
-		if baseBet != bet && baseBet == -1 {
-			baseBet = bet
-		} else if baseBet != bet {
+		if baseBet != player.Bets[state.GS.Turn] && player.Chips != 0 && baseBet != 0 {
 			return false
 		}
 	}
@@ -162,7 +205,7 @@ func Deal(cardAmount int, playerAmount int) {
 			round++
 			index = start % playerAmount
 			// skip empty seat
-			if util.InGame(state.GS.Players[index]) {
+			if util.IsPlayingAndNotFold(state.GS.Players[index]) {
 				state.GS.Players[index].Cards = append(state.GS.Players[index].Cards, Draw())
 				if index == dealer {
 					break
@@ -174,6 +217,16 @@ func Deal(cardAmount int, playerAmount int) {
 
 // FlushGame reset everything before new game
 func FlushGame() {
+	for index := range state.GS.Players {
+		state.GS.Players[index].IsPlaying = false
+		state.GS.Players[index].Cards = model.Cards{}
+		state.GS.Players[index].Bets = []int{}
+		state.GS.Players[index].Default = model.Action{}
+		state.GS.Players[index].Action = model.Action{}
+		state.GS.Players[index].Actions = model.Actions{}
+		state.GS.Players[index].StartLine = 0
+		state.GS.Players[index].DeadLine = 0
+	}
 	state.GS.Pots = []int{}
 	state.GS.Turn = 0
 	state.GS.IsGameStart = false
@@ -183,7 +236,7 @@ func FlushGame() {
 func ShortenTimeline(diff int64) {
 	diff = util.Absolute(diff)
 	for index, player := range state.GS.Players {
-		if util.InGame(player) {
+		if util.IsPlayingAndNotFold(player) {
 			state.GS.Players[index].StartLine = state.GS.Players[index].StartLine - diff
 			state.GS.Players[index].DeadLine = state.GS.Players[index].DeadLine - diff
 		}
@@ -197,7 +250,7 @@ func ShortenTimelineAfterTarget(id string, diff int64) {
 	_, caller := util.Get(state.GS.Players, id)
 	for index, player := range state.GS.Players {
 		// who start behind caller will be shifted
-		if util.InGame(player) && player.StartLine >= caller.DeadLine {
+		if util.IsPlayingAndNotFold(player) && player.StartLine >= caller.DeadLine {
 			state.GS.Players[index].StartLine = state.GS.Players[index].StartLine - diff
 			state.GS.Players[index].DeadLine = state.GS.Players[index].DeadLine - diff
 		}
@@ -227,8 +280,8 @@ func ShiftPlayersToEndOfTimeline(id string, second int64) {
 		start++
 		round++
 		index := start % amount
-		// force shift only 2 lastest players
-		if util.InGame(state.GS.Players[index]) &&
+		// force shift to players who is in game not allin and behine the timeline
+		if util.IsPlayingAndNotFoldAndNotAllIn(state.GS.Players[index]) &&
 			util.IsPlayerBehindTheTimeline(state.GS.Players[index]) {
 			ShiftPlayerToEndOfTimeline(state.GS.Players[index].ID, second)
 		}
@@ -248,10 +301,13 @@ func IncreasePots(chips int, index int) {
 func InvestToPots(chips int) {
 	// initiate bet value to players
 	for index := range state.GS.Players {
-		if util.InGame(state.GS.Players[index]) {
+		if util.IsPlayingAndNotFoldAndNotAllIn(state.GS.Players[index]) {
 			state.GS.Players[index].Chips -= chips
 			state.GS.Players[index].Bets = append(state.GS.Players[index].Bets, chips)
 			IncreasePots(chips, state.GS.Turn) // start with first element in pots
+		} else if util.IsPlayingAndNotFold(state.GS.Players[index]) {
+			state.GS.Players[index].Bets = append(state.GS.Players[index].Bets, 0)
+			IncreasePots(chips, state.GS.Turn)
 		}
 	}
 }

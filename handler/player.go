@@ -27,6 +27,14 @@ func ActionReducer(event string, id string) model.Actions {
 		if highestbet <= player.Bets[state.GS.Turn] {
 			return ActionReducer(constant.Check, id)
 		}
+		if player.Chips < highestbet {
+			return model.Actions{
+				model.Action{Name: constant.Fold},
+				model.Action{Name: constant.AllIn,
+					Hints: model.Hints{
+						model.Hint{
+							Name: "amount", Type: "integer", Value: player.Chips}}}}
+		}
 		diff := highestbet - player.Bets[state.GS.Turn]
 		return model.Actions{
 			model.Action{Name: constant.Fold},
@@ -67,9 +75,13 @@ func MakePlayersReady() bool {
 		if player.ID == "" {
 			continue
 		}
+		// force to stand when player has no chips enough
+		if player.Chips < state.GS.MinimumBet {
+			Stand(player.ID)
+			continue
+		}
 		state.GS.Players[index].Cards = model.Cards{}
 		state.GS.Players[index].Bets = []int{}
-		state.GS.Players[index].IsWinner = false
 		state.GS.Players[index].IsPlaying = true
 		state.GS.Players[index].Actions = ActionReducer(constant.Check, state.GS.Players[index].ID)
 		state.GS.Players[index].Default = model.Action{Name: constant.Check}
@@ -82,7 +94,7 @@ func MakePlayersReady() bool {
 func SetOtherDefaultAction(id string, action string) {
 	daction := model.Action{Name: action}
 	for index, player := range state.GS.Players {
-		if !util.InGame(player) {
+		if !util.IsPlayingAndNotFold(player) {
 			continue
 		}
 		if id != "" && id != player.ID {
@@ -96,7 +108,7 @@ func SetOtherDefaultAction(id string, action string) {
 // SetOtherActions make every has default action
 func SetOtherActions(id string, action string) {
 	for index, player := range state.GS.Players {
-		if !util.InGame(player) {
+		if !util.IsPlayingAndNotFold(player) {
 			continue
 		}
 		if id != "" && id != player.ID {
@@ -239,7 +251,9 @@ func AllIn(id string, duration int64) bool {
 	diff := time.Now().Unix() - caller.DeadLine
 	ShortenTimeline(diff)
 	// duration extend the timeline
-	ShiftPlayersToEndOfTimeline(id, duration)
+	if chips > util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players) {
+		ShiftPlayersToEndOfTimeline(id, duration)
+	}
 	return true
 }
 
@@ -303,9 +317,31 @@ func Call(id string, duration int64) bool {
 // OverwriteActionToBehindPlayers overwritten action with default
 func OverwriteActionToBehindPlayers() {
 	for index := range state.GS.Players {
-		if util.InGame(state.GS.Players[index]) &&
+		if util.IsPlayingAndNotFold(state.GS.Players[index]) &&
 			util.IsPlayerBehindTheTimeline(state.GS.Players[index]) {
 			state.GS.Players[index].Action = state.GS.Players[index].Default
 		}
 	}
+}
+
+// BurnBet burn bet from player
+func BurnBet(id string, burn int) int {
+	index, player := util.Get(state.GS.Players, id)
+	// if this player cannot pay all of it
+	sumbet := util.SumBet(player)
+	if burn >= sumbet {
+		for i := range state.GS.Players[index].Bets {
+			state.GS.Players[index].Bets[i] = 0
+		}
+		return sumbet
+	}
+	for i, bet := range state.GS.Players[index].Bets {
+		if bet >= burn {
+			state.GS.Players[index].Bets[i] -= burn
+		} else {
+			burn -= bet
+			state.GS.Players[index].Bets[i] = 0
+		}
+	}
+	return util.SumBet(player)
 }
