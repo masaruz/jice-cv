@@ -31,6 +31,7 @@ func (game NineK) Init() {
 func (game NineK) Start() bool {
 	if handler.IsTableStart() && !handler.IsGameStart() && handler.MakePlayersReady() {
 		handler.StartGame()
+		handler.SetMinimumBet(game.MinimumBet)
 		handler.InvestToPots(game.MinimumBet)
 		handler.SetDealer()
 		handler.BuildDeck()
@@ -50,6 +51,7 @@ func (game NineK) NextRound() bool {
 		handler.Deal(1, game.MaxPlayers)
 		handler.AssignPlayersCheckOrAllIn()
 		handler.CreateTimeLine(game.DecisionTime)
+		handler.SetMinimumBet(game.MinimumBet)
 		handler.InvestToPots(0)
 		handler.IncreaseTurn()
 		return true
@@ -121,6 +123,10 @@ func (game NineK) Evaluate(values []int) (scores []int, kind string) {
 	if game.straight(sorted) {
 		return game.summary(constant.Straight, sorted)
 	}
+	// all cards are same color and kind
+	if game.flush(sorted) {
+		return game.summary(constant.Flush, sorted)
+	}
 	return game.summary(constant.Nothing, sorted)
 }
 
@@ -141,7 +147,7 @@ func (game NineK) summary(kind string, hands []int) ([]int, string) {
 	case constant.Straight:
 		return []int{10000, bonus}, constant.Straight
 	case constant.Flush:
-		return []int{1000, bonus}, constant.Straight
+		return []int{1000, bonus}, constant.Flush
 	default:
 		score := 0
 		for _, value := range hands {

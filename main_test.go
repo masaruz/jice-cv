@@ -492,7 +492,7 @@ func TestLoop05(t *testing.T) {
 	if state.GS.Gambit.NextRound() || state.GS.Gambit.Finish() {
 		t.Error()
 	}
-	if !handler.Bet("player2", 20, decisionTime) {
+	if !handler.Bet("player2", 40, decisionTime) {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay))

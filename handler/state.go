@@ -81,6 +81,7 @@ func CreateResponse(id string, event string) string {
 func createSharedState(players model.Players) model.Players {
 	others := model.Players{}
 	for _, player := range players {
+		player.Cards = model.Cards{}
 		others = append(others, player)
 	}
 	return others

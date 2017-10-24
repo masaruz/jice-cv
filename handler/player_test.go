@@ -30,6 +30,9 @@ func TestReducer01(t *testing.T) {
 	handler.Sit(id2, 4)
 	handler.Sit(id3, 1)
 	state.GS.Gambit.Start()
+	if state.GS.MinimumBet != minimumBet || state.GS.MaximumBet != util.SumPots(state.GS.Pots) {
+		t.Error()
+	}
 	if !state.GS.Gambit.Check(id1) {
 		t.Error()
 	}
@@ -52,6 +55,9 @@ func TestReducer01(t *testing.T) {
 		t.Error()
 	}
 	if !state.GS.Gambit.Bet(id2, 30) {
+		t.Error()
+	}
+	if state.GS.MinimumBet != minimumBet+30 || state.GS.MaximumBet != util.SumPots(state.GS.Pots) {
 		t.Error()
 	}
 	_, p1 = util.Get(state.GS.Players, id1)
@@ -84,6 +90,9 @@ func TestReducer01(t *testing.T) {
 	}
 	if !state.GS.Gambit.Call(id3) {
 		t.Error()
+	}
+	if state.GS.MinimumBet != minimumBet+30 || state.GS.MaximumBet != 90 {
+		t.Error(state.GS.MaximumBet)
 	}
 	_, p1 = util.Get(state.GS.Players, id1)
 	_, p2 = util.Get(state.GS.Players, id2)
@@ -158,6 +167,9 @@ func TestReducer01(t *testing.T) {
 	}
 	if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() {
 		t.Error()
+	}
+	if state.GS.MinimumBet != minimumBet || state.GS.MaximumBet != 140 {
+		t.Error(state.GS.MaximumBet)
 	}
 	_, p1 = util.Get(state.GS.Players, id1)
 	_, p2 = util.Get(state.GS.Players, id2)

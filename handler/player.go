@@ -43,9 +43,9 @@ func ActionReducer(event string, id string) model.Actions {
 					model.Hint{
 						Name: "amount", Type: "integer", Value: diff}}},
 			model.Action{Name: constant.Raise,
-				Parameters: model.Parameters{
-					model.Parameter{
-						Name: "amount", Type: "integer"}},
+				// Parameters: model.Parameters{
+				// 	model.Parameter{
+				// 		Name: "amount", Type: "integer"}},
 				Hints: model.Hints{
 					model.Hint{
 						Name: "amount", Type: "integer", Value: diff + 1}}}}
@@ -132,7 +132,7 @@ func Disconnect(id string) {
 	_, caller := util.Get(state.GS.Players, id)
 	// if playing need to do something
 	if !caller.IsPlaying {
-		// TODO broadcast default action and dont kick
+		// TODO shift timeline
 	}
 	state.GS.Players = util.Kick(state.GS.Players, id)
 	state.GS.Visitors = util.Remove(state.GS.Visitors, id)
@@ -259,7 +259,7 @@ func AllIn(id string, duration int64) bool {
 
 // Bet when previous chips are equally but we want to add more chips to the pots
 func Bet(id string, chips int, duration int64) bool {
-	if !IsPlayerTurn(id) {
+	if !IsPlayerTurn(id) || chips < state.GS.MinimumBet {
 		return false
 	}
 	index, caller := util.Get(state.GS.Players, id)
@@ -274,6 +274,8 @@ func Bet(id string, chips int, duration int64) bool {
 	state.GS.Players[index].Default = model.Action{Name: constant.Bet}
 	state.GS.Players[index].Action = model.Action{Name: constant.Bet}
 	state.GS.Players[index].Actions = ActionReducer(constant.Check, id)
+	// assign minimum bet
+	state.GS.MinimumBet = state.GS.Players[index].Bets[state.GS.Turn]
 	IncreasePots(chips, 0)
 	// set action of everyone
 	OverwriteActionToBehindPlayers()

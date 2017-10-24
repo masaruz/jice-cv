@@ -14,11 +14,6 @@ func SetGambit(game engine.Gambit) {
 	state.GS.Gambit = game
 }
 
-// SetMinimumBet minimum bet for validate action
-func SetMinimumBet(minbet int) {
-	state.GS.MinimumBet = minbet
-}
-
 // CreateSeats prepare empty seat for players
 func CreateSeats(seats int) {
 	for i := 0; i < seats; i++ {
@@ -54,6 +49,9 @@ func IsEndRound() bool {
 // IsPlayerTurn if player do something before deadline
 func IsPlayerTurn(id string) bool {
 	index, _ := util.Get(state.GS.Players, id)
+	if index == -1 {
+		return false
+	}
 	nowline := time.Now().Unix()
 	startline := state.GS.Players[index].StartLine
 	deadline := state.GS.Players[index].DeadLine
@@ -295,6 +293,7 @@ func IncreasePots(chips int, index int) {
 	}
 	// increase pot values
 	state.GS.Pots[0] += chips
+	SetMaximumBet(util.SumPots(state.GS.Pots))
 }
 
 // InvestToPots added bet to everyone base on turn
@@ -310,4 +309,14 @@ func InvestToPots(chips int) {
 			IncreasePots(chips, state.GS.Turn)
 		}
 	}
+}
+
+// SetMinimumBet show that minimum players can bet
+func SetMinimumBet(chips int) {
+	state.GS.MinimumBet = chips
+}
+
+// SetMaximumBet show that maximum players can bet
+func SetMaximumBet(chips int) {
+	state.GS.MaximumBet = chips
 }
