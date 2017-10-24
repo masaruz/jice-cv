@@ -43,9 +43,9 @@ func ActionReducer(event string, id string) model.Actions {
 					model.Hint{
 						Name: "amount", Type: "integer", Value: diff}}},
 			model.Action{Name: constant.Raise,
-				// Parameters: model.Parameters{
-				// 	model.Parameter{
-				// 		Name: "amount", Type: "integer"}},
+				Parameters: model.Parameters{
+					model.Parameter{
+						Name: "amount", Type: "integer"}},
 				Hints: model.Hints{
 					model.Hint{
 						Name: "amount", Type: "integer", Value: diff + 1}}}}
@@ -95,11 +95,15 @@ func MakePlayersReady() bool {
 func SetOtherDefaultAction(id string, action string) {
 	daction := model.Action{Name: action}
 	for index, player := range state.GS.Players {
-		if !util.IsPlayingAndNotFold(player) {
+		if !util.IsPlayingAndNotFoldAndNotAllIn(player) {
 			continue
 		}
 		if id != "" && id != player.ID {
-			state.GS.Players[index].Default = daction
+			_, caller := util.Get(state.GS.Players, id)
+			// if caller's bet more than other then overwrite their action
+			if caller.Bets[state.GS.Turn] > state.GS.Players[index].Bets[state.GS.Turn] {
+				state.GS.Players[index].Default = daction
+			}
 		} else if id == "" {
 			state.GS.Players[index].Default = daction
 		}
@@ -109,7 +113,7 @@ func SetOtherDefaultAction(id string, action string) {
 // SetOtherActions make every has default action
 func SetOtherActions(id string, action string) {
 	for index, player := range state.GS.Players {
-		if !util.IsPlayingAndNotFold(player) {
+		if !util.IsPlayingAndNotFoldAndNotAllIn(player) {
 			continue
 		}
 		if id != "" && id != player.ID {
@@ -246,13 +250,19 @@ func AllIn(id string, duration int64) bool {
 	state.GS.Players[index].Chips = 0
 	state.GS.Players[index].Default = model.Action{Name: constant.AllIn}
 	state.GS.Players[index].Action = model.Action{Name: constant.AllIn}
+	state.GS.Players[index].Actions = ActionReducer(constant.Check, id)
 	IncreasePots(chips, 0)
 	// set action of everyone
 	OverwriteActionToBehindPlayers()
+	// others automatic set to fold as default
+	SetOtherDefaultAction(id, constant.Fold)
+	// others need to know what to do next
+	SetOtherActions(id, constant.Bet)
 	diff := time.Now().Unix() - caller.DeadLine
 	ShortenTimeline(diff)
 	// duration extend the timeline
 	if chips > util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players) {
+		state.GS.MinimumBet = state.GS.Players[index].Bets[state.GS.Turn]
 		ShiftPlayersToEndOfTimeline(id, duration)
 	}
 	return true

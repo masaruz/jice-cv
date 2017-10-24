@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func TestReducer01(t *testing.T) {
+func TestPlayer01(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := game.NineK{
@@ -194,7 +194,7 @@ func TestReducer01(t *testing.T) {
 	fmt.Println("end:", state.GS.FinishRoundTime)
 }
 
-func TestAllIne01(t *testing.T) {
+func TestPlayer02(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := game.NineK{
@@ -203,31 +203,67 @@ func TestAllIne01(t *testing.T) {
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
 	state.GS.Gambit.Init() // create seats
-	id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
+	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
 	handler.Connect(id3)
-	handler.Connect(id4)
 	handler.StartTable()
 	// dumb player
 	handler.Sit(id1, 2) // first
 	handler.Sit(id2, 4)
-	handler.Sit(id3, 5)
-	handler.Sit(id4, 1)
+	handler.Sit(id3, 1)
 	state.GS.Gambit.Start()
-	state.GS.Players[2].Chips = 990
-	state.GS.Players[4].Chips = 690
-	state.GS.Players[1].Chips = 790
-}
-
-func TestIncreasePot(t *testing.T) {
-	state.GS.MinimumBet = 10
-	handler.IncreasePotsV2(300)
-	state.GS.MinimumBet = 300
-	handler.IncreasePotsV2(300)
-	handler.IncreasePotsV2(100)
-	handler.IncreasePotsV2(100)
-	handler.IncreasePotsV2(200)
-	// state.GS.MinimumBet = 400
-	state.GS.VirtualPots.Print()
+	if state.GS.MinimumBet != minimumBet || state.GS.MaximumBet != util.SumPots(state.GS.Pots) {
+		t.Error()
+	}
+	i1, p1 := util.Get(state.GS.Players, id1)
+	i2, p2 := util.Get(state.GS.Players, id2)
+	i3, p3 := util.Get(state.GS.Players, id3)
+	state.GS.Players[i1].Chips = 390
+	state.GS.Players[i2].Chips = 690
+	state.GS.Players[i3].Chips = 1290
+	if !state.GS.Gambit.AllIn(id1) {
+		t.Error()
+	}
+	_, p1 = util.Get(state.GS.Players, id1)
+	_, p2 = util.Get(state.GS.Players, id2)
+	_, p3 = util.Get(state.GS.Players, id3)
+	if p1.Action.Name != constant.AllIn || p1.Default.Name != constant.AllIn {
+		t.Error()
+	}
+	if p2.Actions[0].Name != constant.Fold ||
+		p2.Actions[1].Name != constant.Call ||
+		p2.Actions[1].Hints[0].Name != "amount" ||
+		p2.Actions[1].Hints[0].Type != "integer" ||
+		p2.Actions[1].Hints[0].Value != 390 ||
+		p2.Actions[2].Name != constant.Raise ||
+		p2.Actions[2].Parameters[0].Name != "amount" ||
+		p2.Actions[2].Parameters[0].Type != "integer" ||
+		p2.Actions[2].Hints[0].Name != "amount" ||
+		p2.Actions[2].Hints[0].Type != "integer" ||
+		p2.Actions[2].Hints[0].Value != 391 {
+		t.Error()
+	}
+	if p3.Actions[0].Name != constant.Fold ||
+		p3.Actions[1].Name != constant.Call ||
+		p3.Actions[1].Hints[0].Name != "amount" ||
+		p3.Actions[1].Hints[0].Type != "integer" ||
+		p3.Actions[1].Hints[0].Value != 390 ||
+		p3.Actions[2].Name != constant.Raise ||
+		p3.Actions[2].Parameters[0].Name != "amount" ||
+		p3.Actions[2].Parameters[0].Type != "integer" ||
+		p3.Actions[2].Hints[0].Name != "amount" ||
+		p3.Actions[2].Hints[0].Type != "integer" ||
+		p3.Actions[2].Hints[0].Value != 391 {
+		t.Error()
+	}
+	// if !state.GS.Gambit.Call(id2) {
+	// 	t.Error()
+	// }
+	fmt.Println(p1.Actions)
+	fmt.Println(p2.Actions)
+	fmt.Println(p3.Actions)
+	// if p1.Action.Name != constant.AllIn || p1.Default.Name != constant.AllIn {
+	// 	t.Error()
+	// }
 }
