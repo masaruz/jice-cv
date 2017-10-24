@@ -14,14 +14,14 @@ type Player struct {
 	Action    Action   `json:"action"`
 	Actions   []Action `json:"actions"`
 	IsPlaying bool     `json:"is_playing"`
-	IsWinner  bool     `json:"is_winner"`
+	IsEarned  bool     `json:"is_winner"`
 	DeadLine  int64    `json:"deadline"`
 	StartLine int64    `json:"startline"`
 }
 
 // Print status of player only for development
 func (player Player) Print() {
-	fmt.Println(player.ID, player.IsPlaying, player.Cards, player.Default, player.Action, player.StartLine, player.DeadLine, player.Chips, player.Bets, player.Type, player.Slot)
+	fmt.Println(player.ID, player.IsPlaying, player.Cards, player.Default, player.Action, player.StartLine, player.DeadLine, player.Chips, player.Bets, player.Type, player.Slot, player.IsEarned)
 }
 
 // Players in the battle

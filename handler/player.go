@@ -83,6 +83,7 @@ func MakePlayersReady() bool {
 		state.GS.Players[index].Cards = model.Cards{}
 		state.GS.Players[index].Bets = []int{}
 		state.GS.Players[index].IsPlaying = true
+		state.GS.Players[index].IsEarned = false
 		state.GS.Players[index].Actions = ActionReducer(constant.Check, state.GS.Players[index].ID)
 		state.GS.Players[index].Default = model.Action{Name: constant.Check}
 		state.GS.Players[index].Action = model.Action{}
@@ -319,7 +320,7 @@ func Call(id string, duration int64) bool {
 // OverwriteActionToBehindPlayers overwritten action with default
 func OverwriteActionToBehindPlayers() {
 	for index := range state.GS.Players {
-		if util.IsPlayingAndNotFold(state.GS.Players[index]) &&
+		if util.IsPlayingAndNotFoldAndNotAllIn(state.GS.Players[index]) &&
 			util.IsPlayerBehindTheTimeline(state.GS.Players[index]) {
 			state.GS.Players[index].Action = state.GS.Players[index].Default
 		}

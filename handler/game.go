@@ -67,7 +67,9 @@ func AssignWinners() {
 	// winner := model.Player{}
 	for i := 0; i < util.CountPlayerNotFold(state.GS.Players); i++ {
 		for index, player := range state.GS.Players {
-			if !util.IsPlayingAndNotFold(player) || len(player.Cards) == 0 {
+			if !util.IsPlayingAndNotFold(player) ||
+				len(player.Cards) == 0 ||
+				player.IsEarned {
 				continue
 			}
 			scores, _ := state.GS.Gambit.Evaluate(player.Cards)
@@ -89,14 +91,15 @@ func AssignWinners() {
 		}
 		if pos != -1 {
 			for index, player := range state.GS.Players {
-				if !player.IsPlaying || len(player.Cards) == 0 {
+				if !player.IsPlaying {
 					continue
 				}
-				// if winner has higher bet
 				playerbet := util.SumBet(player)
 				winnerbet := util.SumBet(state.GS.Players[pos])
+				// if winner has higher bet
 				if winnerbet > playerbet {
 					state.GS.Players[pos].Chips += playerbet
+					// player bet will be 0
 					BurnBet(player.ID, playerbet)
 				} else {
 					// if winner has lower bet
@@ -107,7 +110,11 @@ func AssignWinners() {
 					}
 				}
 			}
-			state.GS.Players[pos].Cards = model.Cards{}
+			state.GS.Players[pos].IsEarned = true
+			BurnBet(state.GS.Players[pos].ID, util.SumBet(state.GS.Players[pos]))
+			hscore = -1
+			hbonus = -1
+			pos = -1
 		}
 	}
 }
@@ -213,11 +220,11 @@ func Deal(cardAmount int, playerAmount int) {
 	}
 }
 
-// FlushGame reset everything before new game
+// FlushGame reset everything before new game and client no needs to see it
 func FlushGame() {
 	for index := range state.GS.Players {
 		state.GS.Players[index].IsPlaying = false
-		state.GS.Players[index].Cards = model.Cards{}
+		// state.GS.Players[index].Cards = model.Cards{}
 		state.GS.Players[index].Bets = []int{}
 		state.GS.Players[index].Default = model.Action{}
 		state.GS.Players[index].Action = model.Action{}
