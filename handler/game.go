@@ -176,7 +176,7 @@ func CreateTimeLine(decisionTime int64) {
 	state.GS.FinishRoundTime = start
 }
 
-// AssignPlayersCheckOrAllIn when go to next turn
+// AssignPlayersCheckOrAllIn if player has no chips then let them allin otherwise check
 func AssignPlayersCheckOrAllIn() {
 	for index, player := range state.GS.Players {
 		if !util.IsPlayingAndNotFold(player) {
@@ -322,16 +322,6 @@ func ShiftPlayersToEndOfTimeline(id string, second int64) {
 	}
 }
 
-// IncreasePots when increase pots values
-func IncreasePots(chips int, index int) {
-	for len(state.GS.Pots)-1 <= index {
-		state.GS.Pots = append(state.GS.Pots, 0)
-	}
-	// increase pot values
-	state.GS.Pots[0] += chips
-	SetMaximumBet(util.SumBets(state.GS.Players))
-}
-
 // InvestToPots added bet to everyone base on turn
 func InvestToPots(chips int) {
 	// initiate bet value to players
@@ -339,10 +329,10 @@ func InvestToPots(chips int) {
 		if util.IsPlayingAndNotFoldAndNotAllIn(state.GS.Players[index]) {
 			state.GS.Players[index].Chips -= chips
 			state.GS.Players[index].Bets = append(state.GS.Players[index].Bets, chips)
-			IncreasePots(chips, state.GS.Turn) // start with first element in pots
+			SetMaximumBet(util.SumBets(state.GS.Players)) // start with first element in pots
 		} else if util.IsPlayingAndNotFold(state.GS.Players[index]) {
 			state.GS.Players[index].Bets = append(state.GS.Players[index].Bets, 0)
-			IncreasePots(chips, state.GS.Turn)
+			SetMaximumBet(util.SumBets(state.GS.Players))
 		}
 	}
 }

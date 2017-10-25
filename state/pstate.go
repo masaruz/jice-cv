@@ -13,6 +13,8 @@ type PlayerState struct {
 	Version         int           `json:"version"`
 	Pots            []int         `json:"pots"`
 	CurrentTime     int64         `json:"current_time"`
+	IsGameStart     bool          `json:"is_game_start"`
+	IsTableStart    bool          `json:"is_table_start"`
 	StartRoundTime  int64         `json:"start_round_time"`
 	FinishRoundTime int64         `json:"finish_round_time"`
 }

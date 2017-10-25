@@ -369,7 +369,7 @@ func TestLoop04(t *testing.T) {
 	handler.Sit("player3", 3) // first
 	handler.Sit("player4", 5)
 	handler.StartTable()
-	if !state.GS.Gambit.Start() || state.GS.Pots[0] != 40 {
+	if !state.GS.Gambit.Start() || util.SumBets(state.GS.Players) != 40 {
 		t.Error()
 	}
 	for _, player := range state.GS.Players {
@@ -467,7 +467,7 @@ func TestLoop05(t *testing.T) {
 	handler.Sit("player3", 5)
 	handler.Sit("player4", 1) // dealer
 	handler.StartTable()
-	if !state.GS.Gambit.Start() || state.GS.Pots[0] != 40 {
+	if !state.GS.Gambit.Start() || util.SumBets(state.GS.Players) != 40 {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay))
@@ -532,16 +532,16 @@ func TestLoop05(t *testing.T) {
 			handler.IsFullHand(3), handler.BetsEqual(), handler.IsEndRound())
 		t.Error()
 	}
-	_, p1 = util.Get(state.GS.Players, "player1")
-	_, p2 = util.Get(state.GS.Players, "player2")
-	_, p3 := util.Get(state.GS.Players, "player3")
-	_, p4 := util.Get(state.GS.Players, "player4")
-	p1.Print()
-	p2.Print()
-	p3.Print()
-	p4.Print()
-	fmt.Println("now:", time.Now().Unix())
-	fmt.Println("fin:", state.GS.FinishRoundTime)
+	// _, p1 = util.Get(state.GS.Players, "player1")
+	// _, p2 = util.Get(state.GS.Players, "player2")
+	// _, p3 := util.Get(state.GS.Players, "player3")
+	// _, p4 := util.Get(state.GS.Players, "player4")
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// p4.Print()
+	// fmt.Println("now:", time.Now().Unix())
+	// fmt.Println("fin:", state.GS.FinishRoundTime)
 }
 
 func TestLoop06(t *testing.T) {
@@ -916,11 +916,11 @@ func TestLoop08(t *testing.T) {
 	if p3.Chips != 1090 || p1.Chips != 940 || p2.Chips != 970 {
 		t.Error()
 	}
-	p1.Print()
-	p2.Print()
-	p3.Print()
-	fmt.Println("now:", time.Now().Unix())
-	fmt.Println("fin:", state.GS.FinishRoundTime)
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// fmt.Println("now:", time.Now().Unix())
+	// fmt.Println("fin:", state.GS.FinishRoundTime)
 }
 
 func TestLoop09(t *testing.T) {
@@ -1077,16 +1077,16 @@ func TestLoop11(t *testing.T) {
 	state.GS.Players[2].Chips = 40
 	state.GS.Players[4].Chips = 10
 	state.GS.Players[1].Chips = 20
-	_, p1 := util.Get(state.GS.Players, id1)
+	// _, p1 := util.Get(state.GS.Players, id1)
 	_, p2 := util.Get(state.GS.Players, id2)
-	_, p3 := util.Get(state.GS.Players, id3)
+	// _, p3 := util.Get(state.GS.Players, id3)
 	if !state.GS.Gambit.Bet(id1, 20) ||
 		state.GS.Gambit.Call(id2) {
 		t.Error()
 	}
-	_, p1 = util.Get(state.GS.Players, id1)
+	// _, p1 = util.Get(state.GS.Players, id1)
 	_, p2 = util.Get(state.GS.Players, id2)
-	_, p3 = util.Get(state.GS.Players, id3)
+	// _, p3 = util.Get(state.GS.Players, id3)
 	if p2.Actions[0].Name != constant.Fold ||
 		p2.Actions[1].Name != constant.AllIn ||
 		!state.GS.Gambit.AllIn(id2) {
@@ -1104,14 +1104,14 @@ func TestLoop11(t *testing.T) {
 	// 		handler.IsFullHand(3), state.GS.Gambit.BetsEqual(), handler.IsEndRound())
 	// 	t.Error()
 	// }
-	_, p1 = util.Get(state.GS.Players, id1)
-	_, p2 = util.Get(state.GS.Players, id2)
-	_, p3 = util.Get(state.GS.Players, id3)
-	p1.Print()
-	p2.Print()
-	p3.Print()
-	fmt.Println("now:", time.Now().Unix())
-	fmt.Println("fin:", state.GS.FinishRoundTime)
+	// _, p1 = util.Get(state.GS.Players, id1)
+	// _, p2 = util.Get(state.GS.Players, id2)
+	// _, p3 = util.Get(state.GS.Players, id3)
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// fmt.Println("now:", time.Now().Unix())
+	// fmt.Println("fin:", state.GS.FinishRoundTime)
 }
 
 func TestLoop12(t *testing.T) {
@@ -1193,12 +1193,12 @@ func TestLoop13(t *testing.T) {
 	if util.CountSitting(state.GS.Players) != 1 || state.GS.IsGameStart {
 		t.Error()
 	}
-	_, p1 := util.Get(state.GS.Players, id1)
-	_, p2 := util.Get(state.GS.Players, id2)
-	p1.Print()
-	p2.Print()
-	fmt.Println("now:", time.Now().Unix())
-	fmt.Println("fin:", state.GS.FinishRoundTime)
+	// _, p1 := util.Get(state.GS.Players, id1)
+	// _, p2 := util.Get(state.GS.Players, id2)
+	// p1.Print()
+	// p2.Print()
+	// fmt.Println("now:", time.Now().Unix())
+	// fmt.Println("fin:", state.GS.FinishRoundTime)
 }
 
 func TestLoop14(t *testing.T) {
@@ -1303,14 +1303,14 @@ func TestLoop14(t *testing.T) {
 	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
 		t.Error()
 	}
-	_, p1 = util.Get(state.GS.Players, id1)
-	_, p2 = util.Get(state.GS.Players, id2)
-	_, p3 = util.Get(state.GS.Players, id3)
-	p1.Print()
-	p2.Print()
-	p3.Print()
-	fmt.Println("now:", time.Now().Unix())
-	fmt.Println("fin:", state.GS.FinishRoundTime)
+	// _, p1 = util.Get(state.GS.Players, id1)
+	// _, p2 = util.Get(state.GS.Players, id2)
+	// _, p3 = util.Get(state.GS.Players, id3)
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// fmt.Println("now:", time.Now().Unix())
+	// fmt.Println("fin:", state.GS.FinishRoundTime)
 }
 
 func TestLoop15(t *testing.T) {
@@ -1407,12 +1407,12 @@ func TestLoop15(t *testing.T) {
 	if p1.Chips != 1430 || p2.Chips != 2660 || p3.Chips != 610 || p4.Chips != 0 {
 		t.Fail()
 	}
-	p1.Print()
-	p2.Print()
-	p3.Print()
-	p4.Print()
-	fmt.Println("now:", time.Now().Unix())
-	fmt.Println("fin:", state.GS.FinishRoundTime)
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// p4.Print()
+	// fmt.Println("now:", time.Now().Unix())
+	// fmt.Println("fin:", state.GS.FinishRoundTime)
 }
 
 func TestLoop16(t *testing.T) {
@@ -1518,12 +1518,12 @@ func TestLoop16(t *testing.T) {
 	if p1.Chips != 0 || p2.Chips != 100 || p3.Chips != 700 || p4.Chips != 2200 {
 		t.Fail()
 	}
-	p1.Print()
-	p2.Print()
-	p3.Print()
-	p4.Print()
-	fmt.Println("now:", time.Now().Unix())
-	fmt.Println("fin:", state.GS.FinishRoundTime)
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// p4.Print()
+	// fmt.Println("now:", time.Now().Unix())
+	// fmt.Println("fin:", state.GS.FinishRoundTime)
 }
 
 func TestLoop17(t *testing.T) {
@@ -1567,14 +1567,14 @@ func TestLoop17(t *testing.T) {
 	if state.GS.Gambit.Finish() {
 		t.Error()
 	}
-	_, p1 := util.Get(state.GS.Players, id1)
-	_, p2 := util.Get(state.GS.Players, id2)
-	_, p3 := util.Get(state.GS.Players, id3)
-	_, p4 := util.Get(state.GS.Players, id4)
-	p1.Print()
-	p2.Print()
-	p3.Print()
-	p4.Print()
+	// _, p1 := util.Get(state.GS.Players, id1)
+	// _, p2 := util.Get(state.GS.Players, id2)
+	// _, p3 := util.Get(state.GS.Players, id3)
+	// _, p4 := util.Get(state.GS.Players, id4)
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// p4.Print()
 }
 
 func TestLoop18(t *testing.T) {
@@ -1596,7 +1596,7 @@ func TestLoop18(t *testing.T) {
 	handler.Sit(id2, 4)
 	handler.Sit(id3, 1)
 	state.GS.Gambit.Start()
-	if state.GS.MinimumBet != minimumBet || state.GS.MaximumBet != util.SumPots(state.GS.Pots) {
+	if state.GS.MinimumBet != minimumBet || state.GS.MaximumBet != util.SumBets(state.GS.Players) {
 		t.Error()
 	}
 	if !state.GS.Gambit.Check(id1) {
@@ -1753,11 +1753,11 @@ func TestLoop18(t *testing.T) {
 		p3.Actions[2].Name != constant.Bet {
 		t.Error()
 	}
-	p1.Print()
-	p2.Print()
-	p3.Print()
-	fmt.Println("now:", time.Now().Unix())
-	fmt.Println("end:", state.GS.FinishRoundTime)
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// fmt.Println("now:", time.Now().Unix())
+	// fmt.Println("end:", state.GS.FinishRoundTime)
 }
 
 func TestLoop19(t *testing.T) {
@@ -1779,19 +1779,33 @@ func TestLoop19(t *testing.T) {
 	handler.Sit(id2, 4)
 	handler.Sit(id3, 1)
 	state.GS.Gambit.Start()
-	if state.GS.MinimumBet != minimumBet || state.GS.MaximumBet != util.SumPots(state.GS.Pots) {
+	if state.GS.MinimumBet != minimumBet || state.GS.MaximumBet != util.SumBets(state.GS.Players) {
 		t.Error()
 	}
-	i1, p1 := util.Get(state.GS.Players, id1)
-	i2, p2 := util.Get(state.GS.Players, id2)
-	i3, p3 := util.Get(state.GS.Players, id3)
+	i1, _ := util.Get(state.GS.Players, id1)
+	i2, _ := util.Get(state.GS.Players, id2)
+	i3, _ := util.Get(state.GS.Players, id3)
 	state.GS.Players[i1].Chips = 390
 	state.GS.Players[i2].Chips = 690
 	state.GS.Players[i3].Chips = 1290
-
-	_, p1 = util.Get(state.GS.Players, id1)
-	_, p2 = util.Get(state.GS.Players, id2)
-	_, p3 = util.Get(state.GS.Players, id3)
+	if !state.GS.Gambit.Bet(id1, 30) {
+		t.Error()
+	}
+	if state.GS.Gambit.Raise(id2, 30) || !state.GS.Gambit.Raise(id2, 60) {
+		t.Error()
+	}
+	if state.GS.Gambit.Raise(id3, 121) || !state.GS.Gambit.Raise(id3, 120) {
+		t.Error()
+	}
+	if state.GS.Gambit.Raise(id1, 211) || !state.GS.Gambit.Raise(id1, 210) {
+		t.Error()
+	}
+	if state.GS.Gambit.Raise(id2, 420) || state.GS.Gambit.Raise(id2, 179) || !state.GS.Gambit.Raise(id2, 330) {
+		t.Error()
+	}
+	_, p1 := util.Get(state.GS.Players, id1)
+	_, p2 := util.Get(state.GS.Players, id2)
+	_, p3 := util.Get(state.GS.Players, id3)
 	p1.Print()
 	p2.Print()
 	p3.Print()

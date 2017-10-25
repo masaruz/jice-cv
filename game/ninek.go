@@ -35,9 +35,13 @@ func (game NineK) Start() bool {
 	if handler.IsTableStart() && !handler.IsGameStart() && handler.MakePlayersReady() {
 		handler.StartGame()
 		handler.SetMinimumBet(game.MinimumBet)
+		// let all players bets to the pots
 		handler.InvestToPots(game.MinimumBet)
+		// start turn
 		handler.IncreaseTurn()
+		// start new bets
 		handler.InvestToPots(0)
+		handler.SetOtherActions("", constant.Check)
 		handler.SetDealer()
 		handler.BuildDeck()
 		handler.Shuffle()

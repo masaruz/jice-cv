@@ -17,8 +17,13 @@ func GetPlayerState() model.Players {
 func ActionReducer(event string, id string) model.Actions {
 	switch event {
 	case constant.Check:
-		if state.GS.MaximumBet == 0 {
-			state.GS.MaximumBet = util.SumBets(state.GS.Players)
+		_, player := util.Get(state.GS.Players, id)
+		// maximum will be player's chips if not enough
+		maximum := 0
+		if state.GS.MaximumBet > player.Chips {
+			maximum = player.Chips
+		} else {
+			maximum = state.GS.MaximumBet
 		}
 		return model.Actions{
 			model.Action{Name: constant.Fold},
@@ -31,7 +36,7 @@ func ActionReducer(event string, id string) model.Actions {
 					model.Hint{
 						Name: "amount", Type: "integer", Value: state.GS.MinimumBet},
 					model.Hint{
-						Name: "amount_max", Type: "integer", Value: state.GS.MaximumBet}}}}
+						Name: "amount_max", Type: "integer", Value: maximum}}}}
 	case constant.Bet:
 		highestbet := util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players)
 		_, player := util.Get(state.GS.Players, id)
@@ -47,6 +52,13 @@ func ActionReducer(event string, id string) model.Actions {
 							Name: "amount", Type: "integer", Value: player.Chips}}}}
 		}
 		diff := highestbet - player.Bets[state.GS.Turn]
+		// maximum will be player's chips if not enough
+		maximum := 0
+		if state.GS.MaximumBet > player.Chips {
+			maximum = player.Chips
+		} else {
+			maximum = state.GS.MaximumBet
+		}
 		return model.Actions{
 			model.Action{Name: constant.Fold},
 			model.Action{Name: constant.Call,
@@ -61,7 +73,7 @@ func ActionReducer(event string, id string) model.Actions {
 					model.Hint{
 						Name: "amount", Type: "integer", Value: diff + 1},
 					model.Hint{
-						Name: "amount_max", Type: "integer", Value: state.GS.MaximumBet}}}}
+						Name: "amount_max", Type: "integer", Value: maximum}}}}
 	case constant.Sit:
 		if util.CountSitting(state.GS.Players) >= 2 && !state.GS.IsTableStart {
 			return model.Actions{
@@ -97,7 +109,6 @@ func MakePlayersReady() bool {
 		state.GS.Players[index].Bets = []int{}
 		state.GS.Players[index].IsPlaying = true
 		state.GS.Players[index].IsEarned = false
-		state.GS.Players[index].Actions = ActionReducer(constant.Check, state.GS.Players[index].ID)
 		state.GS.Players[index].Default = model.Action{Name: constant.Check}
 		state.GS.Players[index].Action = model.Action{}
 	}
