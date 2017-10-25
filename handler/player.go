@@ -244,7 +244,7 @@ func AllIn(id string, duration int64) bool {
 	if !IsPlayerTurn(id) {
 		return false
 	}
-	index, caller := util.Get(state.GS.Players, id)
+	index, _ := util.Get(state.GS.Players, id)
 	chips := state.GS.Players[index].Chips
 	state.GS.Players[index].Bets[state.GS.Turn] += chips
 	state.GS.Players[index].Chips = 0
@@ -258,10 +258,10 @@ func AllIn(id string, duration int64) bool {
 	SetOtherDefaultAction(id, constant.Fold)
 	// others need to know what to do next
 	SetOtherActions(id, constant.Bet)
-	diff := time.Now().Unix() - caller.DeadLine
+	diff := time.Now().Unix() - state.GS.Players[index].DeadLine
 	ShortenTimeline(diff)
 	// duration extend the timeline
-	if chips > util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players) {
+	if state.GS.Players[index].Bets[state.GS.Turn] >= util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players) {
 		state.GS.MinimumBet = state.GS.Players[index].Bets[state.GS.Turn]
 		ShiftPlayersToEndOfTimeline(id, duration)
 	}
@@ -270,10 +270,13 @@ func AllIn(id string, duration int64) bool {
 
 // Bet when previous chips are equally but we want to add more chips to the pots
 func Bet(id string, chips int, duration int64) bool {
-	if !IsPlayerTurn(id) || chips < state.GS.MinimumBet {
+	if !IsPlayerTurn(id) {
 		return false
 	}
 	index, caller := util.Get(state.GS.Players, id)
+	if state.GS.Players[index].Bets[state.GS.Turn]+chips < state.GS.MinimumBet {
+		return false
+	}
 	// cannot bet more than player's chips
 	if state.GS.Players[index].Chips < chips {
 		return false

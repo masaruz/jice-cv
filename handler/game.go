@@ -234,6 +234,7 @@ func FlushGame() {
 		state.GS.Players[index].Actions = model.Actions{}
 		state.GS.Players[index].StartLine = 0
 		state.GS.Players[index].DeadLine = 0
+		state.GS.Players[index].IsEarned = false
 	}
 	state.GS.Pots = []int{}
 	state.GS.Turn = 0
