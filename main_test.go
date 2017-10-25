@@ -288,23 +288,23 @@ func TestLoop03(t *testing.T) {
 			t.Error()
 		}
 	}
-	if handler.Check("player1") {
+	if state.GS.Gambit.Check("player1") {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay))
-	if !handler.Check("player3") {
+	if !state.GS.Gambit.Check("player3") {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay))
-	if !handler.Check("player2") {
+	if !state.GS.Gambit.Check("player2") {
 		t.Error()
 	}
 	// cannot check if already checked
-	if handler.Check("player2") {
+	if state.GS.Gambit.Check("player2") {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay))
-	if !handler.Check("player1") || !state.GS.Gambit.NextRound() {
+	if !state.GS.Gambit.Check("player1") || !state.GS.Gambit.NextRound() {
 		t.Error()
 	}
 	for _, player := range state.GS.Players {
@@ -322,15 +322,15 @@ func TestLoop03(t *testing.T) {
 		}
 	}
 	time.Sleep(time.Second * time.Duration(delay+decisionTime))
-	if handler.Check("player3") {
+	if state.GS.Gambit.Check("player3") {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay))
-	if !handler.Check("player2") || handler.Check("player3") {
+	if !state.GS.Gambit.Check("player2") || state.GS.Gambit.Check("player3") {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay))
-	if !handler.Check("player1") {
+	if !state.GS.Gambit.Check("player1") {
 		t.Error()
 	}
 	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
@@ -387,7 +387,7 @@ func TestLoop04(t *testing.T) {
 		}
 	}
 	time.Sleep(time.Second * time.Duration(delay))
-	if !handler.Check("player3") {
+	if !state.GS.Gambit.Check("player3") {
 		t.Error()
 	}
 	_, p1 := util.Get(state.GS.Players, "player1")
@@ -395,21 +395,21 @@ func TestLoop04(t *testing.T) {
 	_, p3 := util.Get(state.GS.Players, "player3")
 	_, p4 := util.Get(state.GS.Players, "player4")
 	time.Sleep(time.Second * time.Duration(delay))
-	if !handler.Bet("player2", 15, decisionTime) {
+	if !state.GS.Gambit.Bet("player2", 15) {
 		t.Error()
 	}
 	_, p1 = util.Get(state.GS.Players, "player1")
 	_, p2 = util.Get(state.GS.Players, "player2")
 	_, p3 = util.Get(state.GS.Players, "player3")
 	_, p4 = util.Get(state.GS.Players, "player4")
-	if p2.Bets[0] != 25 || p2.Action.Name != constant.Bet ||
+	if util.SumBet(p2) != 25 || p2.Action.Name != constant.Bet ||
 		p1.Default.Name != constant.Fold ||
 		p3.Default.Name != constant.Fold ||
 		p4.Default.Name != constant.Fold {
 		t.Error("p2 bets != 25, p2 action name != bet, p1,p3,p4 default != fold")
 	}
 	time.Sleep(time.Second * time.Duration(delay))
-	if !handler.Fold("player4") {
+	if !state.GS.Gambit.Fold("player4") {
 		t.Error()
 	}
 	_, p4 = util.Get(state.GS.Players, "player4")
@@ -417,18 +417,18 @@ func TestLoop04(t *testing.T) {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay+4))
-	if handler.Check("player1") || !handler.Call("player3", 3) {
+	if state.GS.Gambit.Check("player1") || !state.GS.Gambit.Call("player3") {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay))
-	if handler.Check("player2") {
+	if state.GS.Gambit.Check("player2") {
 		t.Error()
 	}
 	if !state.GS.Gambit.NextRound() || state.GS.Gambit.Finish() {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay))
-	if !handler.Bet("player3", 30, 3) {
+	if !state.GS.Gambit.Bet("player3", 30) {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay+4))
@@ -471,55 +471,55 @@ func TestLoop05(t *testing.T) {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay))
-	if !handler.Bet("player1", 20, decisionTime) {
+	if !state.GS.Gambit.Bet("player1", 20) {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay))
-	if !handler.Call("player2", decisionTime) {
+	if !state.GS.Gambit.Call("player2") {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay+4))
-	if !handler.Bet("player4", 30, decisionTime) {
+	if !state.GS.Gambit.Bet("player4", 30) {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay))
 	if state.GS.Gambit.NextRound() || state.GS.Gambit.Finish() {
 		t.Error()
 	}
-	if !handler.Call("player1", decisionTime) {
+	if !state.GS.Gambit.Call("player1") {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay))
 	if state.GS.Gambit.NextRound() || state.GS.Gambit.Finish() {
 		t.Error()
 	}
-	if !handler.Bet("player2", 40, decisionTime) {
+	if !state.GS.Gambit.Bet("player2", 40) {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay))
-	if handler.Call("player3", decisionTime) {
+	if state.GS.Gambit.Call("player3") {
 		t.Error()
 	}
-	if !handler.Fold("player4") {
+	if !state.GS.Gambit.Fold("player4") {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay))
-	if !handler.Call("player1", decisionTime) {
+	if !state.GS.Gambit.Call("player1") {
 		t.Error()
 	}
 	if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay+3))
-	if handler.Check("player1") {
+	if state.GS.Gambit.Check("player1") {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay))
-	if !handler.Bet("player2", 10, decisionTime) {
+	if !state.GS.Gambit.Bet("player2", 10) {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay))
-	if !handler.Call("player1", decisionTime) {
+	if !state.GS.Gambit.Call("player1") {
 		t.Error()
 	}
 	_, p1 := util.Get(state.GS.Players, "player1")
@@ -616,13 +616,13 @@ func TestLoop06(t *testing.T) {
 	if state.GS.Gambit.Start() {
 		t.Error()
 	}
-	if !handler.Check(id2) || !handler.Check(id1) {
+	if !state.GS.Gambit.Check(id2) || !state.GS.Gambit.Check(id1) {
 		t.Error()
 	}
 	if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() {
 		t.Error()
 	}
-	if !handler.Check(id2) || !handler.Check(id1) {
+	if !state.GS.Gambit.Check(id2) || !state.GS.Gambit.Check(id1) {
 		t.Error()
 	}
 	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
@@ -636,7 +636,7 @@ func TestLoop06(t *testing.T) {
 		util.CountPlayerNotFoldAndNotAllIn(state.GS.Players) != 3 {
 		t.Error()
 	}
-	if !handler.Fold(id4) || !handler.Fold(id1) {
+	if !state.GS.Gambit.Fold(id4) || !state.GS.Gambit.Fold(id1) {
 		t.Error()
 	}
 	if !handler.Sit(id3, 3) {
@@ -663,7 +663,7 @@ func TestLoop06(t *testing.T) {
 	// p4.Print()
 	// fmt.Println("now:", time.Now().Unix())
 	// fmt.Println("fin:", state.GS.FinishRoundTime)
-	if !handler.Check(id1) {
+	if !state.GS.Gambit.Check(id1) {
 		t.Error("player1 cannot check")
 	}
 	// fmt.Println("========== player1 checked ==========")
@@ -677,7 +677,7 @@ func TestLoop06(t *testing.T) {
 	// p4.Print()
 	// fmt.Println("now:", time.Now().Unix())
 	// fmt.Println("fin:", state.GS.FinishRoundTime)
-	if !handler.Check(id3) {
+	if !state.GS.Gambit.Check(id3) {
 		t.Error("player3 cannot check")
 	}
 	// fmt.Println("========== player3 checked ==========")
@@ -691,7 +691,7 @@ func TestLoop06(t *testing.T) {
 	// p4.Print()
 	// fmt.Println("now:", time.Now().Unix())
 	// fmt.Println("fin:", state.GS.FinishRoundTime)
-	if !handler.Bet(id2, 20, decisionTime) {
+	if !state.GS.Gambit.Bet(id2, 20) {
 		t.Error("player2 cannot bet")
 	}
 	// fmt.Println("========== player2 bet ==========")
@@ -705,7 +705,7 @@ func TestLoop06(t *testing.T) {
 	// p4.Print()
 	// fmt.Println("now:", time.Now().Unix())
 	// fmt.Println("fin:", state.GS.FinishRoundTime)
-	if !handler.Call(id4, decisionTime) {
+	if !state.GS.Gambit.Call(id4) {
 		t.Error("player4 cannot call")
 	}
 	// fmt.Println("========== player4 called ==========")
@@ -719,7 +719,7 @@ func TestLoop06(t *testing.T) {
 	// p4.Print()
 	// fmt.Println("now:", time.Now().Unix())
 	// fmt.Println("fin:", state.GS.FinishRoundTime)
-	if !handler.Fold(id1) {
+	if !state.GS.Gambit.Fold(id1) {
 		t.Error("player1 cannot fold")
 	}
 	// fmt.Println("========== player1 fold ==========")
@@ -733,7 +733,7 @@ func TestLoop06(t *testing.T) {
 	// p4.Print()
 	// fmt.Println("now:", time.Now().Unix())
 	// fmt.Println("fin:", state.GS.FinishRoundTime)
-	if !handler.Fold(id3) {
+	if !state.GS.Gambit.Fold(id3) {
 		t.Error("player3 cannot fold")
 	}
 	// fmt.Println("========== player3 fold ==========")
@@ -743,7 +743,7 @@ func TestLoop06(t *testing.T) {
 	if !state.GS.Gambit.NextRound() {
 		t.Error("unable to go the next round")
 	}
-	if !handler.Check(id2) || !handler.Bet(id4, 20, decisionTime) ||
+	if !state.GS.Gambit.Check(id2) || !state.GS.Gambit.Bet(id4, 20) ||
 		!handler.Stand(id2) {
 		t.Error()
 	}
@@ -877,20 +877,17 @@ func TestLoop08(t *testing.T) {
 	_, p1 := util.Get(state.GS.Players, id1)
 	_, p2 := util.Get(state.GS.Players, id2)
 	_, p3 := util.Get(state.GS.Players, id3)
-	if p2.Chips != 970 || p2.Bets[state.GS.Turn] != 30 {
+	if p2.Chips != 970 || util.SumBet(p2) != 30 || p2.Bets[state.GS.Turn] != 20 {
 		t.Error()
 	}
-	if state.GS.Gambit.Bet(id3, 50) {
-		t.Error("player3 bet more than 50")
+	if state.GS.Gambit.Bet(id3, 51) || !state.GS.Gambit.Bet(id3, 50) {
+		t.Error()
 	}
-	if !state.GS.Gambit.Bet(id3, 40) {
-		t.Error("player3 cannot bet 40")
-	}
-	// _, p1 = util.Get(state.GS.Players, id1)
+	_, p1 = util.Get(state.GS.Players, id1)
 	_, p2 = util.Get(state.GS.Players, id2)
 	_, p3 = util.Get(state.GS.Players, id3)
-	if p3.Chips != 950 || p3.Bets[state.GS.Turn] != 50 {
-		t.Error("player3 chips != 90 or player2 bets[0] != 900")
+	if p3.Chips != 940 || p3.Bets[state.GS.Turn] != 50 {
+		t.Error()
 	}
 	if !state.GS.Gambit.Call(id1) {
 		t.Error("player1 cannot call")
@@ -916,8 +913,8 @@ func TestLoop08(t *testing.T) {
 	_, p1 = util.Get(state.GS.Players, id1)
 	_, p2 = util.Get(state.GS.Players, id2)
 	_, p3 = util.Get(state.GS.Players, id3)
-	if p3.Chips != 1080 || p1.Chips != 950 || p2.Chips != 970 {
-		t.Error("player3 chips != 1080, player1 chips != 950, player2 chips != 970")
+	if p3.Chips != 1090 || p1.Chips != 940 || p2.Chips != 970 {
+		t.Error()
 	}
 	p1.Print()
 	p2.Print()
@@ -955,16 +952,16 @@ func TestLoop09(t *testing.T) {
 	if !handler.Stand(id2) {
 		t.Error("player2 cannot stand")
 	}
-	if !handler.Check(id1) {
+	if !state.GS.Gambit.Check(id1) {
 		t.Error("player1 cannot check")
 	}
-	if !handler.Check(id3) {
+	if !state.GS.Gambit.Check(id3) {
 		t.Error("player3 cannot check")
 	}
 	if !handler.Stand(id1) {
 		t.Error("player1 cannot check")
 	}
-	if !handler.Check(id4) {
+	if !state.GS.Gambit.Check(id4) {
 		t.Error("player3 cannot check")
 	}
 	if !state.GS.Gambit.NextRound() || state.GS.Gambit.Finish() {
@@ -1083,8 +1080,8 @@ func TestLoop11(t *testing.T) {
 	_, p1 := util.Get(state.GS.Players, id1)
 	_, p2 := util.Get(state.GS.Players, id2)
 	_, p3 := util.Get(state.GS.Players, id3)
-	if !handler.Bet(id1, 20, decisionTime) ||
-		handler.Call(id2, decisionTime) {
+	if !state.GS.Gambit.Bet(id1, 20) ||
+		state.GS.Gambit.Call(id2) {
 		t.Error()
 	}
 	_, p1 = util.Get(state.GS.Players, id1)
@@ -1092,21 +1089,21 @@ func TestLoop11(t *testing.T) {
 	_, p3 = util.Get(state.GS.Players, id3)
 	if p2.Actions[0].Name != constant.Fold ||
 		p2.Actions[1].Name != constant.AllIn ||
-		!handler.AllIn(id2, decisionTime) {
+		!state.GS.Gambit.AllIn(id2) {
 		t.Error()
 	}
-	if !handler.Call(id3, decisionTime) {
+	if !state.GS.Gambit.Call(id3) {
 		t.Error()
 	}
-	if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() {
-		t.Error()
-	}
-	if !state.GS.Gambit.Finish() {
-		fmt.Println(util.CountPlayerNotFold(handler.GetPlayerState()) <= 1, handler.IsGameStart(),
-			util.CountPlayerNotFoldAndNotAllIn(handler.GetPlayerState()) <= 1,
-			handler.IsFullHand(3), handler.BetsEqual(), handler.IsEndRound())
-		t.Error()
-	}
+	// if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() {
+	// 	t.Error()
+	// }
+	// if !state.GS.Gambit.Finish() {
+	// 	fmt.Println(util.CountPlayerNotFold(handler.GetPlayerState()) <= 1, handler.IsGameStart(),
+	// 		util.CountPlayerNotFoldAndNotAllIn(handler.GetPlayerState()) <= 1,
+	// 		handler.IsFullHand(3), state.GS.Gambit.BetsEqual(), handler.IsEndRound())
+	// 	t.Error()
+	// }
 	_, p1 = util.Get(state.GS.Players, id1)
 	_, p2 = util.Get(state.GS.Players, id2)
 	_, p3 = util.Get(state.GS.Players, id3)
@@ -1261,10 +1258,10 @@ func TestLoop14(t *testing.T) {
 	if !state.GS.Gambit.Start() {
 		t.Error()
 	}
-	if !state.GS.Gambit.Bet(id2, 20) {
+	if !state.GS.Gambit.Bet(id2, 30) {
 		t.Error()
 	}
-	if state.GS.Gambit.AllIn(id3) || !state.GS.Gambit.Bet(id3, 40) {
+	if state.GS.Gambit.AllIn(id3) || !state.GS.Gambit.Bet(id3, 50) {
 		t.Error()
 	}
 	_, p1 = util.Get(state.GS.Players, id1)
@@ -1274,35 +1271,30 @@ func TestLoop14(t *testing.T) {
 	if p1.Default.Name != constant.Fold || p2.Default.Name != constant.Fold {
 		t.Error()
 	}
-	if !state.GS.Gambit.Bet(id1, 80) {
+	if !state.GS.Gambit.Bet(id1, 90) {
 		t.Error()
 	}
-	if state.GS.Gambit.Bet(id2, 141) || !state.GS.Gambit.Bet(id2, 140) {
+	fmt.Println(state.GS.MinimumBet)
+	if state.GS.Gambit.Bet(id2, 59) || state.GS.Gambit.Bet(id2, 171) || !state.GS.Gambit.Bet(id2, 170) {
 		t.Error()
 	}
-	if state.GS.Gambit.Bet(id3, 261) || !state.GS.Gambit.Bet(id3, 260) {
+	if state.GS.Gambit.Bet(id3, 321) || !state.GS.Gambit.Bet(id3, 320) {
 		t.Error()
 	}
 	if !state.GS.Gambit.Call(id1) {
 		t.Error()
 	}
-	if state.GS.Gambit.Bet(id2, 621) || !state.GS.Gambit.Bet(id2, 620) {
+	if state.GS.Gambit.Bet(id2, 770) || !state.GS.Gambit.AllIn(id2) {
 		t.Error()
 	}
-	if !state.GS.Gambit.Call(id3) {
+	if !state.GS.Gambit.AllIn(id3) {
 		t.Error()
 	}
 	// exceed player's chips
-	if state.GS.Gambit.Bet(id1, 1271) || state.GS.Gambit.Bet(id1, 1270) {
+	if state.GS.Gambit.Bet(id1, 721) || state.GS.Gambit.Bet(id1, 589) {
 		t.Error()
 	}
-	if !state.GS.Gambit.Bet(id1, 690) {
-		t.Error()
-	}
-	if state.GS.Gambit.Call(id2) || !state.GS.Gambit.AllIn(id2) {
-		t.Error()
-	}
-	if state.GS.Gambit.Call(id3) || !state.GS.Gambit.AllIn(id3) {
+	if !state.GS.Gambit.Bet(id1, 590) {
 		t.Error()
 	}
 	if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() {
@@ -1352,27 +1344,27 @@ func TestLoop15(t *testing.T) {
 	i3, p3 := util.Get(state.GS.Players, id3)
 	i4, p4 := util.Get(state.GS.Players, id4)
 	// 400 + 700 + 1300 + 600 = 3000
-	state.GS.Players[i1].Chips = 390
+	state.GS.Players[i1].Chips = 2090
 	state.GS.Players[i2].Chips = 690
 	state.GS.Players[i3].Chips = 1290
 	state.GS.Players[i4].Chips = 590
-	if state.GS.Gambit.AllIn(id1) || state.GS.Gambit.Bet(id1, 31) || !state.GS.Gambit.Bet(id1, 30) {
+	if state.GS.Gambit.AllIn(id1) || state.GS.Gambit.Raise(id1, 41) || !state.GS.Gambit.Raise(id1, 40) {
 		t.Error()
 	}
-	if !state.GS.Gambit.Call(id2) {
+	if !state.GS.Gambit.Raise(id2, 80) {
 		t.Error()
 	}
 	if state.GS.Gambit.Finish() || state.GS.Gambit.NextRound() {
 		t.Error()
 	}
-	if state.GS.Gambit.Bet(id3, 29) || state.GS.Gambit.Bet(id3, 91) || !state.GS.Gambit.Bet(id3, 90) {
+	if state.GS.Gambit.Bet(id3, 79) || state.GS.Gambit.Raise(id3, 161) || !state.GS.Gambit.Raise(id3, 160) {
+		t.Error(state.GS.MaximumBet)
+	}
+	if state.GS.Gambit.Bet(id4, 159) || state.GS.Gambit.Raise(id4, 321) || !state.GS.Gambit.Raise(id4, 320) {
 		t.Error()
 	}
-	if state.GS.Gambit.Bet(id4, 89) || state.GS.Gambit.Bet(id4, 181) || !state.GS.Gambit.Bet(id4, 180) {
-		t.Error()
-	}
-	if state.GS.Gambit.Bet(id1, 331) || !state.GS.Gambit.Bet(id1, 330) {
-		t.Error()
+	if state.GS.Gambit.Bet(id1, 279) || state.GS.Gambit.Raise(id1, 601) || !state.GS.Gambit.Raise(id1, 600) {
+		t.Error(state.GS.MinimumBet)
 	}
 	if !state.GS.Gambit.Call(id2) {
 		t.Error()
@@ -1380,25 +1372,25 @@ func TestLoop15(t *testing.T) {
 	if !state.GS.Gambit.Call(id3) {
 		t.Error()
 	}
-	if !state.GS.Gambit.Call(id4) {
+	if !state.GS.Gambit.AllIn(id4) {
 		t.Error()
 	}
 	if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() {
 		t.Error()
 	}
-	if state.GS.Gambit.Bet(id1, 9) || !state.GS.Gambit.AllIn(id1) {
+	if state.GS.Gambit.Bet(id1, 9) || !state.GS.Gambit.Bet(id1, 20) {
 		t.Error()
 	}
 	if !state.GS.Gambit.Call(id2) {
 		t.Error()
 	}
-	if !state.GS.Gambit.AllIn(id3) {
+	if !state.GS.Gambit.Raise(id3, 40) {
 		t.Error()
 	}
-	if !state.GS.Gambit.Fold(id4) {
+	if !state.GS.Gambit.Fold(id1) {
 		t.Error()
 	}
-	if state.GS.Gambit.Call(id2) || !state.GS.Gambit.AllIn(id2) {
+	if !state.GS.Gambit.Call(id2) {
 		t.Error()
 	}
 	state.GS.Players[i1].Cards = []int{48, 49, 50}
@@ -1412,7 +1404,7 @@ func TestLoop15(t *testing.T) {
 	_, p2 = util.Get(state.GS.Players, id2)
 	_, p3 = util.Get(state.GS.Players, id3)
 	_, p4 = util.Get(state.GS.Players, id4)
-	if p1.Chips != 1570 || p2.Chips != 600 || p3.Chips != 600 || p4.Chips != 230 {
+	if p1.Chips != 1430 || p2.Chips != 2660 || p3.Chips != 610 || p4.Chips != 0 {
 		t.Fail()
 	}
 	p1.Print()
@@ -1631,7 +1623,7 @@ func TestLoop18(t *testing.T) {
 	if !state.GS.Gambit.Bet(id2, 20) {
 		t.Error()
 	}
-	if state.GS.MinimumBet != minimumBet+20 || state.GS.MaximumBet != util.SumPots(state.GS.Pots) {
+	if state.GS.MinimumBet != minimumBet+10 {
 		t.Error()
 	}
 	_, p1 = util.Get(state.GS.Players, id1)
@@ -1665,7 +1657,7 @@ func TestLoop18(t *testing.T) {
 	if !state.GS.Gambit.Call(id3) {
 		t.Error()
 	}
-	if state.GS.MinimumBet != minimumBet+20 || state.GS.MaximumBet != 70 {
+	if state.GS.MinimumBet != minimumBet+10 || state.GS.MaximumBet != 70 {
 		t.Error(state.GS.MaximumBet)
 	}
 	_, p1 = util.Get(state.GS.Players, id1)

@@ -46,6 +46,36 @@ func IsEndRound() bool {
 	return state.GS.FinishRoundTime <= time.Now().Unix()
 }
 
+// GetTurn get turn number
+func GetTurn() int {
+	return state.GS.Turn
+}
+
+// IncreaseTurn to seperate player bets
+func IncreaseTurn() {
+	state.GS.Turn++
+}
+
+// SetMinimumBet show that minimum players can bet
+func SetMinimumBet(chips int) {
+	state.GS.MinimumBet = chips
+}
+
+// GetMinimumBet show that minimum players can bet
+func GetMinimumBet() int {
+	return state.GS.MinimumBet
+}
+
+// SetMaximumBet show that maximum players can bet
+func SetMaximumBet(chips int) {
+	state.GS.MaximumBet = chips
+}
+
+// GetMaximumBet show that maximum players can bet
+func GetMaximumBet() int {
+	return state.GS.MinimumBet
+}
+
 // IsPlayerTurn if player do something before deadline
 func IsPlayerTurn(id string) bool {
 	index, _ := util.Get(state.GS.Players, id)
@@ -163,11 +193,6 @@ func AssignPlayersCheckOrAllIn() {
 	}
 }
 
-// IncreaseTurn to seperate player bets
-func IncreaseTurn() {
-	state.GS.Turn++
-}
-
 // IsFullHand check if hold max cards
 func IsFullHand(maxcards int) bool {
 	for _, player := range state.GS.Players {
@@ -245,7 +270,7 @@ func FlushGame() {
 func ShortenTimeline(diff int64) {
 	diff = util.Absolute(diff)
 	for index, player := range state.GS.Players {
-		if util.IsPlayingAndNotFold(player) {
+		if player.IsPlaying {
 			state.GS.Players[index].StartLine = state.GS.Players[index].StartLine - diff
 			state.GS.Players[index].DeadLine = state.GS.Players[index].DeadLine - diff
 		}
@@ -320,14 +345,4 @@ func InvestToPots(chips int) {
 			IncreasePots(chips, state.GS.Turn)
 		}
 	}
-}
-
-// SetMinimumBet show that minimum players can bet
-func SetMinimumBet(chips int) {
-	state.GS.MinimumBet = chips
-}
-
-// SetMaximumBet show that maximum players can bet
-func SetMaximumBet(chips int) {
-	state.GS.MaximumBet = chips
 }

@@ -160,10 +160,12 @@ func main() {
 			err := json.Unmarshal([]byte(msg), data)
 			// if cannot parse or client send nothing
 			if err != nil || len(data.Payload.Parameters) <= 0 {
-				return handler.CreateResponse(so.Id(), "")
-			}
-			// client send seat position
-			if !handler.Sit(so.Id(), data.Payload.Parameters[0].ValueInteger) {
+				if !handler.AutoSit(so.Id()) {
+					fmt.Println(so.Id(), "Sit", "Nothing", msg)
+					return handler.CreateResponse(so.Id(), "")
+				}
+			} else if !handler.Sit(so.Id(), data.Payload.Parameters[0].ValueInteger) {
+				// client send seat position
 				fmt.Println(so.Id(), "Sit", "Nothing", msg)
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")

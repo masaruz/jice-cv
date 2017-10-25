@@ -4,7 +4,7 @@ package model
 type Action struct {
 	Name       string     `json:"name"`
 	Parameters Parameters `json:"parameters"`
-	Hints      Hints      `json:"Hints"`
+	Hints      Hints      `json:"hints"`
 }
 
 // Actions list of actions that player can do

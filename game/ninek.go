@@ -3,8 +3,11 @@ package game
 import (
 	"999k_engine/constant"
 	"999k_engine/handler"
+	"999k_engine/model"
+	"999k_engine/state"
 	"999k_engine/util"
 	"sort"
+	"time"
 )
 
 // NineK is 9K
@@ -33,6 +36,8 @@ func (game NineK) Start() bool {
 		handler.StartGame()
 		handler.SetMinimumBet(game.MinimumBet)
 		handler.InvestToPots(game.MinimumBet)
+		handler.IncreaseTurn()
+		handler.InvestToPots(0)
 		handler.SetDealer()
 		handler.BuildDeck()
 		handler.Shuffle()
@@ -62,32 +67,147 @@ func (game NineK) NextRound() bool {
 
 // Check is doing nothing only shift the timeline
 func (game NineK) Check(id string) bool {
-	return handler.Check(id)
+	if !handler.IsPlayerTurn(id) {
+		return false
+	}
+	index, caller := util.Get(state.GS.Players, id)
+	if caller.Bets[state.GS.Turn] < util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players) {
+		return false
+	}
+	state.GS.Players[index].Default = model.Action{Name: constant.Check}
+	state.GS.Players[index].Action = model.Action{Name: constant.Check}
+	diff := time.Now().Unix() - caller.DeadLine
+	handler.OverwriteActionToBehindPlayers()
+	handler.ShortenTimeline(diff)
+	return true
 }
 
 // Bet is raising bet to the target
 func (game NineK) Bet(id string, chips int) bool {
-	return handler.Bet(id, chips, game.DecisionTime)
+	if !handler.IsPlayerTurn(id) {
+		return false
+	}
+	index, caller := util.Get(state.GS.Players, id)
+	// not less than minimum
+	if state.GS.Players[index].Bets[state.GS.Turn]+chips < state.GS.MinimumBet {
+		return false
+	}
+	// not more than maximum
+	if state.GS.Players[index].Bets[state.GS.Turn]+chips > state.GS.MaximumBet {
+		return false
+	}
+	// cannot bet more than player's chips
+	if state.GS.Players[index].Chips < chips {
+		return false
+	}
+	// added value to the bet in this turn
+	state.GS.Players[index].Chips -= chips
+	state.GS.Players[index].Bets[state.GS.Turn] += chips
+	// broadcast to everyone that I bet
+	state.GS.Players[index].Default = model.Action{Name: constant.Bet}
+	state.GS.Players[index].Action = model.Action{Name: constant.Bet}
+	state.GS.Players[index].Actions = handler.ActionReducer(constant.Check, id)
+	// assign minimum bet
+	state.GS.MinimumBet = state.GS.Players[index].Bets[state.GS.Turn]
+	state.GS.MaximumBet = util.SumBets(state.GS.Players)
+	// set action of everyone
+	handler.OverwriteActionToBehindPlayers()
+	// others automatic set to fold as default
+	handler.SetOtherDefaultAction(id, constant.Fold)
+	// others need to know what to do next
+	handler.SetOtherActions(id, constant.Bet)
+	diff := time.Now().Unix() - caller.DeadLine
+	handler.ShortenTimeline(diff)
+	// duration extend the timeline
+	handler.ShiftPlayersToEndOfTimeline(id, game.DecisionTime)
+	return true
 }
 
 // Raise is raising bet to the target
 func (game NineK) Raise(id string, chips int) bool {
-	return handler.Raise(id, chips, game.DecisionTime)
+	if !handler.IsPlayerTurn(id) {
+		return false
+	}
+	index, _ := util.Get(state.GS.Players, id)
+	// not less than minimum
+	if state.GS.Players[index].Bets[state.GS.Turn]+chips <= state.GS.MinimumBet {
+		return false
+	}
+	return game.Bet(id, chips)
 }
 
 // Call is raising bet to the highest bet
 func (game NineK) Call(id string) bool {
-	return handler.Call(id, game.DecisionTime)
+	if !handler.IsPlayerTurn(id) {
+		return false
+	}
+	index, caller := util.Get(state.GS.Players, id)
+	chips := util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players) - caller.Bets[state.GS.Turn]
+	// cannot call more than player's chips
+	if state.GS.Players[index].Chips < chips || chips == 0 {
+		return false
+	}
+	state.GS.Players[index].Chips -= chips
+	state.GS.Players[index].Bets[state.GS.Turn] += chips
+	state.GS.Players[index].Default = model.Action{Name: constant.Call}
+	state.GS.Players[index].Action = model.Action{Name: constant.Call}
+	state.GS.Players[index].Actions = handler.ActionReducer(constant.Check, id)
+	// set action of everyone
+	handler.OverwriteActionToBehindPlayers()
+	state.GS.MaximumBet = util.SumBets(state.GS.Players)
+	// others need to know what to do next
+	handler.SetOtherActions(id, constant.Bet)
+	diff := time.Now().Unix() - caller.DeadLine
+	handler.ShortenTimeline(diff)
+	return true
 }
 
 // AllIn give all chips
 func (game NineK) AllIn(id string) bool {
-	return handler.AllIn(id, game.DecisionTime)
+	if !handler.IsPlayerTurn(id) {
+		return false
+	}
+	index, _ := util.Get(state.GS.Players, id)
+	chips := state.GS.Players[index].Chips
+	// not more than maximum
+	if state.GS.Players[index].Bets[state.GS.Turn]+chips > state.GS.MaximumBet {
+		return false
+	}
+	state.GS.Players[index].Bets[state.GS.Turn] += chips
+	state.GS.Players[index].Chips = 0
+	state.GS.Players[index].Default = model.Action{Name: constant.AllIn}
+	state.GS.Players[index].Action = model.Action{Name: constant.AllIn}
+	state.GS.Players[index].Actions = handler.ActionReducer(constant.Check, id)
+	state.GS.MaximumBet = util.SumBets(state.GS.Players)
+	// set action of everyone
+	handler.OverwriteActionToBehindPlayers()
+	// others automatic set to fold as default
+	handler.SetOtherDefaultAction(id, constant.Fold)
+	// others need to know what to do next
+	handler.SetOtherActions(id, constant.Bet)
+	diff := time.Now().Unix() - state.GS.Players[index].DeadLine
+	handler.ShortenTimeline(diff)
+	// duration extend the timeline
+	if state.GS.Players[index].Bets[state.GS.Turn] >= util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players) {
+		state.GS.MinimumBet = state.GS.Players[index].Bets[state.GS.Turn]
+		handler.ShiftPlayersToEndOfTimeline(id, game.DecisionTime)
+	}
+	return true
 }
 
 // Fold quit the game but still lost bet
 func (game NineK) Fold(id string) bool {
-	return handler.Fold(id)
+	if !handler.IsPlayerTurn(id) {
+		return false
+	}
+	index, caller := util.Get(state.GS.Players, id)
+	state.GS.Players[index].Default = model.Action{Name: constant.Fold}
+	state.GS.Players[index].Action = model.Action{Name: constant.Fold}
+	state.GS.Players[index].Actions = handler.ActionReducer(constant.Fold, id)
+	diff := time.Now().Unix() - caller.DeadLine
+	handler.OverwriteActionToBehindPlayers()
+	handler.ShortenTimeline(diff)
+	return true
 }
 
 // Finish game
