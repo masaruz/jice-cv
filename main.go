@@ -6,6 +6,7 @@ import (
 	"999k_engine/handler"
 	"999k_engine/state"
 	"999k_engine/util"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -67,7 +68,14 @@ func main() {
 		})
 		// when player need to bet chips
 		so.On(constant.Bet, func(msg string) string {
-			if !state.GS.Gambit.Bet(so.Id(), state.GS.MinimumBet) {
+			data := &state.Req{}
+			err := json.Unmarshal([]byte(msg), data)
+			// if cannot parse or client send nothing
+			if err != nil || len(data.Payload.Parameters) <= 0 {
+				return handler.CreateResponse(so.Id(), "")
+			}
+			// client send amount of bet
+			if !state.GS.Gambit.Bet(so.Id(), data.Payload.Parameters[0].ValueInteger) {
 				fmt.Println(so.Id(), "Bet", "Nothing", msg)
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
@@ -79,7 +87,14 @@ func main() {
 		})
 		// when player need to raise chips
 		so.On(constant.Raise, func(msg string) string {
-			if !state.GS.Gambit.Bet(so.Id(), state.GS.MaximumBet) {
+			data := &state.Req{}
+			err := json.Unmarshal([]byte(msg), data)
+			// if cannot parse or client send nothing
+			if err != nil || len(data.Payload.Parameters) <= 0 {
+				return handler.CreateResponse(so.Id(), "")
+			}
+			// client send amount of raise
+			if !state.GS.Gambit.Raise(so.Id(), data.Payload.Parameters[0].ValueInteger) {
 				fmt.Println(so.Id(), "Raise", "Nothing", msg)
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")
@@ -141,7 +156,14 @@ func main() {
 		})
 		// when player sit down
 		so.On(constant.Sit, func(msg string) string {
-			if !handler.AutoSit(so.Id()) {
+			data := &state.Req{}
+			err := json.Unmarshal([]byte(msg), data)
+			// if cannot parse or client send nothing
+			if err != nil || len(data.Payload.Parameters) <= 0 {
+				return handler.CreateResponse(so.Id(), "")
+			}
+			// client send seat position
+			if !handler.Sit(so.Id(), data.Payload.Parameters[0].ValueInteger) {
 				fmt.Println(so.Id(), "Sit", "Nothing", msg)
 				// if no seat then just return current state
 				return handler.CreateResponse(so.Id(), "")

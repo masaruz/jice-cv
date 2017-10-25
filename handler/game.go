@@ -304,7 +304,7 @@ func IncreasePots(chips int, index int) {
 	}
 	// increase pot values
 	state.GS.Pots[0] += chips
-	SetMaximumBet(util.SumPots(state.GS.Pots))
+	SetMaximumBet(util.SumBets(state.GS.Players))
 }
 
 // InvestToPots added bet to everyone base on turn

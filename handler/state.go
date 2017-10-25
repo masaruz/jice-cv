@@ -61,7 +61,7 @@ func CreateResponse(id string, event string) string {
 	data, _ := json.Marshal(
 		state.Resp{
 			Header: state.Header{Token: "player_token"},
-			Payload: state.Payload{
+			Payload: state.RespPayload{
 				EventName: state.GS.Event,
 				Actions:   actions,
 				GameState: state.PlayerState{

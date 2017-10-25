@@ -23,8 +23,19 @@ type Hint struct {
 	Value int    `json:"value"`
 }
 
+// RequestParameter is from client
+type RequestParameter struct {
+	Name         string `json:"name"`
+	Type         string `json:"type"`
+	ValueInteger int    `json:"value_integer"`
+	ValueString  string `json:"value_string"`
+}
+
 // Parameters action values
 type Parameters []Parameter
+
+// RequestParameters list of RequestParameter
+type RequestParameters []RequestParameter
 
 // Hints action value
 type Hints []Hint

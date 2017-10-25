@@ -10,6 +10,8 @@ type Gambit interface {
 	Check(id string) bool
 	// Bet is raise chips
 	Bet(id string, chips int) bool
+	// Raise is raise chips
+	Raise(id string, chips int) bool
 	// Call is raise chips to equal highest bet chips
 	Call(id string) bool
 	// Fold is out of the game

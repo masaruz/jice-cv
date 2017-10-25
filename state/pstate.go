@@ -19,21 +19,35 @@ type PlayerState struct {
 
 // Resp is server response
 type Resp struct {
-	Header    Header    `json:"header"`
-	Payload   Payload   `json:"payload"`
-	Signature Signature `json:"signature"`
+	Header    Header      `json:"header"`
+	Payload   RespPayload `json:"payload"`
+	Signature Signature   `json:"signature"`
+}
+
+// Req is server request
+type Req struct {
+	Header    Header
+	Payload   ReqPayload
+	Signature Signature
 }
 
 // Header is about token, non game logic
 type Header struct {
-	Token string `json:"token"`
+	Token    string `json:"token"`
+	DeviceID string `json:"deviceid"`
 }
 
-// Payload is gameplay data
-type Payload struct {
+// RespPayload is response payload
+type RespPayload struct {
 	EventName string        `json:"eventname"`
 	Actions   model.Actions `json:"actions"`
 	GameState PlayerState   `json:"gamestate"`
+}
+
+// ReqPayload request payload
+type ReqPayload struct {
+	Name       string                  `json:"name"`
+	Parameters model.RequestParameters `json:"parameters"`
 }
 
 // Signature is about security

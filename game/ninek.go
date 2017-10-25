@@ -70,6 +70,11 @@ func (game NineK) Bet(id string, chips int) bool {
 	return handler.Bet(id, chips, game.DecisionTime)
 }
 
+// Raise is raising bet to the target
+func (game NineK) Raise(id string, chips int) bool {
+	return handler.Raise(id, chips, game.DecisionTime)
+}
+
 // Call is raising bet to the highest bet
 func (game NineK) Call(id string) bool {
 	return handler.Call(id, game.DecisionTime)

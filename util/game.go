@@ -44,6 +44,15 @@ func SumBet(player model.Player) int {
 	return sum
 }
 
+// SumBets sum all bets all players
+func SumBets(players model.Players) int {
+	sum := 0
+	for _, player := range players {
+		sum += SumBet(player)
+	}
+	return sum
+}
+
 // SumBetsInTurn to sum every player chips bet
 func SumBetsInTurn(turn int, players model.Players) int {
 	sum := 0
