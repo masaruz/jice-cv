@@ -74,13 +74,14 @@ func (game NineK) Check(id string) bool {
 	if !handler.IsPlayerTurn(id) {
 		return false
 	}
-	index, caller := util.Get(state.GS.Players, id)
-	if caller.Bets[state.GS.Turn] < util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players) {
+	index, _ := util.Get(state.GS.Players, id)
+	if state.GS.Players[index].Bets[state.GS.Turn] <
+		util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players) {
 		return false
 	}
 	state.GS.Players[index].Default = model.Action{Name: constant.Check}
 	state.GS.Players[index].Action = model.Action{Name: constant.Check}
-	diff := time.Now().Unix() - caller.DeadLine
+	diff := time.Now().Unix() - state.GS.Players[index].DeadLine
 	handler.OverwriteActionToBehindPlayers()
 	handler.ShortenTimeline(diff)
 	return true
@@ -91,7 +92,7 @@ func (game NineK) Bet(id string, chips int) bool {
 	if !handler.IsPlayerTurn(id) {
 		return false
 	}
-	index, caller := util.Get(state.GS.Players, id)
+	index, _ := util.Get(state.GS.Players, id)
 	// not less than minimum
 	if state.GS.Players[index].Bets[state.GS.Turn]+chips < state.GS.MinimumBet {
 		return false
@@ -112,15 +113,15 @@ func (game NineK) Bet(id string, chips int) bool {
 	state.GS.Players[index].Action = model.Action{Name: constant.Bet}
 	state.GS.Players[index].Actions = handler.ActionReducer(constant.Check, id)
 	// assign minimum bet
-	state.GS.MinimumBet = state.GS.Players[index].Bets[state.GS.Turn]
-	state.GS.MaximumBet = util.SumBets(state.GS.Players)
+	handler.SetMinimumBet(state.GS.Players[index].Bets[state.GS.Turn])
+	handler.SetMaximumBet(util.SumBets(state.GS.Players))
 	// set action of everyone
 	handler.OverwriteActionToBehindPlayers()
 	// others automatic set to fold as default
 	handler.SetOtherDefaultAction(id, constant.Fold)
 	// others need to know what to do next
 	handler.SetOtherActions(id, constant.Bet)
-	diff := time.Now().Unix() - caller.DeadLine
+	diff := time.Now().Unix() - state.GS.Players[index].DeadLine
 	handler.ShortenTimeline(diff)
 	// duration extend the timeline
 	handler.ShiftPlayersToEndOfTimeline(id, game.DecisionTime)
@@ -145,8 +146,9 @@ func (game NineK) Call(id string) bool {
 	if !handler.IsPlayerTurn(id) {
 		return false
 	}
-	index, caller := util.Get(state.GS.Players, id)
-	chips := util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players) - caller.Bets[state.GS.Turn]
+	index, _ := util.Get(state.GS.Players, id)
+	chips := util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players) -
+		state.GS.Players[index].Bets[state.GS.Turn]
 	// cannot call more than player's chips
 	if state.GS.Players[index].Chips < chips || chips == 0 {
 		return false
@@ -158,10 +160,10 @@ func (game NineK) Call(id string) bool {
 	state.GS.Players[index].Actions = handler.ActionReducer(constant.Check, id)
 	// set action of everyone
 	handler.OverwriteActionToBehindPlayers()
-	state.GS.MaximumBet = util.SumBets(state.GS.Players)
+	handler.SetMaximumBet(util.SumBets(state.GS.Players))
 	// others need to know what to do next
 	handler.SetOtherActions(id, constant.Bet)
-	diff := time.Now().Unix() - caller.DeadLine
+	diff := time.Now().Unix() - state.GS.Players[index].DeadLine
 	handler.ShortenTimeline(diff)
 	return true
 }
@@ -182,7 +184,7 @@ func (game NineK) AllIn(id string) bool {
 	state.GS.Players[index].Default = model.Action{Name: constant.AllIn}
 	state.GS.Players[index].Action = model.Action{Name: constant.AllIn}
 	state.GS.Players[index].Actions = handler.ActionReducer(constant.Check, id)
-	state.GS.MaximumBet = util.SumBets(state.GS.Players)
+	handler.SetMaximumBet(util.SumBets(state.GS.Players))
 	// set action of everyone
 	handler.OverwriteActionToBehindPlayers()
 	// others automatic set to fold as default
@@ -193,7 +195,7 @@ func (game NineK) AllIn(id string) bool {
 	handler.ShortenTimeline(diff)
 	// duration extend the timeline
 	if state.GS.Players[index].Bets[state.GS.Turn] >= util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players) {
-		state.GS.MinimumBet = state.GS.Players[index].Bets[state.GS.Turn]
+		handler.SetMinimumBet(state.GS.Players[index].Bets[state.GS.Turn])
 		handler.ShiftPlayersToEndOfTimeline(id, game.DecisionTime)
 	}
 	return true
@@ -204,11 +206,11 @@ func (game NineK) Fold(id string) bool {
 	if !handler.IsPlayerTurn(id) {
 		return false
 	}
-	index, caller := util.Get(state.GS.Players, id)
+	index, _ := util.Get(state.GS.Players, id)
 	state.GS.Players[index].Default = model.Action{Name: constant.Fold}
 	state.GS.Players[index].Action = model.Action{Name: constant.Fold}
 	state.GS.Players[index].Actions = handler.ActionReducer(constant.Fold, id)
-	diff := time.Now().Unix() - caller.DeadLine
+	diff := time.Now().Unix() - state.GS.Players[index].DeadLine
 	handler.OverwriteActionToBehindPlayers()
 	handler.ShortenTimeline(diff)
 	return true
