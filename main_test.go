@@ -1803,14 +1803,14 @@ func TestLoop19(t *testing.T) {
 	if state.GS.Gambit.Raise(id2, 420) || state.GS.Gambit.Raise(id2, 179) || !state.GS.Gambit.Raise(id2, 330) {
 		t.Error()
 	}
-	_, p1 := util.Get(state.GS.Players, id1)
-	_, p2 := util.Get(state.GS.Players, id2)
-	_, p3 := util.Get(state.GS.Players, id3)
-	p1.Print()
-	p2.Print()
-	p3.Print()
-	fmt.Println("now:", time.Now().Unix())
-	fmt.Println("end:", state.GS.FinishRoundTime)
+	// _, p1 := util.Get(state.GS.Players, id1)
+	// _, p2 := util.Get(state.GS.Players, id2)
+	// _, p3 := util.Get(state.GS.Players, id3)
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// fmt.Println("now:", time.Now().Unix())
+	// fmt.Println("end:", state.GS.FinishRoundTime)
 }
 
 func TestLoop20(t *testing.T) {
