@@ -8,72 +8,9 @@ import (
 	"time"
 )
 
-// GetPlayerState return players state
-func GetPlayerState() model.Players {
-	return state.GS.Players
-}
-
-// ActionReducer reduce the actions when player act something
-func ActionReducer(event string, id string) model.Actions {
+// Reducer reduce player common actions
+func Reducer(event string, id string) model.Actions {
 	switch event {
-	case constant.Check:
-		_, player := util.Get(state.GS.Players, id)
-		// maximum will be player's chips if not enough
-		maximum := 0
-		if state.GS.MaximumBet > player.Chips {
-			maximum = player.Chips
-		} else {
-			maximum = state.GS.MaximumBet
-		}
-		return model.Actions{
-			model.Action{Name: constant.Fold},
-			model.Action{Name: constant.Check},
-			model.Action{Name: constant.Bet,
-				Parameters: model.Parameters{
-					model.Parameter{
-						Name: "amount", Type: "integer"}},
-				Hints: model.Hints{
-					model.Hint{
-						Name: "amount", Type: "integer", Value: state.GS.MinimumBet},
-					model.Hint{
-						Name: "amount_max", Type: "integer", Value: maximum}}}}
-	case constant.Bet:
-		highestbet := util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players)
-		_, player := util.Get(state.GS.Players, id)
-		if highestbet <= player.Bets[state.GS.Turn] {
-			return ActionReducer(constant.Check, id)
-		}
-		if player.Chips < highestbet {
-			return model.Actions{
-				model.Action{Name: constant.Fold},
-				model.Action{Name: constant.AllIn,
-					Hints: model.Hints{
-						model.Hint{
-							Name: "amount", Type: "integer", Value: player.Chips}}}}
-		}
-		diff := highestbet - player.Bets[state.GS.Turn]
-		// maximum will be player's chips if not enough
-		maximum := 0
-		if state.GS.MaximumBet > player.Chips {
-			maximum = player.Chips
-		} else {
-			maximum = state.GS.MaximumBet
-		}
-		return model.Actions{
-			model.Action{Name: constant.Fold},
-			model.Action{Name: constant.Call,
-				Hints: model.Hints{
-					model.Hint{
-						Name: "amount", Type: "integer", Value: diff}}},
-			model.Action{Name: constant.Raise,
-				Parameters: model.Parameters{
-					model.Parameter{
-						Name: "amount", Type: "integer"}},
-				Hints: model.Hints{
-					model.Hint{
-						Name: "amount", Type: "integer", Value: diff + 1},
-					model.Hint{
-						Name: "amount_max", Type: "integer", Value: maximum}}}}
 	case constant.Sit:
 		if util.CountSitting(state.GS.Players) >= 2 && !state.GS.IsTableStart {
 			return model.Actions{
@@ -83,9 +20,6 @@ func ActionReducer(event string, id string) model.Actions {
 		return model.Actions{
 			model.Action{Name: constant.Stand}}
 	case constant.StartTable:
-		return model.Actions{
-			model.Action{Name: constant.Stand}}
-	case constant.Fold:
 		return model.Actions{
 			model.Action{Name: constant.Stand}}
 	default:
@@ -141,9 +75,9 @@ func SetOtherActions(id string, action string) {
 			continue
 		}
 		if id != "" && id != player.ID {
-			state.GS.Players[index].Actions = ActionReducer(action, player.ID)
+			state.GS.Players[index].Actions = state.GS.Gambit.Reducer(action, player.ID)
 		} else if id == "" {
-			state.GS.Players[index].Actions = ActionReducer(action, player.ID)
+			state.GS.Players[index].Actions = state.GS.Gambit.Reducer(action, player.ID)
 		}
 	}
 }
@@ -152,7 +86,7 @@ func SetOtherActions(id string, action string) {
 func Connect(id string) {
 	caller := util.SyncPlayer(id)
 	caller.Action = model.Action{Name: constant.Stand}
-	caller.Actions = ActionReducer(constant.Connection, id)
+	caller.Actions = Reducer(constant.Connection, id)
 	state.GS.Visitors = util.Add(state.GS.Visitors, caller)
 }
 
@@ -200,7 +134,7 @@ func Sit(id string, slot int) bool {
 	for index, player := range state.GS.Players {
 		// not a seat and not playing
 		if player.ID != "" && !player.IsPlaying {
-			state.GS.Players[index].Actions = ActionReducer(constant.Sit, player.ID)
+			state.GS.Players[index].Actions = state.GS.Gambit.Reducer(constant.Sit, player.ID)
 		}
 	}
 	return true
@@ -225,7 +159,7 @@ func Stand(id string) bool {
 	}
 	visitor := util.SyncPlayer(id)
 	visitor.Action = model.Action{Name: constant.Stand}
-	visitor.Actions = ActionReducer(constant.Connection, id)
+	visitor.Actions = state.GS.Gambit.Reducer(constant.Connection, id)
 	state.GS.Players = util.Kick(state.GS.Players, caller.ID)
 	state.GS.Visitors = util.Add(state.GS.Visitors, visitor)
 	return true

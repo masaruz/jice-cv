@@ -1,5 +1,7 @@
 package engine
 
+import "999k_engine/model"
+
 // Gambit is represent of game interface
 type Gambit interface {
 	// Init deck and environment variables
@@ -26,4 +28,6 @@ type Gambit interface {
 	End()
 	// Evaluate score
 	Evaluate(cards []int) (scores []int, kind string)
+	// Reducer event and return action
+	Reducer(event string, id string) model.Actions
 }

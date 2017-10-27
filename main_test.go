@@ -101,7 +101,7 @@ func TestLoop01(t *testing.T) {
 		t.Error()
 	}
 	if !state.GS.Gambit.Finish() {
-		fmt.Println(util.CountPlayerNotFoldAndNotAllIn(handler.GetPlayerState()) <= 1, handler.IsGameStart(),
+		fmt.Println(util.CountPlayerNotFoldAndNotAllIn(state.GS.Players) <= 1, handler.IsGameStart(),
 			handler.IsFullHand(3), handler.BetsEqual(), handler.IsEndRound())
 		t.Error()
 	}
@@ -528,7 +528,7 @@ func TestLoop05(t *testing.T) {
 		t.Error()
 	}
 	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
-		fmt.Println(util.CountPlayerNotFoldAndNotAllIn(handler.GetPlayerState()) <= 1, handler.IsGameStart(),
+		fmt.Println(util.CountPlayerNotFoldAndNotAllIn(state.GS.Players) <= 1, handler.IsGameStart(),
 			handler.IsFullHand(3), handler.BetsEqual(), handler.IsEndRound())
 		t.Error()
 	}
@@ -1099,8 +1099,8 @@ func TestLoop11(t *testing.T) {
 	// 	t.Error()
 	// }
 	// if !state.GS.Gambit.Finish() {
-	// 	fmt.Println(util.CountPlayerNotFold(handler.GetPlayerState()) <= 1, handler.IsGameStart(),
-	// 		util.CountPlayerNotFoldAndNotAllIn(handler.GetPlayerState()) <= 1,
+	// 	fmt.Println(util.CountPlayerNotFold(state.GS.Players) <= 1, handler.IsGameStart(),
+	// 		util.CountPlayerNotFoldAndNotAllIn(state.GS.Players) <= 1,
 	// 		handler.IsFullHand(3), state.GS.Gambit.BetsEqual(), handler.IsEndRound())
 	// 	t.Error()
 	// }
@@ -1274,7 +1274,6 @@ func TestLoop14(t *testing.T) {
 	if !state.GS.Gambit.Bet(id1, 90) {
 		t.Error()
 	}
-	fmt.Println(state.GS.MinimumBet)
 	if state.GS.Gambit.Bet(id2, 59) || state.GS.Gambit.Bet(id2, 171) || !state.GS.Gambit.Bet(id2, 170) {
 		t.Error()
 	}
@@ -1651,7 +1650,7 @@ func TestLoop18(t *testing.T) {
 		p3.Actions[2].Parameters[0].Type != "integer" ||
 		p3.Actions[2].Hints[0].Name != "amount" ||
 		p3.Actions[2].Hints[0].Type != "integer" ||
-		p3.Actions[2].Hints[0].Value != 21 {
+		p3.Actions[2].Hints[0].Value != 40 {
 		t.Error()
 	}
 	if !state.GS.Gambit.Call(id3) {
@@ -1706,7 +1705,7 @@ func TestLoop18(t *testing.T) {
 		p2.Actions[2].Parameters[0].Type != "integer" ||
 		p2.Actions[2].Hints[0].Name != "amount" ||
 		p2.Actions[2].Hints[0].Type != "integer" ||
-		p2.Actions[2].Hints[0].Value != 21 {
+		p2.Actions[2].Hints[0].Value != 80 {
 		t.Error()
 	}
 	if state.GS.Gambit.Check(id2) || !state.GS.Gambit.Fold(id2) {

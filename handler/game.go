@@ -46,34 +46,24 @@ func IsEndRound() bool {
 	return state.GS.FinishRoundTime <= time.Now().Unix()
 }
 
-// GetTurn get turn number
-func GetTurn() int {
-	return state.GS.Turn
-}
-
 // IncreaseTurn to seperate player bets
 func IncreaseTurn() {
 	state.GS.Turn++
 }
 
-// SetMinimumBet show that minimum players can bet
+// GetTurn get current turn number
+func GetTurn() int {
+	return state.GS.Turn
+}
+
+// SetMinimumBet set minimum players can bet
 func SetMinimumBet(chips int) {
 	state.GS.MinimumBet = chips
 }
 
-// GetMinimumBet show that minimum players can bet
-func GetMinimumBet() int {
-	return state.GS.MinimumBet
-}
-
-// SetMaximumBet show that maximum players can bet
+// SetMaximumBet set that maximum players can bet
 func SetMaximumBet(chips int) {
 	state.GS.MaximumBet = chips
-}
-
-// GetMaximumBet show that maximum players can bet
-func GetMaximumBet() int {
-	return state.GS.MinimumBet
 }
 
 // IsPlayerTurn if player do something before deadline
@@ -152,8 +142,7 @@ func AssignWinners() {
 // CreateTimeLine set timeline for game and any players
 func CreateTimeLine(decisionTime int64) {
 	// need at least one competitors
-	if util.CountPlayerNotFoldAndNotAllIn(
-		GetPlayerState()) <= 1 {
+	if util.CountPlayerNotFoldAndNotAllIn(state.GS.Players) <= 1 {
 		return
 	}
 	loop := 0
@@ -284,7 +273,7 @@ func ShortenTimelineAfterTarget(id string, diff int64) {
 	_, caller := util.Get(state.GS.Players, id)
 	for index, player := range state.GS.Players {
 		// who start behind caller will be shifted
-		if util.IsPlayingAndNotFold(player) && player.StartLine >= caller.DeadLine {
+		if util.IsPlayingAndNotFoldAndNotAllIn(player) && player.StartLine >= caller.DeadLine {
 			state.GS.Players[index].StartLine = state.GS.Players[index].StartLine - diff
 			state.GS.Players[index].DeadLine = state.GS.Players[index].DeadLine - diff
 		}
