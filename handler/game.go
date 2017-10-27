@@ -51,11 +51,6 @@ func IncreaseTurn() {
 	state.GS.Turn++
 }
 
-// GetTurn get current turn number
-func GetTurn() int {
-	return state.GS.Turn
-}
-
 // SetMinimumBet set minimum players can bet
 func SetMinimumBet(chips int) {
 	state.GS.MinimumBet = chips

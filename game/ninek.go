@@ -75,8 +75,8 @@ func (game NineK) Check(id string) bool {
 		return false
 	}
 	index, _ := util.Get(state.GS.Players, id)
-	if state.GS.Players[index].Bets[handler.GetTurn()] <
-		util.GetHighestBetInTurn(handler.GetTurn(), state.GS.Players) {
+	if state.GS.Players[index].Bets[state.GS.Turn] <
+		util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players) {
 		return false
 	}
 	state.GS.Players[index].Default = model.Action{Name: constant.Check}
@@ -94,11 +94,11 @@ func (game NineK) Bet(id string, chips int) bool {
 	}
 	index, _ := util.Get(state.GS.Players, id)
 	// not less than minimum
-	if state.GS.Players[index].Bets[handler.GetTurn()]+chips < state.GS.MinimumBet {
+	if state.GS.Players[index].Bets[state.GS.Turn]+chips < state.GS.MinimumBet {
 		return false
 	}
 	// not more than maximum
-	if state.GS.Players[index].Bets[handler.GetTurn()]+chips > state.GS.MaximumBet {
+	if state.GS.Players[index].Bets[state.GS.Turn]+chips > state.GS.MaximumBet {
 		return false
 	}
 	// cannot bet more than player's chips
@@ -107,13 +107,13 @@ func (game NineK) Bet(id string, chips int) bool {
 	}
 	// added value to the bet in this turn
 	state.GS.Players[index].Chips -= chips
-	state.GS.Players[index].Bets[handler.GetTurn()] += chips
+	state.GS.Players[index].Bets[state.GS.Turn] += chips
 	// broadcast to everyone that I bet
 	state.GS.Players[index].Default = model.Action{Name: constant.Bet}
 	state.GS.Players[index].Action = model.Action{Name: constant.Bet}
 	state.GS.Players[index].Actions = game.Reducer(constant.Check, id)
 	// assign minimum bet
-	handler.SetMinimumBet(state.GS.Players[index].Bets[handler.GetTurn()])
+	handler.SetMinimumBet(state.GS.Players[index].Bets[state.GS.Turn])
 	handler.SetMaximumBet(util.SumBets(state.GS.Players))
 	// set action of everyone
 	handler.OverwriteActionToBehindPlayers()
@@ -135,7 +135,7 @@ func (game NineK) Raise(id string, chips int) bool {
 	}
 	index, _ := util.Get(state.GS.Players, id)
 	// not less than minimum
-	if state.GS.Players[index].Bets[handler.GetTurn()]+chips <= state.GS.MinimumBet {
+	if state.GS.Players[index].Bets[state.GS.Turn]+chips <= state.GS.MinimumBet {
 		return false
 	}
 	return game.Bet(id, chips)
@@ -147,14 +147,14 @@ func (game NineK) Call(id string) bool {
 		return false
 	}
 	index, _ := util.Get(state.GS.Players, id)
-	chips := util.GetHighestBetInTurn(handler.GetTurn(), state.GS.Players) -
-		state.GS.Players[index].Bets[handler.GetTurn()]
+	chips := util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players) -
+		state.GS.Players[index].Bets[state.GS.Turn]
 	// cannot call more than player's chips
 	if state.GS.Players[index].Chips < chips || chips == 0 {
 		return false
 	}
 	state.GS.Players[index].Chips -= chips
-	state.GS.Players[index].Bets[handler.GetTurn()] += chips
+	state.GS.Players[index].Bets[state.GS.Turn] += chips
 	state.GS.Players[index].Default = model.Action{Name: constant.Call}
 	state.GS.Players[index].Action = model.Action{Name: constant.Call}
 	state.GS.Players[index].Actions = game.Reducer(constant.Check, id)
@@ -176,10 +176,10 @@ func (game NineK) AllIn(id string) bool {
 	index, _ := util.Get(state.GS.Players, id)
 	chips := state.GS.Players[index].Chips
 	// not more than maximum
-	if state.GS.Players[index].Bets[handler.GetTurn()]+chips > state.GS.MaximumBet {
+	if state.GS.Players[index].Bets[state.GS.Turn]+chips > state.GS.MaximumBet {
 		return false
 	}
-	state.GS.Players[index].Bets[handler.GetTurn()] += chips
+	state.GS.Players[index].Bets[state.GS.Turn] += chips
 	state.GS.Players[index].Chips = 0
 	state.GS.Players[index].Default = model.Action{Name: constant.AllIn}
 	state.GS.Players[index].Action = model.Action{Name: constant.AllIn}
@@ -194,8 +194,8 @@ func (game NineK) AllIn(id string) bool {
 	diff := time.Now().Unix() - state.GS.Players[index].DeadLine
 	handler.ShortenTimeline(diff)
 	// duration extend the timeline
-	if state.GS.Players[index].Bets[handler.GetTurn()] >= util.GetHighestBetInTurn(handler.GetTurn(), state.GS.Players) {
-		handler.SetMinimumBet(state.GS.Players[index].Bets[handler.GetTurn()])
+	if state.GS.Players[index].Bets[state.GS.Turn] >= util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players) {
+		handler.SetMinimumBet(state.GS.Players[index].Bets[state.GS.Turn])
 		handler.ShiftPlayersToEndOfTimeline(id, game.DecisionTime)
 	}
 	return true
@@ -259,13 +259,13 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 						Name: "amount_max", Type: "integer", Value: maximum}}}}
 	case constant.Bet:
 		// highest bet in that turn
-		highestbet := util.GetHighestBetInTurn(handler.GetTurn(), state.GS.Players)
+		highestbet := util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players)
 		// raise must be highest * 2
 		raise := highestbet * 2
 		// all sum bets
 		pots := util.SumBets(state.GS.Players)
 		_, player := util.Get(state.GS.Players, id)
-		if highestbet <= player.Bets[handler.GetTurn()] {
+		if highestbet <= player.Bets[state.GS.Turn] {
 			return game.Reducer(constant.Check, id)
 		}
 		// no more than pots
@@ -280,7 +280,7 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 						model.Hint{
 							Name: "amount", Type: "integer", Value: player.Chips}}}}
 		}
-		diff := highestbet - player.Bets[handler.GetTurn()]
+		diff := highestbet - player.Bets[state.GS.Turn]
 		// maximum will be player's chips if not enough
 		maximum := 0
 		if state.GS.MaximumBet > player.Chips {
