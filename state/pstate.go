@@ -12,6 +12,7 @@ type PlayerState struct {
 	Slot            int           `json:"slot"`
 	Version         int           `json:"version"`
 	Pots            []int         `json:"pots"`
+	HighestBet      int           `json:"highest_bet"`
 	CurrentTime     int64         `json:"current_time"`
 	IsGameStart     bool          `json:"is_game_start"`
 	IsTableStart    bool          `json:"is_table_start"`

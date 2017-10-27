@@ -134,7 +134,7 @@ func Sit(id string, slot int) bool {
 	for index, player := range state.GS.Players {
 		// not a seat and not playing
 		if player.ID != "" && !player.IsPlaying {
-			state.GS.Players[index].Actions = state.GS.Gambit.Reducer(constant.Sit, player.ID)
+			state.GS.Players[index].Actions = Reducer(constant.Sit, player.ID)
 		}
 	}
 	return true
@@ -159,7 +159,7 @@ func Stand(id string) bool {
 	}
 	visitor := util.SyncPlayer(id)
 	visitor.Action = model.Action{Name: constant.Stand}
-	visitor.Actions = state.GS.Gambit.Reducer(constant.Connection, id)
+	visitor.Actions = Reducer(constant.Connection, id)
 	state.GS.Players = util.Kick(state.GS.Players, caller.ID)
 	state.GS.Visitors = util.Add(state.GS.Visitors, visitor)
 	return true
