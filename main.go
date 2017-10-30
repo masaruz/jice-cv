@@ -21,7 +21,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	decisionTime := int64(20)
+	decisionTime := int64(25)
 	ninek := game.NineK{
 		MaxPlayers:   6,
 		DecisionTime: decisionTime,

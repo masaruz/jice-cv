@@ -69,7 +69,7 @@ func CreateResponse(id string, event string) string {
 					Player:          player,
 					Competitors:     competitors,
 					Visitors:        visitors,
-					Pots:            []int{util.SumBets(state.GS.Players)},
+					Pots:            state.GS.Pots,
 					HighestBet:      util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players),
 					Version:         state.GS.Version,
 					IsTableStart:    state.GS.IsTableStart,
@@ -78,7 +78,7 @@ func CreateResponse(id string, event string) string {
 					StartRoundTime:  state.GS.StartRoundTime,
 					FinishRoundTime: state.GS.FinishRoundTime}},
 			Signature: state.Signature{}})
-	fmt.Println("resp:", actions)
+	fmt.Println("version:", state.GS.Version)
 	return string(data)
 }
 
@@ -86,7 +86,9 @@ func CreateResponse(id string, event string) string {
 func createSharedState(players model.Players) model.Players {
 	others := model.Players{}
 	for _, player := range players {
-		player.Cards = model.Cards{}
+		if state.GS.IsGameStart {
+			player.Cards = model.Cards{}
+		}
 		others = append(others, player)
 	}
 	return others

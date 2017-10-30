@@ -4,9 +4,9 @@ import (
 	"999k_engine/constant"
 	"999k_engine/game"
 	"999k_engine/handler"
+	"999k_engine/model"
 	"999k_engine/state"
 	"999k_engine/util"
-	"cardgame/model"
 	"fmt"
 	"testing"
 	"time"
@@ -188,9 +188,10 @@ func TestLoop02(t *testing.T) {
 	if state.GS.Gambit.NextRound() {
 		t.Error()
 	}
-	if !state.GS.Gambit.Finish() {
+	if !state.GS.Gambit.Finish() || state.GS.Gambit.Start() {
 		t.Error()
 	}
+	time.Sleep(time.Second * time.Duration(state.GS.FinishRoundTime-time.Now().Unix()))
 	state.GS.Gambit.Start()
 	for _, player := range state.GS.Players {
 		if player.ID == "" {
@@ -336,6 +337,7 @@ func TestLoop03(t *testing.T) {
 	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
 		t.Error()
 	}
+	time.Sleep(time.Second * time.Duration(state.GS.FinishRoundTime-time.Now().Unix()))
 	if !state.GS.Gambit.Start() {
 		t.Error()
 	}
@@ -444,7 +446,7 @@ func TestLoop04(t *testing.T) {
 	// p4.Print()
 	// p1.Print()
 	// fmt.Println("now:", time.Now().Unix())
-	// fmt.Println("end:", state.GS.FinishRoundTime.Unix())
+	// fmt.Println("end:", state.GS.FinishRoundTime)
 }
 
 func TestLoop05(t *testing.T) {
@@ -628,6 +630,7 @@ func TestLoop06(t *testing.T) {
 	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
 		t.Error()
 	}
+	time.Sleep(time.Second * time.Duration(state.GS.FinishRoundTime-time.Now().Unix()))
 	if !state.GS.Gambit.Start() {
 		t.Error()
 	}
@@ -649,6 +652,7 @@ func TestLoop06(t *testing.T) {
 	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
 		t.Error()
 	}
+	time.Sleep(time.Second * time.Duration(state.GS.FinishRoundTime-time.Now().Unix()))
 	if !state.GS.Gambit.Start() {
 		t.Error()
 	}
@@ -1030,6 +1034,7 @@ func TestLoop10(t *testing.T) {
 	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
 		t.Error("can go to next round or unable to finish game")
 	}
+	time.Sleep(time.Second * time.Duration(state.GS.FinishRoundTime-time.Now().Unix()))
 	if !state.GS.Gambit.Start() {
 		t.Error("has 3 players game should be start")
 	}
@@ -1095,18 +1100,18 @@ func TestLoop11(t *testing.T) {
 	if !state.GS.Gambit.Call(id3) {
 		t.Error()
 	}
-	// if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() {
-	// 	t.Error()
-	// }
-	// if !state.GS.Gambit.Finish() {
-	// 	fmt.Println(util.CountPlayerNotFold(state.GS.Players) <= 1, handler.IsGameStart(),
-	// 		util.CountPlayerNotFoldAndNotAllIn(state.GS.Players) <= 1,
-	// 		handler.IsFullHand(3), state.GS.Gambit.BetsEqual(), handler.IsEndRound())
-	// 	t.Error()
-	// }
-	// _, p1 = util.Get(state.GS.Players, id1)
+	if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() {
+		t.Error()
+	}
+	if !state.GS.Gambit.Finish() {
+		fmt.Println(util.CountPlayerNotFold(state.GS.Players) <= 1, handler.IsGameStart(),
+			util.CountPlayerNotFoldAndNotAllIn(state.GS.Players) <= 1,
+			handler.IsFullHand(3), handler.BetsEqual(), handler.IsEndRound())
+		t.Error()
+	}
+	// _, p1 := util.Get(state.GS.Players, id1)
 	// _, p2 = util.Get(state.GS.Players, id2)
-	// _, p3 = util.Get(state.GS.Players, id3)
+	// _, p3 := util.Get(state.GS.Players, id3)
 	// p1.Print()
 	// p2.Print()
 	// p3.Print()
@@ -1171,6 +1176,7 @@ func TestLoop13(t *testing.T) {
 	index1, _ := util.Get(state.GS.Players, id1)
 	index2, _ := util.Get(state.GS.Players, id2)
 	state.GS.Players[index2].Chips = 9
+	time.Sleep(time.Second * time.Duration(state.GS.FinishRoundTime-time.Now().Unix()))
 	if state.GS.Gambit.Start() {
 		t.Error()
 	}
@@ -1189,6 +1195,7 @@ func TestLoop13(t *testing.T) {
 	if util.CountPlayerNotFoldAndNotAllIn(state.GS.Players) != 0 {
 		t.Error()
 	}
+	time.Sleep(time.Second * time.Duration(state.GS.FinishRoundTime-time.Now().Unix()))
 	state.GS.Gambit.Start()
 	if util.CountSitting(state.GS.Players) != 1 || state.GS.IsGameStart {
 		t.Error()
@@ -1255,6 +1262,7 @@ func TestLoop14(t *testing.T) {
 	if p1.Chips != 1100 || p2.Chips != 970 || p3.Chips != 930 {
 		t.Error()
 	}
+	time.Sleep(time.Second * time.Duration(state.GS.FinishRoundTime-time.Now().Unix()))
 	if !state.GS.Gambit.Start() {
 		t.Error()
 	}
@@ -1392,10 +1400,20 @@ func TestLoop15(t *testing.T) {
 	if !state.GS.Gambit.Call(id2) {
 		t.Error()
 	}
-	state.GS.Players[i1].Cards = []int{48, 49, 50}
+	state.GS.Players[i1].Cards = []int{40, 41, 42}
 	state.GS.Players[i2].Cards = []int{44, 45, 46}
 	state.GS.Players[i3].Cards = []int{36, 37, 38}
-	state.GS.Players[i4].Cards = []int{40, 41, 42}
+	state.GS.Players[i4].Cards = []int{48, 49, 50}
+	_, p1 = util.Get(state.GS.Players, id1)
+	_, p2 = util.Get(state.GS.Players, id2)
+	_, p3 = util.Get(state.GS.Players, id3)
+	_, p4 = util.Get(state.GS.Players, id4)
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// p4.Print()
+	// fmt.Println("now:", time.Now().Unix())
+	// fmt.Println("fin:", state.GS.FinishRoundTime)
 	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
 		t.Error()
 	}
@@ -1403,8 +1421,11 @@ func TestLoop15(t *testing.T) {
 	_, p2 = util.Get(state.GS.Players, id2)
 	_, p3 = util.Get(state.GS.Players, id3)
 	_, p4 = util.Get(state.GS.Players, id4)
-	if p1.Chips != 1430 || p2.Chips != 2660 || p3.Chips != 610 || p4.Chips != 0 {
-		t.Fail()
+	if p1.Chips != 1430 || p1.IsWinner ||
+		p2.Chips != 160 || !p2.IsWinner ||
+		p3.Chips != 610 || p3.IsWinner ||
+		p4.Chips != 2400 || !p4.IsWinner {
+		t.Error()
 	}
 	// p1.Print()
 	// p2.Print()
@@ -1705,7 +1726,7 @@ func TestLoop18(t *testing.T) {
 		p2.Actions[2].Parameters[0].Type != "integer" ||
 		p2.Actions[2].Hints[0].Name != "amount" ||
 		p2.Actions[2].Hints[0].Type != "integer" ||
-		p2.Actions[2].Hints[0].Value != 80 {
+		p2.Actions[2].Hints[0].Value != 60 {
 		t.Error()
 	}
 	if state.GS.Gambit.Check(id2) || !state.GS.Gambit.Fold(id2) {
@@ -2058,4 +2079,208 @@ func TestLoop25(t *testing.T) {
 			t.Error()
 		}
 	})
+}
+
+func TestLoop26(t *testing.T) {
+	decisionTime := int64(3)
+	minimumBet := 10
+	ninek := game.NineK{
+		MaxPlayers:   6,
+		DecisionTime: decisionTime,
+		MinimumBet:   minimumBet}
+	handler.SetGambit(ninek)
+	state.GS.Gambit.Init() // create seats
+	id1, id2, id3 := "player1", "player2", "player3"
+	handler.Connect(id1)
+	handler.Connect(id2)
+	handler.Connect(id3)
+	handler.StartTable()
+	// dumb player
+	handler.Sit(id1, 2) // first
+	handler.Sit(id2, 4)
+	handler.Sit(id3, 1)
+	state.GS.Gambit.Start()
+	_, p1 := util.Get(state.GS.Players, id1)
+	_, p2 := util.Get(state.GS.Players, id2)
+	_, p3 := util.Get(state.GS.Players, id3)
+	if p1.Actions[0].Name != constant.Fold ||
+		p1.Actions[1].Name != constant.Check ||
+		p1.Actions[2].Name != constant.Bet {
+		t.Error()
+	}
+	if p1.Actions[2].Hints[0].Value != 10 || p1.Actions[2].Hints[1].Value != 30 {
+		t.Error()
+	}
+	if p2.Actions[0].Name != constant.Fold ||
+		p2.Actions[1].Name != constant.Check ||
+		p2.Actions[2].Name != constant.Bet {
+		t.Error()
+	}
+	if p2.Actions[2].Hints[0].Value != 10 || p2.Actions[2].Hints[1].Value != 30 {
+		t.Error()
+	}
+	if p3.Actions[0].Name != constant.Fold ||
+		p3.Actions[1].Name != constant.Check ||
+		p3.Actions[2].Name != constant.Bet {
+		t.Error()
+	}
+	if p3.Actions[2].Hints[0].Value != 10 || p2.Actions[2].Hints[1].Value != 30 {
+		t.Error()
+	}
+	if state.GS.Gambit.Bet(id1, 9) || state.GS.Gambit.Bet(id1, 31) || !state.GS.Gambit.Bet(id1, 30) {
+		t.Error()
+	}
+	_, p1 = util.Get(state.GS.Players, id1)
+	_, p2 = util.Get(state.GS.Players, id2)
+	_, p3 = util.Get(state.GS.Players, id3)
+	if p1.Actions[0].Name != constant.Fold ||
+		p1.Actions[1].Name != constant.Check ||
+		p1.Actions[2].Name != constant.Bet {
+		t.Error()
+	}
+	if p1.Actions[2].Hints[0].Value != 10 || p1.Actions[2].Hints[1].Value != 30 {
+		t.Error()
+	}
+	if p2.Actions[0].Name != constant.Fold ||
+		p2.Actions[1].Name != constant.Call ||
+		p2.Actions[2].Name != constant.Raise {
+		t.Error()
+	}
+	if p2.Actions[2].Hints[0].Value != 60 || p2.Actions[2].Hints[1].Value != 60 {
+		t.Error()
+	}
+	if p3.Actions[0].Name != constant.Fold ||
+		p3.Actions[1].Name != constant.Call ||
+		p3.Actions[2].Name != constant.Raise {
+		t.Error()
+	}
+	if p3.Actions[2].Hints[0].Value != 60 || p3.Actions[2].Hints[1].Value != 60 {
+		t.Error()
+	}
+	if !state.GS.Gambit.Raise(id2, 60) {
+		t.Error()
+	}
+	if !state.GS.Gambit.Raise(id3, 120) {
+		t.Error()
+	}
+	_, p1 = util.Get(state.GS.Players, id1)
+	_, p2 = util.Get(state.GS.Players, id2)
+	_, p3 = util.Get(state.GS.Players, id3)
+	if p1.Actions[0].Name != constant.Fold ||
+		p1.Actions[1].Name != constant.Call ||
+		p1.Actions[2].Name != constant.Raise {
+		t.Error()
+	}
+	if p1.Actions[2].Hints[0].Value != 210 || p1.Actions[2].Hints[1].Value != 210 {
+		t.Error()
+	}
+	if p2.Actions[0].Name != constant.Fold ||
+		p2.Actions[1].Name != constant.Call ||
+		p2.Actions[2].Name != constant.Raise {
+		t.Error()
+	}
+	if p2.Actions[2].Hints[0].Value != 180 || p2.Actions[2].Hints[1].Value != 180 {
+		t.Error()
+	}
+	if p3.Actions[0].Name != constant.Fold ||
+		p3.Actions[1].Name != constant.Check ||
+		p3.Actions[2].Name != constant.Bet {
+		t.Error()
+	}
+	// _, p1 = util.Get(state.GS.Players, id1)
+	// _, p2 = util.Get(state.GS.Players, id2)
+	// _, p3 = util.Get(state.GS.Players, id3)
+	// fmt.Println(p1.ID, p1.Bets, p1.Actions)
+	// fmt.Println(p2.ID, p2.Bets, p2.Actions)
+	// fmt.Println(p3.ID, p3.Bets, p3.Actions)
+	// fmt.Println()
+	if !state.GS.Gambit.Call(id1) {
+		t.Error()
+	}
+	_, p1 = util.Get(state.GS.Players, id1)
+	_, p2 = util.Get(state.GS.Players, id2)
+	_, p3 = util.Get(state.GS.Players, id3)
+	if p1.Actions[0].Name != constant.Fold ||
+		p1.Actions[1].Name != constant.Check ||
+		p1.Actions[2].Name != constant.Bet {
+		t.Error()
+	}
+	if p1.Actions[2].Hints[0].Value != 120 || p1.Actions[2].Hints[1].Value != 240 {
+		t.Error()
+	}
+	if p2.Actions[0].Name != constant.Fold ||
+		p2.Actions[1].Name != constant.Call ||
+		p2.Actions[2].Name != constant.Raise {
+		t.Error()
+	}
+	if p2.Actions[2].Hints[0].Value != 180 || p2.Actions[2].Hints[1].Value != 270 {
+		t.Error()
+	}
+	if p3.Actions[0].Name != constant.Fold ||
+		p3.Actions[1].Name != constant.Check ||
+		p3.Actions[2].Name != constant.Bet {
+		t.Error()
+	}
+	if p3.Actions[2].Hints[0].Value != 120 || p3.Actions[2].Hints[1].Value != 330 {
+		t.Error()
+	}
+	if !state.GS.Gambit.Call(id2) {
+		t.Error()
+	}
+	if !state.GS.Gambit.NextRound() {
+		t.Error()
+	}
+	_, p1 = util.Get(state.GS.Players, id1)
+	_, p2 = util.Get(state.GS.Players, id2)
+	_, p3 = util.Get(state.GS.Players, id3)
+	if p1.Actions[0].Name != constant.Fold ||
+		p1.Actions[1].Name != constant.Check ||
+		p1.Actions[2].Name != constant.Bet {
+		t.Error()
+	}
+	if p1.Actions[2].Hints[0].Value != 10 || p1.Actions[2].Hints[1].Value != 390 {
+		t.Error()
+	}
+	// fmt.Println(p1.ID, p1.Bets, p1.Actions[2].Hints[0])
+	// fmt.Println(p2.ID, p2.Bets, p2.Actions)
+	// fmt.Println(p3.ID, p3.Bets, p3.Actions)
+	// fmt.Println(state.GS.MinimumBet)
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// fmt.Println("now:", time.Now().Unix())
+	// fmt.Println("end:", state.GS.FinishRoundTime)
+}
+
+func TestLoop27(t *testing.T) {
+	decisionTime := int64(1)
+	minimumBet := 10
+	ninek := game.NineK{
+		MaxPlayers:   6,
+		DecisionTime: decisionTime,
+		MinimumBet:   minimumBet}
+	handler.SetGambit(ninek)
+	state.GS.Gambit.Init() // create seats
+	id1, id2, id3 := "player1", "player2", "player3"
+	handler.Connect(id1)
+	handler.Connect(id2)
+	handler.Connect(id3)
+	handler.StartTable()
+	// dumb player
+	handler.Sit(id1, 2) // first
+	handler.Sit(id2, 4)
+	handler.Sit(id3, 1)
+	state.GS.Gambit.Start()
+	time.Sleep(time.Second * time.Duration(decisionTime))
+	if !state.GS.Gambit.Bet(id2, 30) {
+		t.Error()
+	}
+	_, p1 := util.Get(state.GS.Players, id1)
+	_, p2 := util.Get(state.GS.Players, id2)
+	_, p3 := util.Get(state.GS.Players, id3)
+	if p1.Action.Name != "" || p1.Default.Name != constant.Fold ||
+		p2.Action.Name != constant.Bet || p2.Default.Name != constant.Bet ||
+		p3.Action.Name != "" || p3.Default.Name != constant.Fold {
+		t.Error()
+	}
 }

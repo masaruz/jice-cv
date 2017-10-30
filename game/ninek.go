@@ -32,7 +32,10 @@ func (game NineK) Init() {
 
 // Start game
 func (game NineK) Start() bool {
-	if handler.IsTableStart() && !handler.IsGameStart() && handler.MakePlayersReady() {
+	if handler.IsTableStart() &&
+		!handler.IsGameStart() &&
+		!handler.IsInExtendTime() &&
+		handler.MakePlayersReady() {
 		handler.StartGame()
 		handler.SetMinimumBet(game.MinimumBet)
 		// let all players bets to the pots
@@ -42,10 +45,10 @@ func (game NineK) Start() bool {
 		// start new bets
 		handler.InvestToPots(0)
 		handler.SetOtherActions("", constant.Check)
+		handler.SetOtherDefaultAction("", constant.Check)
 		handler.SetDealer()
 		handler.BuildDeck()
 		handler.Shuffle()
-		handler.AssignPlayersCheckOrAllIn()
 		handler.CreateTimeLine(game.DecisionTime)
 		handler.Deal(2, game.MaxPlayers)
 		return true
@@ -55,17 +58,33 @@ func (game NineK) Start() bool {
 
 // NextRound game after round by round
 func (game NineK) NextRound() bool {
+	handler.OverwriteActionToBehindPlayers()
 	if !handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound() &&
 		util.CountPlayerNotFold(state.GS.Players) > 1 {
-		handler.Deal(1, game.MaxPlayers)
-		handler.AssignPlayersCheckOrAllIn()
-		handler.CreateTimeLine(game.DecisionTime)
 		handler.SetMinimumBet(game.MinimumBet)
+		handler.SetOtherActions("", constant.Check)
+		handler.SetOtherDefaultAction("", constant.Check)
+		handler.CreateTimeLine(game.DecisionTime)
 		handler.InvestToPots(0)
+		handler.Deal(1, game.MaxPlayers)
 		handler.IncreaseTurn()
 		return true
 	}
+	return false
+}
+
+// Finish game
+func (game NineK) Finish() bool {
 	handler.OverwriteActionToBehindPlayers()
+	// no others to play with or all players have 3 cards but bet is not equal
+	if (util.CountPlayerNotFold(state.GS.Players) <= 1 && handler.IsGameStart()) ||
+		// if has 3 cards bet equal
+		(handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound()) {
+		handler.ExtendTime()
+		handler.AssignWinners()
+		handler.FlushGame()
+		return true
+	}
 	return false
 }
 
@@ -112,6 +131,7 @@ func (game NineK) Bet(id string, chips int) bool {
 	state.GS.Players[index].Default = model.Action{Name: constant.Bet}
 	state.GS.Players[index].Action = model.Action{Name: constant.Bet}
 	state.GS.Players[index].Actions = game.Reducer(constant.Check, id)
+	handler.IncreasePots(chips)
 	// assign minimum bet
 	handler.SetMinimumBet(state.GS.Players[index].Bets[state.GS.Turn])
 	handler.SetMaximumBet(util.SumBets(state.GS.Players))
@@ -158,6 +178,7 @@ func (game NineK) Call(id string) bool {
 	state.GS.Players[index].Default = model.Action{Name: constant.Call}
 	state.GS.Players[index].Action = model.Action{Name: constant.Call}
 	state.GS.Players[index].Actions = game.Reducer(constant.Check, id)
+	handler.IncreasePots(chips)
 	// set action of everyone
 	handler.OverwriteActionToBehindPlayers()
 	handler.SetMaximumBet(util.SumBets(state.GS.Players))
@@ -184,6 +205,7 @@ func (game NineK) AllIn(id string) bool {
 	state.GS.Players[index].Default = model.Action{Name: constant.AllIn}
 	state.GS.Players[index].Action = model.Action{Name: constant.AllIn}
 	state.GS.Players[index].Actions = game.Reducer(constant.Check, id)
+	handler.IncreasePots(chips)
 	handler.SetMaximumBet(util.SumBets(state.GS.Players))
 	// set action of everyone
 	handler.OverwriteActionToBehindPlayers()
@@ -216,20 +238,6 @@ func (game NineK) Fold(id string) bool {
 	return true
 }
 
-// Finish game
-func (game NineK) Finish() bool {
-	// no others to play with or all players have 3 cards but bet is not equal
-	if (util.CountPlayerNotFold(state.GS.Players) <= 1 && handler.IsGameStart()) ||
-		// if has 3 cards bet equal
-		(handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound()) {
-		handler.ForceEndTimeline()
-		handler.AssignWinners()
-		handler.FlushGame()
-		return true
-	}
-	return false
-}
-
 // End game
 func (game NineK) End() {}
 
@@ -238,6 +246,11 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 	switch event {
 	case constant.Check:
 		_, player := util.Get(state.GS.Players, id)
+		if player.Chips == 0 {
+			return model.Actions{
+				model.Action{Name: constant.Fold},
+				model.Action{Name: constant.Check}}
+		}
 		// maximum will be player's chips if not enough
 		maximum := 0
 		if state.GS.MaximumBet > player.Chips {
@@ -258,21 +271,23 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 					model.Hint{
 						Name: "amount_max", Type: "integer", Value: maximum}}}}
 	case constant.Bet:
+		_, player := util.Get(state.GS.Players, id)
+		playerchips := player.Chips + util.SumBet(player)
 		// highest bet in that turn
 		highestbet := util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players)
+		playerbet := player.Bets[state.GS.Turn]
 		// raise must be highest * 2
 		raise := highestbet * 2
 		// all sum bets
 		pots := util.SumBets(state.GS.Players)
-		_, player := util.Get(state.GS.Players, id)
-		if highestbet <= player.Bets[state.GS.Turn] {
+		if highestbet <= playerbet {
 			return game.Reducer(constant.Check, id)
 		}
 		// no more than pots
 		if raise > pots {
 			raise = pots
 		}
-		if player.Chips < highestbet || player.Chips < raise {
+		if playerchips < highestbet || playerchips < raise {
 			return model.Actions{
 				model.Action{Name: constant.Fold},
 				model.Action{Name: constant.AllIn,
@@ -280,7 +295,7 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 						model.Hint{
 							Name: "amount", Type: "integer", Value: player.Chips}}}}
 		}
-		diff := highestbet - player.Bets[state.GS.Turn]
+		diff := highestbet - playerbet
 		// maximum will be player's chips if not enough
 		maximum := 0
 		if state.GS.MaximumBet > player.Chips {
@@ -300,9 +315,9 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 						Name: "amount", Type: "integer"}},
 				Hints: model.Hints{
 					model.Hint{
-						Name: "amount", Type: "integer", Value: raise},
+						Name: "amount", Type: "integer", Value: raise - playerbet},
 					model.Hint{
-						Name: "amount_max", Type: "integer", Value: maximum}}}}
+						Name: "amount_max", Type: "integer", Value: maximum - playerbet}}}}
 
 	case constant.Fold:
 		return model.Actions{
