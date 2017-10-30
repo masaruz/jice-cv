@@ -2375,3 +2375,97 @@ func TestLoop28(t *testing.T) {
 	// fmt.Println("now:", time.Now().Unix())
 	// fmt.Println("end:", state.GS.FinishRoundTime)
 }
+
+func TestLoop29(t *testing.T) {
+	decisionTime := int64(1)
+	minimumBet := 10
+	ninek := game.NineK{
+		MaxPlayers:   6,
+		DecisionTime: decisionTime,
+		MinimumBet:   minimumBet}
+	handler.SetGambit(ninek)
+	state.GS.Gambit.Init() // create seats
+	id1, id2, id3 := "player1", "player2", "player3"
+	handler.Connect(id1)
+	handler.Connect(id2)
+	handler.Connect(id3)
+	handler.StartTable()
+	// dumb player
+	handler.Sit(id1, 5) // first
+	handler.Sit(id2, 3) // dealer
+	if !state.GS.Gambit.Start() {
+		t.Error()
+	}
+	_, p1 := util.Get(state.GS.Players, id1)
+	_, p2 := util.Get(state.GS.Players, id2)
+	if p2.Type != constant.Dealer || p1.Type != constant.Normal {
+		t.Error()
+	}
+	if !handler.Stand(id1) {
+		t.Error()
+	}
+	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
+		t.Error()
+	}
+	_, p1 = util.Get(state.GS.Players, id1)
+	_, p2 = util.Get(state.GS.Players, id2)
+	if p2.Type != constant.Dealer {
+		t.Error()
+	}
+	if !p2.IsWinner || p1.IsWinner {
+		t.Error()
+	}
+	state.GS.FinishRoundTime = 0
+	if !handler.Sit(id1, 5) || !state.GS.Gambit.Start() {
+		t.Error()
+	}
+	_, p1 = util.Get(state.GS.Players, id1)
+	_, p2 = util.Get(state.GS.Players, id2)
+	if p1.Type != constant.Dealer || p2.Type != constant.Normal {
+		t.Error()
+	}
+	if !handler.Stand(id1) {
+		t.Error()
+	}
+	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
+		t.Error()
+	}
+	_, p1 = util.Get(state.GS.Players, id1)
+	_, p2 = util.Get(state.GS.Players, id2)
+	if p2.Type != constant.Normal {
+		t.Error()
+	}
+	if !p2.IsWinner || p1.IsWinner {
+		t.Error()
+	}
+	state.GS.FinishRoundTime = 0
+	if !handler.Sit(id1, 5) || !state.GS.Gambit.Start() {
+		t.Error()
+	}
+	_, p1 = util.Get(state.GS.Players, id1)
+	_, p2 = util.Get(state.GS.Players, id2)
+	if p2.Type != constant.Dealer || p1.Type != constant.Normal {
+		t.Error()
+	}
+	if !state.GS.Gambit.Check(id1) || !state.GS.Gambit.Check(id2) {
+		t.Error()
+	}
+	if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() {
+		t.Error()
+	}
+	if !state.GS.Gambit.Check(id1) || !state.GS.Gambit.Check(id2) {
+		t.Error()
+	}
+	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
+		t.Error()
+	}
+	state.GS.FinishRoundTime = 0
+	if !state.GS.Gambit.Start() {
+		t.Error()
+	}
+	_, p1 = util.Get(state.GS.Players, id1)
+	_, p2 = util.Get(state.GS.Players, id2)
+	if p1.Type != constant.Dealer || p2.Type != constant.Normal {
+		t.Error()
+	}
+}

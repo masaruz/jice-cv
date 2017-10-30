@@ -143,6 +143,8 @@ func (game NineK) Finish() bool {
 				pos = -1
 			}
 		}
+		// revert minimum bet
+		handler.SetMinimumBet(game.MinimumBet)
 		handler.FlushGame()
 		return true
 	}

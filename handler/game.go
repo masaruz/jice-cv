@@ -17,7 +17,7 @@ func SetGambit(game engine.Gambit) {
 // CreateSeats prepare empty seat for players
 func CreateSeats(seats int) {
 	// TODO
-	names := []string{"Eleven", "Dustin", "Mike", "Jucas", "Nancy", "Will"}
+	names := []string{"Eleven", "Dustin", "Mike", "Lucas", "Nancy", "Will"}
 	for i := 0; i < seats; i++ {
 		state.GS.Players = append(state.GS.Players,
 			model.Player{Slot: i, Name: names[i]})
