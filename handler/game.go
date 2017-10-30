@@ -16,8 +16,18 @@ func SetGambit(game engine.Gambit) {
 
 // CreateSeats prepare empty seat for players
 func CreateSeats(seats int) {
+	// TODO
+	names := []string{"Eleven", "Dustin", "Mike", "Jucas", "Nancy", "Will"}
 	for i := 0; i < seats; i++ {
-		state.GS.Players = append(state.GS.Players, model.Player{Slot: i})
+		state.GS.Players = append(state.GS.Players,
+			model.Player{Slot: i, Name: names[i]})
+	}
+}
+
+// CreatePots per seat
+func CreatePots(length int) {
+	for i := 0; i < length; i++ {
+		state.GS.Pots = append(state.GS.Pots, 0)
 	}
 }
 
@@ -57,11 +67,8 @@ func IncreaseTurn() {
 }
 
 // IncreasePots when players pay chips
-func IncreasePots(chips int) {
-	if len(state.GS.Pots) <= 0 {
-		state.GS.Pots = []int{0}
-	}
-	state.GS.Pots[0] += chips
+func IncreasePots(index int, chips int) {
+	state.GS.Pots[index] += chips
 }
 
 // SetMinimumBet set minimum players can bet
@@ -84,70 +91,6 @@ func IsPlayerTurn(id string) bool {
 	startline := state.GS.Players[index].StartLine
 	deadline := state.GS.Players[index].DeadLine
 	return nowline >= startline && nowline < deadline
-}
-
-// AssignWinners find a winner by evaluate his cards
-func AssignWinners() {
-	hscore := -1
-	hbonus := -1
-	pos := -1
-	// hkind := ""
-	// winner := model.Player{}
-	for i := 0; i < len(state.GS.Players); i++ {
-		for index, player := range state.GS.Players {
-			if !util.IsPlayingAndNotFold(player) ||
-				len(player.Cards) == 0 ||
-				player.IsEarned {
-				continue
-			}
-			scores, _ := state.GS.Gambit.Evaluate(player.Cards)
-			score := scores[0]
-			bonus := scores[1]
-			if hscore < score {
-				hscore = score
-				hbonus = bonus
-				// winner = player
-				// hkind = kind
-				pos = index
-			} else if hscore == score && hbonus < bonus {
-				hscore = score
-				hbonus = bonus
-				// winner = player
-				// hkind = kind
-				pos = index
-			}
-		}
-		if pos != -1 {
-			for index, player := range state.GS.Players {
-				if !player.IsPlaying {
-					continue
-				}
-				playerbet := util.SumBet(player)
-				winnerbet := util.SumBet(state.GS.Players[pos])
-				earnedbet := 0
-				if winnerbet > playerbet {
-					// if winner has higher bet
-					earnedbet = playerbet
-				} else {
-					// if winner has lower bet
-					earnedbet = winnerbet
-				}
-				if earnedbet != 0 {
-					state.GS.Players[pos].Chips += earnedbet
-					state.GS.Players[pos].IsWinner = true
-				}
-				// if not caller
-				if index != pos {
-					BurnBet(player.ID, earnedbet)
-				}
-			}
-			state.GS.Players[pos].IsEarned = true
-			BurnBet(state.GS.Players[pos].ID, util.SumBet(state.GS.Players[pos]))
-			hscore = -1
-			hbonus = -1
-			pos = -1
-		}
-	}
 }
 
 // CreateTimeLine set timeline for game and any players
@@ -307,7 +250,9 @@ func FlushGame() {
 		state.GS.Players[index].DeadLine = 0
 		state.GS.Players[index].IsEarned = false
 	}
-	state.GS.Pots = []int{}
+	for index := range state.GS.Pots {
+		state.GS.Pots[index] = 0
+	}
 	state.GS.Turn = 0
 	state.GS.IsGameStart = false
 }
@@ -363,21 +308,21 @@ func ShiftPlayersToEndOfTimeline(id string, second int64) {
 	}
 }
 
-// InvestToPots added bet to everyone base on turn
-func InvestToPots(chips int) {
+// PlayersInvestToPots added bet to everyone base on turn
+func PlayersInvestToPots(chips int) {
 	// initiate bet value to players
 	for index := range state.GS.Players {
 		if util.IsPlayingAndNotFoldAndNotAllIn(state.GS.Players[index]) {
 			state.GS.Players[index].Chips -= chips
 			state.GS.Players[index].Bets = append(state.GS.Players[index].Bets, chips)
-			IncreasePots(chips)
-			SetMaximumBet(util.SumBets(state.GS.Players)) // start with first element in pots
+			IncreasePots(index, chips)
+			// start with first element in pots
 		} else if util.IsPlayingAndNotFold(state.GS.Players[index]) {
 			state.GS.Players[index].Bets = append(state.GS.Players[index].Bets, 0)
-			IncreasePots(chips)
-			SetMaximumBet(util.SumBets(state.GS.Players))
+			IncreasePots(index, chips)
 		}
 	}
+	SetMaximumBet(util.SumPots(state.GS.Pots))
 }
 
 // OverwriteActionToBehindPlayers overwritten action with default
@@ -391,23 +336,11 @@ func OverwriteActionToBehindPlayers() {
 }
 
 // BurnBet burn bet from player
-func BurnBet(id string, burn int) int {
-	index, player := util.Get(state.GS.Players, id)
+func BurnBet(index int, burn int) {
 	// if this player cannot pay all of it
-	sumbet := util.SumBet(player)
-	if burn >= sumbet {
-		for i := range state.GS.Players[index].Bets {
-			state.GS.Players[index].Bets[i] = 0
-		}
-		return sumbet
+	if burn > state.GS.Pots[index] {
+		state.GS.Pots[index] = 0
+	} else {
+		state.GS.Pots[index] -= burn
 	}
-	for i, bet := range state.GS.Players[index].Bets {
-		if bet >= burn {
-			state.GS.Players[index].Bets[i] -= burn
-		} else {
-			burn -= bet
-			state.GS.Players[index].Bets[i] = 0
-		}
-	}
-	return util.SumBet(player)
 }

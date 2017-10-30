@@ -6,7 +6,6 @@ import (
 	"999k_engine/state"
 	"999k_engine/util"
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/googollee/go-socket.io"
@@ -78,7 +77,6 @@ func CreateResponse(id string, event string) string {
 					StartRoundTime:  state.GS.StartRoundTime,
 					FinishRoundTime: state.GS.FinishRoundTime}},
 			Signature: state.Signature{}})
-	fmt.Println("version:", state.GS.Version)
 	return string(data)
 }
 

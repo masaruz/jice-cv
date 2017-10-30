@@ -27,6 +27,7 @@ type Payload struct {
 func (game NineK) Init() {
 	// set the seats
 	handler.CreateSeats(game.MaxPlayers)
+	handler.CreatePots(game.MaxPlayers)
 	handler.SetMinimumBet(game.MinimumBet)
 }
 
@@ -39,11 +40,11 @@ func (game NineK) Start() bool {
 		handler.StartGame()
 		handler.SetMinimumBet(game.MinimumBet)
 		// let all players bets to the pots
-		handler.InvestToPots(game.MinimumBet)
+		handler.PlayersInvestToPots(game.MinimumBet)
 		// start turn
 		handler.IncreaseTurn()
 		// start new bets
-		handler.InvestToPots(0)
+		handler.PlayersInvestToPots(0)
 		handler.SetOtherActions("", constant.Check)
 		handler.SetOtherDefaultAction("", constant.Check)
 		handler.SetDealer()
@@ -65,7 +66,7 @@ func (game NineK) NextRound() bool {
 		handler.SetOtherActions("", constant.Check)
 		handler.SetOtherDefaultAction("", constant.Check)
 		handler.CreateTimeLine(game.DecisionTime)
-		handler.InvestToPots(0)
+		handler.PlayersInvestToPots(0)
 		handler.Deal(1, game.MaxPlayers)
 		handler.IncreaseTurn()
 		return true
@@ -81,7 +82,67 @@ func (game NineK) Finish() bool {
 		// if has 3 cards bet equal
 		(handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound()) {
 		handler.ExtendTime()
-		handler.AssignWinners()
+		// find winner and added their rewards
+		hscore := -1
+		hbonus := -1
+		pos := -1
+		// hkind := ""
+		// winner := model.Player{}
+		for i := 0; i < len(state.GS.Players); i++ {
+			for index, player := range state.GS.Players {
+				if !util.IsPlayingAndNotFold(player) ||
+					len(player.Cards) == 0 ||
+					player.IsEarned {
+					continue
+				}
+				scores, _ := game.Evaluate(player.Cards)
+				score := scores[0]
+				bonus := scores[1]
+				if hscore < score {
+					hscore = score
+					hbonus = bonus
+					// winner = player
+					// hkind = kind
+					pos = index
+				} else if hscore == score && hbonus < bonus {
+					hscore = score
+					hbonus = bonus
+					// winner = player
+					// hkind = kind
+					pos = index
+				}
+			}
+			if pos != -1 {
+				for poti, bets := range state.GS.Pots {
+					if bets == 0 {
+						continue
+					}
+					playerbet := bets
+					winnerbet := state.GS.Pots[pos]
+					earnedbet := 0
+					if winnerbet > playerbet {
+						// if winner has higher bet
+						earnedbet = playerbet
+					} else {
+						// if winner has lower bet
+						earnedbet = winnerbet
+					}
+					if earnedbet != 0 {
+						state.GS.Players[pos].Chips += earnedbet
+						state.GS.Players[pos].IsWinner = true
+					}
+					// if not caller
+					if poti != pos {
+						handler.BurnBet(poti, earnedbet)
+					}
+				}
+				state.GS.Players[pos].IsEarned = true
+				handler.BurnBet(pos, util.SumBet(state.GS.Players[pos]))
+				hscore = -1
+				hbonus = -1
+				pos = -1
+			}
+		}
 		handler.FlushGame()
 		return true
 	}
@@ -131,10 +192,11 @@ func (game NineK) Bet(id string, chips int) bool {
 	state.GS.Players[index].Default = model.Action{Name: constant.Bet}
 	state.GS.Players[index].Action = model.Action{Name: constant.Bet}
 	state.GS.Players[index].Actions = game.Reducer(constant.Check, id)
-	handler.IncreasePots(chips)
+	handler.IncreasePots(index, chips)
 	// assign minimum bet
 	handler.SetMinimumBet(state.GS.Players[index].Bets[state.GS.Turn])
-	handler.SetMaximumBet(util.SumBets(state.GS.Players))
+	// assign maximum bet
+	handler.SetMaximumBet(util.SumPots(state.GS.Pots))
 	// set action of everyone
 	handler.OverwriteActionToBehindPlayers()
 	// others automatic set to fold as default
@@ -178,10 +240,10 @@ func (game NineK) Call(id string) bool {
 	state.GS.Players[index].Default = model.Action{Name: constant.Call}
 	state.GS.Players[index].Action = model.Action{Name: constant.Call}
 	state.GS.Players[index].Actions = game.Reducer(constant.Check, id)
-	handler.IncreasePots(chips)
+	handler.IncreasePots(index, chips)
 	// set action of everyone
 	handler.OverwriteActionToBehindPlayers()
-	handler.SetMaximumBet(util.SumBets(state.GS.Players))
+	handler.SetMaximumBet(util.SumPots(state.GS.Pots))
 	// others need to know what to do next
 	handler.SetOtherActions(id, constant.Bet)
 	diff := time.Now().Unix() - state.GS.Players[index].DeadLine
@@ -205,8 +267,8 @@ func (game NineK) AllIn(id string) bool {
 	state.GS.Players[index].Default = model.Action{Name: constant.AllIn}
 	state.GS.Players[index].Action = model.Action{Name: constant.AllIn}
 	state.GS.Players[index].Actions = game.Reducer(constant.Check, id)
-	handler.IncreasePots(chips)
-	handler.SetMaximumBet(util.SumBets(state.GS.Players))
+	handler.IncreasePots(index, chips)
+	handler.SetMaximumBet(util.SumPots(state.GS.Pots))
 	// set action of everyone
 	handler.OverwriteActionToBehindPlayers()
 	// others automatic set to fold as default
@@ -279,7 +341,7 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 		// raise must be highest * 2
 		raise := highestbet * 2
 		// all sum bets
-		pots := util.SumBets(state.GS.Players)
+		pots := util.SumPots(state.GS.Pots)
 		if highestbet <= playerbet {
 			return game.Reducer(constant.Check, id)
 		}

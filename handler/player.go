@@ -65,6 +65,8 @@ func Sit(id string, slot int) bool {
 	for _, player := range state.GS.Players {
 		if slot == player.Slot && player.ID == "" {
 			caller.Slot = player.Slot
+			// TODO
+			caller.Name = player.Name
 			break
 		}
 	}

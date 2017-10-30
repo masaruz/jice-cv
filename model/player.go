@@ -5,6 +5,7 @@ import "fmt"
 // Player in the battle
 type Player struct {
 	ID        string   `json:"id"`
+	Name      string   `json:"name"`
 	Cards     Cards    `json:"cards"`
 	Chips     int      `json:"chips"`
 	Type      string   `json:"type"`
