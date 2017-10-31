@@ -9,7 +9,7 @@ RUN apk update && apk upgrade && \
 RUN go-wrapper download   # "go get -d -v ./..."
 RUN go-wrapper install    # "go install -v ./..."
 
-RUN apk del --no-cache bash git openssh
+RUN apk del bash git openssh
 
 EXPOSE 3000
 

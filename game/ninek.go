@@ -129,7 +129,10 @@ func (game NineK) Finish() bool {
 					}
 					if earnedbet != 0 {
 						state.GS.Players[pos].Chips += earnedbet
-						state.GS.Players[pos].IsWinner = true
+						earnedplayers := util.CountPlayerAlreadyEarned(state.GS.Players)
+						if util.CountPlayerNotFold(state.GS.Players)-earnedplayers > 1 || earnedplayers == 0 {
+							state.GS.Players[pos].IsWinner = true
+						}
 					}
 					// if not caller
 					if poti != pos {
@@ -336,7 +339,7 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 						Name: "amount_max", Type: "integer", Value: maximum}}}}
 	case constant.Bet:
 		_, player := util.Get(state.GS.Players, id)
-		playerchips := player.Chips + util.SumBet(player)
+		playerchips := player.Chips + player.Bets[state.GS.Turn]
 		// highest bet in that turn
 		highestbet := util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players)
 		playerbet := player.Bets[state.GS.Turn]
@@ -351,7 +354,7 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 		if raise > pots {
 			raise = pots
 		}
-		if playerchips < highestbet || playerchips < raise {
+		if playerchips <= highestbet {
 			return model.Actions{
 				model.Action{Name: constant.Fold},
 				model.Action{Name: constant.AllIn,
@@ -360,10 +363,18 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 							Name: "amount", Type: "integer", Value: player.Chips}}}}
 		}
 		diff := highestbet - playerbet
+		if playerchips < raise {
+			return model.Actions{
+				model.Action{Name: constant.Fold},
+				model.Action{Name: constant.Call,
+					Hints: model.Hints{
+						model.Hint{
+							Name: "amount", Type: "integer", Value: diff}}}}
+		}
 		// maximum will be player's chips if not enough
 		maximum := 0
-		if state.GS.MaximumBet > player.Chips {
-			maximum = player.Chips
+		if state.GS.MaximumBet > playerchips {
+			maximum = playerchips
 		} else {
 			maximum = state.GS.MaximumBet
 		}
@@ -382,7 +393,6 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 						Name: "amount", Type: "integer", Value: raise - playerbet},
 					model.Hint{
 						Name: "amount_max", Type: "integer", Value: maximum - playerbet}}}}
-
 	case constant.Fold:
 		return model.Actions{
 			model.Action{Name: constant.Stand}}

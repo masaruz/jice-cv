@@ -10,10 +10,6 @@ func summary(kind string, hands []int) ([]int, string) {
 	bonus := hands[len(hands)-1]
 	switch kind {
 	case constant.ThreeOfAKind:
-		// becase 333 is the highest
-		if util.GetCardNumberFromValue(bonus) == 3 {
-			bonus = 52 //max
-		}
 		return []int{10000000, bonus}, constant.ThreeOfAKind
 	case constant.StraightFlush:
 		return []int{1000000, bonus}, constant.StraightFlush

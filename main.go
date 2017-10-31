@@ -38,17 +38,23 @@ func main() {
 		fmt.Println(so.Id(), "Connect")
 		// when player need server to check something
 		so.On(constant.Stimulate, func(msg string) string {
+			for handler.IsProcessing() {
+			}
+			handler.SetProcessing(true)
+			channel := ""
 			// if cannot start, next and finish then it is during gameplay
 			if !state.GS.Gambit.Start() &&
 				!state.GS.Gambit.NextRound() &&
 				!state.GS.Gambit.Finish() {
 				fmt.Println(so.Id(), "Stimulate", "Nothing", msg)
-				return handler.CreateResponse(so.Id(), "")
+			} else {
+				channel = constant.PushState
+				state.GS.IncreaseVersion()
+				fmt.Println(so.Id(), "Stimulate", "Success", msg)
 			}
-			fmt.Println(so.Id(), "Stimulate", "Success", msg)
-			state.GS.IncreaseVersion()
+			handler.SetProcessing(false)
 			// if no seat then just return current state
-			return handler.CreateResponse(so.Id(), constant.PushState)
+			return handler.CreateResponse(so.Id(), channel)
 		})
 		// when player need to get game state
 		so.On(constant.GetState, func(msg string) string {

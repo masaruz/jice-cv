@@ -51,37 +51,48 @@ func Get(slice model.Players, id string) (int, model.Player) {
 	return -1, model.Player{}
 }
 
-// CountPlayerNotFoldAndNotAllIn who has right to play
-func CountPlayerNotFoldAndNotAllIn(players model.Players) int {
-	playing := 0
+// CountPlayerAlreadyEarned who has eared
+func CountPlayerAlreadyEarned(players model.Players) int {
+	count := 0
 	for _, player := range players {
-		if IsPlayingAndNotFoldAndNotAllIn(player) {
-			playing++
+		if player.IsEarned {
+			count++
 		}
 	}
-	return playing
+	return count
+}
+
+// CountPlayerNotFoldAndNotAllIn who has right to play
+func CountPlayerNotFoldAndNotAllIn(players model.Players) int {
+	count := 0
+	for _, player := range players {
+		if IsPlayingAndNotFoldAndNotAllIn(player) {
+			count++
+		}
+	}
+	return count
 }
 
 // CountPlayerNotFold count who is not fold
 func CountPlayerNotFold(players model.Players) int {
-	playing := 0
+	count := 0
 	for _, player := range players {
 		if IsPlayingAndNotFold(player) {
-			playing++
+			count++
 		}
 	}
-	return playing
+	return count
 }
 
 // CountSitting who is actually sit
 func CountSitting(players model.Players) int {
-	sitting := 0
+	count := 0
 	for _, player := range players {
 		if player.ID != "" {
-			sitting++
+			count++
 		}
 	}
-	return sitting
+	return count
 }
 
 // FindPrevPlayer return prev player who sit prev to current player

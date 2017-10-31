@@ -9,6 +9,16 @@ import (
 	"time"
 )
 
+// IsProcessing check if server is processing result
+func IsProcessing() bool {
+	return state.GS.IsProcessing
+}
+
+// SetProcessing set stimulate to blocking
+func SetProcessing(stimulate bool) {
+	state.GS.IsProcessing = stimulate
+}
+
 // SetGambit current game to the gamestate
 func SetGambit(game engine.Gambit) {
 	state.GS.Gambit = game
