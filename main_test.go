@@ -2600,3 +2600,8 @@ func TestLoop31(t *testing.T) {
 	// fmt.Println("now:", time.Now().Unix())
 	// fmt.Println("end:", state.GS.FinishRoundTime)
 }
+
+func TestConvertStringToRequestStruct(t *testing.T) {
+	req, err := handler.ConvertStringToRequestStruct("")
+	fmt.Println(req, err)
+}
