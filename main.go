@@ -181,7 +181,7 @@ func main() {
 			channel := ""
 			data := &state.Req{}
 			err := json.Unmarshal([]byte(msg), data)
-			if err != nil && handler.Sit(so.Id(), data.Payload.Parameters[0].ValueInteger) {
+			if err == nil && handler.Sit(so.Id(), data.Payload.Parameters[0].ValueInteger) {
 				channel = constant.Sit
 				fmt.Println(so.Id(), "Sit", "Success", msg)
 				state.GS.Gambit.Start()
