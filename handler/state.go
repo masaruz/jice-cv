@@ -11,6 +11,14 @@ import (
 	"github.com/googollee/go-socket.io"
 )
 
+// ConvertStringToRequestStruct convert string to struct (state.Req)
+// ConvertStringToRequestStruct return as value of pointer
+func ConvertStringToRequestStruct(msg string) (*state.Req, error) {
+	res := state.Req{}
+	err := json.Unmarshal([]byte(msg), &res)
+	return &res, err // go function can return multiple values
+}
+
 // BroadcastGameState send to everyone but will return caller state in string
 func BroadcastGameState(so socketio.Socket, event string, owner string) model.Player {
 	player := model.Player{}

@@ -6,7 +6,6 @@ import (
 	"999k_engine/handler"
 	"999k_engine/state"
 	"999k_engine/util"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -78,8 +77,7 @@ func main() {
 			handler.WaitQueue()
 			handler.StartProcess()
 			channel := ""
-			data := &state.Req{}
-			err := json.Unmarshal([]byte(msg), data)
+			data, err := handler.ConvertStringToRequestStruct(msg)
 			// if cannot parse or client send nothing
 			if err != nil || len(data.Payload.Parameters) <= 0 {
 				return handler.CreateResponse(so.Id(), channel)
@@ -99,8 +97,7 @@ func main() {
 			handler.WaitQueue()
 			handler.StartProcess()
 			channel := ""
-			data := &state.Req{}
-			err := json.Unmarshal([]byte(msg), data)
+			data, err := handler.ConvertStringToRequestStruct(msg)
 			// if cannot parse or client send nothing
 			if err != nil || len(data.Payload.Parameters) <= 0 {
 				return handler.CreateResponse(so.Id(), channel)
@@ -179,8 +176,7 @@ func main() {
 			handler.WaitQueue()
 			handler.StartProcess()
 			channel := ""
-			data := &state.Req{}
-			err := json.Unmarshal([]byte(msg), data)
+			data, err := handler.ConvertStringToRequestStruct(msg)
 			if err == nil && handler.Sit(so.Id(), data.Payload.Parameters[0].ValueInteger) {
 				channel = constant.Sit
 				fmt.Println(so.Id(), "Sit", "Success", msg)

@@ -2600,7 +2600,6 @@ func TestLoop31(t *testing.T) {
 	// fmt.Println("now:", time.Now().Unix())
 	// fmt.Println("end:", state.GS.FinishRoundTime)
 }
-
 func TestLoop32(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
