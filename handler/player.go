@@ -45,6 +45,7 @@ func Disconnect(id string) {
 	}
 	state.GS.Players = util.Kick(state.GS.Players, id)
 	state.GS.Visitors = util.Remove(state.GS.Visitors, id)
+	SetOtherActionsWhoAreNotPlaying(constant.Sit)
 }
 
 // AutoSit auto find a seat
@@ -78,13 +79,7 @@ func Sit(id string, slot int) bool {
 	caller.Action = model.Action{Name: constant.Sit}
 	// add to players
 	state.GS.Players[caller.Slot] = caller
-	// if others who are not playing then able to starttable or only stand
-	for index, player := range state.GS.Players {
-		// not a seat and not playing
-		if player.ID != "" && !player.IsPlaying {
-			state.GS.Players[index].Actions = Reducer(constant.Sit, player.ID)
-		}
-	}
+	SetOtherActionsWhoAreNotPlaying(constant.Sit)
 	return true
 }
 
@@ -110,5 +105,6 @@ func Stand(id string) bool {
 	visitor.Actions = Reducer(constant.Connection, id)
 	state.GS.Players = util.Kick(state.GS.Players, caller.ID)
 	state.GS.Visitors = util.Add(state.GS.Visitors, visitor)
+	SetOtherActionsWhoAreNotPlaying(constant.Sit)
 	return true
 }

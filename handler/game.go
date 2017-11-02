@@ -199,6 +199,17 @@ func SetOtherActions(id string, action string) {
 	}
 }
 
+// SetOtherActionsWhoAreNotPlaying set everyone action who are not playing
+func SetOtherActionsWhoAreNotPlaying(action string) {
+	// if others who are not playing then able to starttable or only stand
+	for index, player := range state.GS.Players {
+		// not a seat and not playing
+		if player.ID != "" && !player.IsPlaying {
+			state.GS.Players[index].Actions = Reducer(action, player.ID)
+		}
+	}
+}
+
 // IsFullHand check if hold max cards
 func IsFullHand(maxcards int) bool {
 	for _, player := range state.GS.Players {

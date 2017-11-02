@@ -120,7 +120,7 @@ func main() {
 			handler.WaitQueue()
 			handler.StartProcess()
 			channel := ""
-			if !state.GS.Gambit.Call(so.Id()) {
+			if state.GS.Gambit.Call(so.Id()) {
 				channel = constant.Call
 				fmt.Println(so.Id(), "Call", "Success", msg)
 				state.GS.IncreaseVersion()
@@ -134,7 +134,7 @@ func main() {
 			handler.WaitQueue()
 			handler.StartProcess()
 			channel := ""
-			if !state.GS.Gambit.AllIn(so.Id()) {
+			if state.GS.Gambit.AllIn(so.Id()) {
 				channel = constant.Raise
 				fmt.Println(so.Id(), "AllIn", "Success", msg)
 				state.GS.IncreaseVersion()

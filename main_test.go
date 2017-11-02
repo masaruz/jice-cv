@@ -2600,3 +2600,81 @@ func TestLoop31(t *testing.T) {
 	// fmt.Println("now:", time.Now().Unix())
 	// fmt.Println("end:", state.GS.FinishRoundTime)
 }
+
+func TestLoop32(t *testing.T) {
+	decisionTime := int64(3)
+	minimumBet := 10
+	ninek := game.NineK{
+		MaxPlayers:   6,
+		DecisionTime: decisionTime,
+		MinimumBet:   minimumBet}
+	handler.SetGambit(ninek)
+	state.GS.Gambit.Init() // create seats
+	id1, id2 := "player1", "player2"
+	handler.Connect(id1)
+	handler.Connect(id2)
+	// dumb player
+	handler.Sit(id1, 5) // first
+	handler.Sit(id2, 3)
+	p1 := &state.GS.Players[5]
+	p2 := &state.GS.Players[3]
+	if p1.Actions[0].Name != constant.Stand || p1.Actions[1].Name != constant.StartTable {
+		t.Error()
+	}
+	if p2.Actions[0].Name != constant.Stand || p2.Actions[1].Name != constant.StartTable {
+		t.Error()
+	}
+	handler.Stand(id2)
+	if p1.Actions[0].Name != constant.Stand || len(p1.Actions) > 1 {
+		t.Error()
+	}
+	handler.Sit(id2, 3)
+	if p1.Actions[0].Name != constant.Stand || p1.Actions[1].Name != constant.StartTable {
+		t.Error()
+	}
+	if p2.Actions[0].Name != constant.Stand || p2.Actions[1].Name != constant.StartTable {
+		t.Error()
+	}
+	handler.Disconnect(id2)
+	if p1.Actions[0].Name != constant.Stand || len(p1.Actions) > 1 {
+		t.Error()
+	}
+	// fmt.Println(p1)
+	// fmt.Println(p2)
+	// p1.Print()
+	// p2.Print()
+	// fmt.Println("now:", time.Now().Unix())
+	// fmt.Println("end:", state.GS.FinishRoundTime)
+}
+
+func TestLoop33(t *testing.T) {
+	decisionTime := int64(3)
+	minimumBet := 10
+	ninek := game.NineK{
+		MaxPlayers:   6,
+		DecisionTime: decisionTime,
+		MinimumBet:   minimumBet}
+	handler.SetGambit(ninek)
+	state.GS.Gambit.Init() // create seats
+	id1, id2 := "player1", "player2"
+	handler.Connect(id1)
+	handler.Connect(id2)
+	// dumb player
+	handler.Sit(id1, 5) // first
+	handler.Sit(id2, 3)
+	handler.StartTable()
+	if !state.GS.Gambit.Start() {
+		t.Error()
+	}
+	// p1 := &state.GS.Players[5]
+	// p2 := &state.GS.Players[3]
+	if !state.GS.Gambit.Check(id1) {
+		t.Error()
+	}
+	if !state.GS.Gambit.Bet(id2, 10) {
+		t.Error()
+	}
+	if !state.GS.Gambit.Call(id1) {
+		t.Error()
+	}
+}
