@@ -23,6 +23,7 @@ func main() {
 	decisionTime := int64(25)
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  3,
 		DecisionTime: decisionTime,
 		MinimumBet:   10}
 	handler.SetGambit(ninek)

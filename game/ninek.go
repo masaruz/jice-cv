@@ -15,6 +15,7 @@ type NineK struct {
 	MaxPlayers   int
 	DecisionTime int64
 	MinimumBet   int
+	MaxAFKCount  int
 }
 
 // Payload data accessed by continue
@@ -25,9 +26,11 @@ type Payload struct {
 
 // Init deck and environment variables
 func (game NineK) Init() {
+	// create counting afk
+	state.GS.AFKCounts = make([]int, game.MaxPlayers)
+	state.GS.Pots = make([]int, game.MaxPlayers)
 	// set the seats
 	handler.CreateSeats(game.MaxPlayers)
-	handler.CreatePots(game.MaxPlayers)
 	handler.SetMinimumBet(game.MinimumBet)
 }
 
@@ -35,24 +38,39 @@ func (game NineK) Init() {
 func (game NineK) Start() bool {
 	if handler.IsTableStart() &&
 		!handler.IsGameStart() &&
-		!handler.IsInExtendTime() &&
-		handler.MakePlayersReady() {
-		handler.StartGame()
-		handler.SetMinimumBet(game.MinimumBet)
-		// let all players bets to the pots
-		handler.PlayersInvestToPots(game.MinimumBet)
-		// start turn
-		handler.IncreaseTurn()
-		// start new bets
-		handler.PlayersInvestToPots(0)
-		handler.SetOtherActions("", constant.Check)
-		handler.SetOtherDefaultAction("", constant.Check)
-		handler.SetDealer()
-		handler.BuildDeck()
-		handler.Shuffle()
-		handler.CreateTimeLine(game.DecisionTime)
-		handler.Deal(2, game.MaxPlayers)
-		return true
+		!handler.IsInExtendTime() {
+		// filter players who are not ready to play
+		for index, player := range state.GS.Players {
+			if player.ID == "" {
+				continue
+			}
+			if player.Chips >= game.MinimumBet &&
+				state.GS.AFKCounts[index] < game.MaxAFKCount {
+				continue
+			}
+			handler.Stand(player.ID)
+		}
+		if util.CountSitting(state.GS.Players) >= 2 {
+			handler.MakePlayersReady()
+			handler.StartGame()
+			handler.SetMinimumBet(game.MinimumBet)
+			// let all players bets to the pots
+			handler.PlayersInvestToPots(game.MinimumBet)
+			// start turn
+			handler.IncreaseTurn()
+			// start new bets
+			handler.PlayersInvestToPots(0)
+			handler.SetOtherActions("", constant.Check)
+			handler.SetOtherDefaultAction("", constant.Check)
+			handler.SetDealer()
+			handler.BuildDeck()
+			handler.Shuffle()
+			handler.CreateTimeLine(game.DecisionTime)
+			handler.Deal(2, game.MaxPlayers)
+			// no one is assumed afk
+			state.GS.DoActions = make([]bool, game.MaxPlayers)
+			return true
+		}
 	}
 	return false
 }
@@ -69,6 +87,8 @@ func (game NineK) NextRound() bool {
 		handler.PlayersInvestToPots(0)
 		handler.Deal(1, game.MaxPlayers)
 		handler.IncreaseTurn()
+		// no one is assumed afk
+		state.GS.DoActions = make([]bool, game.MaxPlayers)
 		return true
 	}
 	return false
@@ -81,6 +101,18 @@ func (game NineK) Finish() bool {
 	if (util.CountPlayerNotFold(state.GS.Players) <= 1 && handler.IsGameStart()) ||
 		// if has 3 cards bet equal
 		(handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound()) {
+		// calculate afk players
+		for index, doaction := range state.GS.DoActions {
+			if !util.IsPlayingAndNotFoldAndNotAllIn(state.GS.Players[index]) {
+				continue
+			}
+			// if this player do something in this round
+			if doaction {
+				state.GS.AFKCounts[index] = 0
+			} else {
+				state.GS.AFKCounts[index]++
+			}
+		}
 		handler.ExtendTime()
 		// find winner and added their rewards
 		hscore := -1
@@ -164,6 +196,7 @@ func (game NineK) Check(id string) bool {
 		util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players) {
 		return false
 	}
+	state.GS.DoActions[index] = true
 	state.GS.Players[index].Default = model.Action{Name: constant.Check}
 	state.GS.Players[index].Action = model.Action{Name: constant.Check}
 	diff := time.Now().Unix() - state.GS.Players[index].DeadLine
@@ -190,6 +223,7 @@ func (game NineK) Bet(id string, chips int) bool {
 	if state.GS.Players[index].Chips < chips {
 		return false
 	}
+	state.GS.DoActions[index] = true
 	// added value to the bet in this turn
 	state.GS.Players[index].Chips -= chips
 	state.GS.Players[index].Bets[state.GS.Turn] += chips
@@ -240,6 +274,7 @@ func (game NineK) Call(id string) bool {
 	if state.GS.Players[index].Chips < chips || chips == 0 {
 		return false
 	}
+	state.GS.DoActions[index] = true
 	state.GS.Players[index].Chips -= chips
 	state.GS.Players[index].Bets[state.GS.Turn] += chips
 	state.GS.Players[index].Default = model.Action{Name: constant.Call}
@@ -267,6 +302,7 @@ func (game NineK) AllIn(id string) bool {
 	if state.GS.Players[index].Bets[state.GS.Turn]+chips > state.GS.MaximumBet {
 		return false
 	}
+	state.GS.DoActions[index] = true
 	state.GS.Players[index].Bets[state.GS.Turn] += chips
 	state.GS.Players[index].Chips = 0
 	state.GS.Players[index].Default = model.Action{Name: constant.AllIn}
@@ -296,6 +332,7 @@ func (game NineK) Fold(id string) bool {
 		return false
 	}
 	index, _ := util.Get(state.GS.Players, id)
+	state.GS.DoActions[index] = true
 	state.GS.Players[index].Default = model.Action{Name: constant.Fold}
 	state.GS.Players[index].Action = model.Action{Name: constant.Fold}
 	state.GS.Players[index].Actions = game.Reducer(constant.Fold, id)

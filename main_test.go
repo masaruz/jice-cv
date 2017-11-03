@@ -15,6 +15,7 @@ import (
 func TestLoop01(t *testing.T) {
 	decisionTime := int64(1)
 	ninek := game.NineK{
+		MaxAFKCount:  5,
 		MaxPlayers:   6,
 		DecisionTime: decisionTime,
 		MinimumBet:   10}
@@ -118,6 +119,7 @@ func TestLoop01(t *testing.T) {
 func TestLoop02(t *testing.T) {
 	decisionTime := int64(1)
 	ninek := game.NineK{
+		MaxAFKCount:  5,
 		MaxPlayers:   6,
 		DecisionTime: decisionTime,
 		MinimumBet:   10}
@@ -257,6 +259,7 @@ func TestLoop03(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -357,6 +360,7 @@ func TestLoop04(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.Connect("player1")
@@ -455,6 +459,7 @@ func TestLoop05(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -551,6 +556,7 @@ func TestLoop06(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -774,6 +780,7 @@ func TestLoop07(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	// dumb player
@@ -842,6 +849,7 @@ func TestLoop08(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -932,6 +940,7 @@ func TestLoop09(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -1003,6 +1012,7 @@ func TestLoop10(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -1062,6 +1072,7 @@ func TestLoop11(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -1131,6 +1142,7 @@ func TestLoop12(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -1160,6 +1172,7 @@ func TestLoop13(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -1220,6 +1233,7 @@ func TestLoop14(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -1332,6 +1346,7 @@ func TestLoop15(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -1465,6 +1480,7 @@ func TestLoop16(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -1576,6 +1592,7 @@ func TestLoop17(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -1627,6 +1644,7 @@ func TestLoop18(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -1810,6 +1828,7 @@ func TestLoop19(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -2111,6 +2130,7 @@ func TestLoop26(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -2282,6 +2302,7 @@ func TestLoop27(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -2320,6 +2341,7 @@ func TestLoop28(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -2388,6 +2410,7 @@ func TestLoop29(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -2482,6 +2505,7 @@ func TestLoop30(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -2567,6 +2591,7 @@ func TestLoop31(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -2605,6 +2630,7 @@ func TestLoop32(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -2651,6 +2677,7 @@ func TestLoop33(t *testing.T) {
 	minimumBet := 10
 	ninek := game.NineK{
 		MaxPlayers:   6,
+		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
 		MinimumBet:   minimumBet}
 	handler.SetGambit(ninek)
@@ -2676,4 +2703,109 @@ func TestLoop33(t *testing.T) {
 	if !state.GS.Gambit.Call(id1) {
 		t.Error()
 	}
+}
+
+func TestLoop34(t *testing.T) {
+	decisionTime := int64(1)
+	ninek := game.NineK{
+		MaxAFKCount:  1,
+		MaxPlayers:   6,
+		DecisionTime: decisionTime,
+		MinimumBet:   10}
+	handler.Connect("player1")
+	handler.Connect("player2")
+	handler.Connect("player3")
+	handler.Connect("player4")
+	handler.SetGambit(ninek)
+	state.GS.Gambit.Init() // create seats
+	if len(state.GS.Players) != 6 {
+		t.Error()
+	}
+	// dumb player
+	handler.Sit("player1", 2)
+	if util.CountSitting(state.GS.Players) != 1 {
+		t.Error()
+	}
+	handler.Sit("player2", 5)
+	if util.CountSitting(state.GS.Players) != 2 {
+		t.Error()
+	}
+	handler.Sit("player3", 3)
+	if util.CountSitting(state.GS.Players) != 3 {
+		t.Error()
+	}
+	handler.Sit("player4", 1)
+	if util.CountSitting(state.GS.Players) != 4 {
+		t.Error()
+	}
+	handler.StartTable()
+	state.GS.Gambit.Start()
+	// make sure everyone is playing and has 2 cards
+	for _, player := range state.GS.Players {
+		if player.ID == "" {
+			continue
+		}
+		if len(player.Cards) != 2 {
+			t.Error()
+		}
+		if !player.IsPlaying {
+			t.Error()
+		}
+		if player.Default.Name != constant.Check {
+			t.Error()
+		}
+	}
+	// test timeline
+	p1 := &state.GS.Players[2]
+	p2 := &state.GS.Players[5]
+	p3 := &state.GS.Players[3]
+	p4 := &state.GS.Players[1]
+	newDecisionTime := decisionTime
+	if p4.DeadLine-state.GS.StartRoundTime != 4*newDecisionTime ||
+		p3.DeadLine-state.GS.StartRoundTime != 2*newDecisionTime ||
+		p1.DeadLine-state.GS.StartRoundTime != 1*newDecisionTime ||
+		p2.DeadLine-state.GS.StartRoundTime != 3*newDecisionTime {
+		t.Error()
+	}
+	// nothing happend in 2 seconds and assume players act default action
+	time.Sleep(time.Second * time.Duration(state.GS.FinishRoundTime-state.GS.StartRoundTime))
+	// should draw one more card
+	if !state.GS.Gambit.NextRound() {
+		t.Error()
+	}
+	if state.GS.Gambit.Finish() {
+		t.Error()
+	}
+	for _, player := range state.GS.Players {
+		if player.ID == "" {
+			continue
+		}
+		if len(player.Cards) != 3 {
+			t.Error()
+		}
+		if !player.IsPlaying {
+			t.Error()
+		}
+		if player.Default.Name != constant.Check {
+			t.Error()
+		}
+	}
+	time.Sleep(time.Second * time.Duration(state.GS.FinishRoundTime-state.GS.StartRoundTime))
+	if state.GS.Gambit.NextRound() {
+		t.Error()
+	}
+	if !state.GS.Gambit.Finish() {
+		t.Error()
+	}
+	state.GS.FinishRoundTime = 0
+	if state.GS.Gambit.Start() {
+		t.Error()
+	}
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// p4.Print()
+	// fmt.Println("now:", time.Now().Unix())
+	// fmt.Println("end:", state.GS.FinishRoundTime)
+	// fmt.Println(state.GS.AFKCounts, state.GS.DoActions)
 }

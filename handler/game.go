@@ -40,13 +40,6 @@ func CreateSeats(seats int) {
 	}
 }
 
-// CreatePots per seat
-func CreatePots(length int) {
-	for i := 0; i < length; i++ {
-		state.GS.Pots = append(state.GS.Pots, 0)
-	}
-}
-
 // StartTable set table start
 func StartTable() {
 	state.GS.IsTableStart = true
@@ -116,9 +109,7 @@ func CreateTimeLine(decisionTime int64) {
 	start, amount := time.Now().Unix(), len(state.GS.Players)
 	state.GS.StartRoundTime = start
 	// need at least one competitors
-	if util.CountPlayerNotFoldAndNotAllIn(state.GS.Players) <= 1 {
-		state.GS.FinishRoundTime = start
-	} else {
+	if util.CountPlayerNotFoldAndNotAllIn(state.GS.Players) > 1 {
 		dealer, _ := util.FindDealer(state.GS.Players)
 		for loop < amount {
 			next := (dealer + 1) % amount
@@ -132,19 +123,14 @@ func CreateTimeLine(decisionTime int64) {
 			dealer++
 			loop++
 		}
-		state.GS.FinishRoundTime = start
 	}
+	state.GS.FinishRoundTime = start
 }
 
-// MakePlayersReady make everyone isPlayer = true
-func MakePlayersReady() bool {
+// MakePlayersReady make everyone
+func MakePlayersReady() {
 	for index, player := range state.GS.Players {
 		if player.ID == "" {
-			continue
-		}
-		// force to stand when player has no chips enough
-		if player.Chips < state.GS.MinimumBet {
-			Stand(player.ID)
 			continue
 		}
 		state.GS.Players[index].Cards = model.Cards{}
@@ -155,7 +141,6 @@ func MakePlayersReady() bool {
 		state.GS.Players[index].Default = model.Action{Name: constant.Check}
 		state.GS.Players[index].Action = model.Action{}
 	}
-	return util.CountSitting(state.GS.Players) >= 2
 }
 
 // SetOtherDefaultAction make every has default action
