@@ -1,16 +1,11 @@
 package constant
 
+// Card ranking
 const (
-	// ThreeOfAKind constant
-	ThreeOfAKind = "Three Of A Kind"
-	// StraightFlush constant
+	ThreeOfAKind  = "Three Of A Kind"
 	StraightFlush = "Straight Flush"
-	// Straight constant
-	Straight = "Straight"
-	// Flush constant
-	Flush = "Flush"
-	// Nothing constant
-	Nothing = "Nothing"
-	// Royal constant
-	Royal = "Royal"
+	Straight      = "Straight"
+	Flush         = "Flush"
+	Nothing       = "Nothing"
+	Royal         = "Royal"
 )

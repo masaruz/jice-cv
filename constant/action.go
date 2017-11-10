@@ -1,38 +1,22 @@
 package constant
 
+// Event action string
 const (
-	// Connection event
-	Connection = "connection"
-	// Disconnection event
+	Connection    = "connection"
 	Disconnection = "disconnection"
-	// Error event
-	Error = "Error"
-	// Call event
-	Call = "call"
-	// Check event
-	Check = "check"
-	// Bet event
-	Bet = "bet"
-	// Raise event
-	Raise = "raise"
-	// Fold event
-	Fold = "fold"
-	// AllIn event
-	AllIn = "allin"
-	// Stimulate event
-	Stimulate = "stimulate"
-	// GetState event
-	GetState = "getstate"
-	// PushState event
-	PushState = "pushstate"
-	// Sit event
-	Sit = "sit"
-	// Stand event
-	Stand = "stand"
-	// StartGame event
-	StartGame = "startgame"
-	// StartTable event
-	StartTable = "starttable"
-	// BetNotEqual event
-	BetNotEqual = "betnotequal"
+	Error         = "Error"
+	Call          = "call"
+	Check         = "check"
+	Bet           = "bet"
+	Raise         = "raise"
+	Fold          = "fold"
+	AllIn         = "allin"
+	Stimulate     = "stimulate"
+	GetState      = "getstate"
+	PushState     = "pushstate"
+	Sit           = "sit"
+	Stand         = "stand"
+	StartGame     = "startgame"
+	StartTable    = "starttable"
+	BetNotEqual   = "betnotequal"
 )

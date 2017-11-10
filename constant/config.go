@@ -1,12 +1,9 @@
 package constant
 
+// Game config
 const (
-	// MaxPlayers game config
-	MaxPlayers = "MaxPlayers"
-	// DecisionTime time for player to make a decision
+	MaxPlayers   = "MaxPlayers"
 	DecisionTime = "DecisionTime"
-	// MinimumBet start minimum chips bet
-	MinimumBet = "MinimumBet"
-	// GambitType ex. ninek, poker
-	GambitType = "GambitType"
+	MinimumBet   = "MinimumBet"
+	GambitType   = "GambitType"
 )
