@@ -1,4 +1,4 @@
-package game
+package gambit
 
 import (
 	"999k_engine/constant"

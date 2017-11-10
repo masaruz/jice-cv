@@ -5,4 +5,6 @@ const (
 	Dealer = "dealer"
 	// Normal constant
 	Normal = "normal"
+	// NineK constant name
+	NineK = "ninek"
 )

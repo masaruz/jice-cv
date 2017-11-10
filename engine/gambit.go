@@ -1,6 +1,8 @@
 package engine
 
-import "999k_engine/model"
+import (
+	"999k_engine/model"
+)
 
 // Gambit is represent of game interface
 type Gambit interface {

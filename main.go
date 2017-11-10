@@ -2,13 +2,14 @@ package main
 
 import (
 	"999k_engine/constant"
-	"999k_engine/game"
+	"999k_engine/gambit"
 	"999k_engine/handler"
 	"999k_engine/state"
 	"999k_engine/util"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/googollee/go-socket.io"
 )
@@ -20,13 +21,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	decisionTime := int64(25)
-	ninek := game.NineK{
-		MaxPlayers:   6,
-		MaxAFKCount:  3,
-		DecisionTime: decisionTime,
-		MinimumBet:   10}
-	handler.SetGambit(ninek)
+	handler.SetGambit(gambit.Create(os.Getenv(constant.GambitType)))
 	state.GS.Gambit.Init()
 	// when connection happend
 	server.On(constant.Connection, func(so socketio.Socket) {
@@ -45,11 +40,11 @@ func main() {
 			if !state.GS.Gambit.Start() &&
 				!state.GS.Gambit.NextRound() &&
 				!state.GS.Gambit.Finish() {
-				fmt.Println(so.Id(), "Stimulate", "Nothing", msg)
+				fmt.Println(so.Id(), "Stimulate", "Nothing")
 			} else {
 				channel = constant.PushState
 				state.GS.IncreaseVersion()
-				fmt.Println(so.Id(), "Stimulate", "Success", msg)
+				fmt.Println(so.Id(), "Stimulate", "Success")
 			}
 			handler.FinishProcess()
 			// if no seat then just return current state
@@ -66,7 +61,7 @@ func main() {
 			channel := ""
 			if state.GS.Gambit.Check(so.Id()) {
 				channel = constant.Check
-				fmt.Println(so.Id(), "Check", "Success", msg)
+				fmt.Println(so.Id(), "Check", "Success")
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
 			}
@@ -86,7 +81,7 @@ func main() {
 			// client send amount of bet
 			if state.GS.Gambit.Bet(so.Id(), data.Payload.Parameters[0].ValueInteger) {
 				channel = constant.Bet
-				fmt.Println(so.Id(), "Bet", "Success", msg)
+				fmt.Println(so.Id(), "Bet", "Success")
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
 			}
@@ -106,7 +101,7 @@ func main() {
 			// client send amount of raise
 			if state.GS.Gambit.Raise(so.Id(), data.Payload.Parameters[0].ValueInteger) {
 				channel = constant.Raise
-				fmt.Println(so.Id(), "Raise", "Success", msg)
+				fmt.Println(so.Id(), "Raise", "Success")
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
 			}
@@ -120,7 +115,7 @@ func main() {
 			channel := ""
 			if state.GS.Gambit.Call(so.Id()) {
 				channel = constant.Call
-				fmt.Println(so.Id(), "Call", "Success", msg)
+				fmt.Println(so.Id(), "Call", "Success")
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
 			}
@@ -134,7 +129,7 @@ func main() {
 			channel := ""
 			if state.GS.Gambit.AllIn(so.Id()) {
 				channel = constant.Raise
-				fmt.Println(so.Id(), "AllIn", "Success", msg)
+				fmt.Println(so.Id(), "AllIn", "Success")
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, constant.Raise, so.Id())
 			}
@@ -148,7 +143,7 @@ func main() {
 			channel := ""
 			if state.GS.Gambit.Fold(so.Id()) {
 				channel = constant.Fold
-				fmt.Println(so.Id(), "Fold", "Success", msg)
+				fmt.Println(so.Id(), "Fold", "Success")
 				state.GS.Gambit.Finish()
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
@@ -163,7 +158,7 @@ func main() {
 			channel := ""
 			if util.CountSitting(state.GS.Players) > 1 && !handler.IsTableStart() {
 				channel = constant.StartTable
-				fmt.Println(so.Id(), "StartTable", "Success", msg)
+				fmt.Println(so.Id(), "StartTable", "Success")
 				handler.StartTable()
 				state.GS.Gambit.Start()
 				state.GS.IncreaseVersion()
@@ -180,7 +175,7 @@ func main() {
 			data, err := handler.ConvertStringToRequestStruct(msg)
 			if err == nil && handler.Sit(so.Id(), data.Payload.Parameters[0].ValueInteger) {
 				channel = constant.Sit
-				fmt.Println(so.Id(), "Sit", "Success", msg)
+				fmt.Println(so.Id(), "Sit", "Success")
 				state.GS.Gambit.Start()
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
@@ -195,7 +190,7 @@ func main() {
 			channel := ""
 			if handler.Stand(so.Id()) {
 				channel = constant.Stand
-				fmt.Println(so.Id(), "Stand", "Success", msg)
+				fmt.Println(so.Id(), "Stand", "Success")
 				state.GS.Gambit.Finish()
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
@@ -220,9 +215,14 @@ func main() {
 		log.Println("error:", err)
 	})
 
-	// http.Handle("/", http.FileServer(http.Dir("../asset")))
 	http.Handle("/socket.io/", server)
-
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		str := ""
+		for _, pair := range os.Environ() {
+			str += fmt.Sprintf("%s ", pair)
+		}
+		fmt.Fprintf(w, "All envs are here: %s", str)
+	})
 	log.Println(fmt.Sprintf("Serving at localhost%s", port))
 
 	log.Fatal(http.ListenAndServe(port, nil))

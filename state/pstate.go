@@ -6,18 +6,15 @@ import (
 
 // PlayerState reperesent what each player should know
 type PlayerState struct {
-	Player          model.Player  `json:"player"`
-	Visitors        model.Players `json:"visitors"`
-	Competitors     model.Players `json:"competitors"`
-	Slot            int           `json:"slot"`
-	Version         int           `json:"version"`
-	Pots            []int         `json:"pots"`
-	HighestBet      int           `json:"highest_bet"`
-	CurrentTime     int64         `json:"current_time"`
-	IsGameStart     bool          `json:"is_game_start"`
-	IsTableStart    bool          `json:"is_table_start"`
-	StartRoundTime  int64         `json:"start_round_time"`
-	FinishRoundTime int64         `json:"finish_round_time"`
+	Player       model.Player  `json:"player"`
+	Visitors     model.Players `json:"visitors"`
+	Competitors  model.Players `json:"competitors"`
+	Slot         int           `json:"slot"`
+	Version      int           `json:"version"`
+	Pots         []int         `json:"pots"`
+	HighestBet   int           `json:"highest_bet"`
+	IsGameStart  bool          `json:"is_game_start"`
+	IsTableStart bool          `json:"is_table_start"`
 }
 
 // Resp is server response
@@ -42,9 +39,12 @@ type Header struct {
 
 // RespPayload is response payload
 type RespPayload struct {
-	EventName string        `json:"eventname"`
-	Actions   model.Actions `json:"actions"`
-	GameState PlayerState   `json:"gamestate"`
+	EventName       string        `json:"eventname"`
+	Actions         model.Actions `json:"actions"`
+	GameState       PlayerState   `json:"gamestate"`
+	CurrentTime     int64         `json:"current_time"`
+	StartRoundTime  int64         `json:"start_round_time"`
+	FinishRoundTime int64         `json:"finish_round_time"`
 }
 
 // ReqPayload request payload

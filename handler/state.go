@@ -70,20 +70,20 @@ func CreateResponse(id string, event string) string {
 		state.Resp{
 			Header: state.Header{Token: "player_token"},
 			Payload: state.RespPayload{
-				EventName: state.GS.Event,
-				Actions:   actions,
+				EventName:       state.GS.Event,
+				Actions:         actions,
+				CurrentTime:     time.Now().Unix(),
+				StartRoundTime:  state.GS.StartRoundTime,
+				FinishRoundTime: state.GS.FinishRoundTime,
 				GameState: state.PlayerState{
-					Player:          player,
-					Competitors:     competitors,
-					Visitors:        visitors,
-					Pots:            []int{util.SumPots(state.GS.Pots)},
-					HighestBet:      util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players),
-					Version:         state.GS.Version,
-					IsTableStart:    state.GS.IsTableStart,
-					IsGameStart:     state.GS.IsGameStart,
-					CurrentTime:     time.Now().Unix(),
-					StartRoundTime:  state.GS.StartRoundTime,
-					FinishRoundTime: state.GS.FinishRoundTime}},
+					Player:       player,
+					Competitors:  competitors,
+					Visitors:     visitors,
+					Pots:         []int{util.SumPots(state.GS.Pots)},
+					HighestBet:   util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players),
+					Version:      state.GS.Version,
+					IsTableStart: state.GS.IsTableStart,
+					IsGameStart:  state.GS.IsGameStart}},
 			Signature: state.Signature{}})
 	return string(data)
 }

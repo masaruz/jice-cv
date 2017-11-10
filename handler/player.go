@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"999k_engine/api"
 	"999k_engine/constant"
 	"999k_engine/model"
 	"999k_engine/state"
@@ -30,7 +31,7 @@ func Reducer(event string, id string) model.Actions {
 
 // Connect and move user as a visitor
 func Connect(id string) {
-	caller := util.SyncPlayer(id)
+	caller := api.SyncPlayer(id)
 	caller.Action = model.Action{Name: constant.Stand}
 	caller.Actions = Reducer(constant.Connection, id)
 	state.GS.Visitors = util.Add(state.GS.Visitors, caller)
@@ -79,6 +80,7 @@ func Sit(id string, slot int) bool {
 	caller.Action = model.Action{Name: constant.Sit}
 	// add to players
 	state.GS.Players[caller.Slot] = caller
+	state.GS.AFKCounts[caller.Slot] = 0
 	SetOtherActionsWhoAreNotPlaying(constant.Sit)
 	return true
 }
@@ -100,7 +102,7 @@ func Stand(id string) bool {
 		}
 		OverwriteActionToBehindPlayers()
 	}
-	visitor := util.SyncPlayer(id)
+	visitor := api.SyncPlayer(id)
 	visitor.Action = model.Action{Name: constant.Stand}
 	visitor.Actions = Reducer(constant.Connection, id)
 	state.GS.Players = util.Kick(state.GS.Players, caller.ID)

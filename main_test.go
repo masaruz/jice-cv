@@ -2,7 +2,7 @@ package main_test
 
 import (
 	"999k_engine/constant"
-	"999k_engine/game"
+	"999k_engine/gambit"
 	"999k_engine/handler"
 	"999k_engine/model"
 	"999k_engine/state"
@@ -14,7 +14,7 @@ import (
 
 func TestLoop01(t *testing.T) {
 	decisionTime := int64(1)
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxAFKCount:  5,
 		MaxPlayers:   6,
 		DecisionTime: decisionTime,
@@ -118,7 +118,7 @@ func TestLoop01(t *testing.T) {
 
 func TestLoop02(t *testing.T) {
 	decisionTime := int64(1)
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxAFKCount:  5,
 		MaxPlayers:   6,
 		DecisionTime: decisionTime,
@@ -257,7 +257,7 @@ func TestLoop03(t *testing.T) {
 	decisionTime := int64(3)
 	delay := int64(0)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -358,7 +358,7 @@ func TestLoop04(t *testing.T) {
 	decisionTime := int64(3)
 	delay := int64(0)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -457,7 +457,7 @@ func TestLoop05(t *testing.T) {
 	decisionTime := int64(3)
 	delay := int64(0)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -554,7 +554,7 @@ func TestLoop05(t *testing.T) {
 func TestLoop06(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -778,7 +778,7 @@ func TestLoop06(t *testing.T) {
 func TestLoop07(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -847,7 +847,7 @@ func TestLoop07(t *testing.T) {
 func TestLoop08(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -938,7 +938,7 @@ func TestLoop08(t *testing.T) {
 func TestLoop09(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1010,7 +1010,7 @@ func TestLoop09(t *testing.T) {
 func TestLoop10(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1070,7 +1070,7 @@ func TestLoop10(t *testing.T) {
 func TestLoop11(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1140,7 +1140,7 @@ func TestLoop11(t *testing.T) {
 func TestLoop12(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1170,7 +1170,7 @@ func TestLoop12(t *testing.T) {
 func TestLoop13(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1231,7 +1231,7 @@ func TestLoop13(t *testing.T) {
 func TestLoop14(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1344,7 +1344,7 @@ func TestLoop14(t *testing.T) {
 func TestLoop15(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1478,7 +1478,7 @@ func TestLoop15(t *testing.T) {
 func TestLoop16(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1590,7 +1590,7 @@ func TestLoop16(t *testing.T) {
 func TestLoop17(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1642,7 +1642,7 @@ func TestLoop17(t *testing.T) {
 func TestLoop18(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1826,7 +1826,7 @@ func TestLoop18(t *testing.T) {
 func TestLoop19(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1879,7 +1879,7 @@ func TestLoop19(t *testing.T) {
 
 func TestLoop20(t *testing.T) {
 	t.Run("score=10000002", func(t *testing.T) {
-		scores, kind := game.NineK{}.Evaluate(model.Cards{
+		scores, kind := gambit.NineK{}.Evaluate(model.Cards{
 			0, 1, 2,
 		})
 		score := scores[0] + scores[1]
@@ -1888,10 +1888,10 @@ func TestLoop20(t *testing.T) {
 		}
 	})
 	// t.Run("b>a", func(t *testing.T) {
-	// 	as, akind := game.NineK{}.Evaluate(model.Cards{
+	// 	as, akind := gambit.NineK{}.Evaluate(model.Cards{
 	// 		49, 50, 51,
 	// 	})
-	// 	bs, bkind := game.NineK{}.Evaluate(model.Cards{
+	// 	bs, bkind := gambit.NineK{}.Evaluate(model.Cards{
 	// 		4, 5, 6,
 	// 	})
 	// 	a := as[0] + as[1]
@@ -1903,10 +1903,10 @@ func TestLoop20(t *testing.T) {
 	// 	}
 	// })
 	t.Run("a>b", func(t *testing.T) {
-		as, akind := game.NineK{}.Evaluate(model.Cards{
+		as, akind := gambit.NineK{}.Evaluate(model.Cards{
 			0, 1, 2,
 		})
-		bs, bkind := game.NineK{}.Evaluate(model.Cards{
+		bs, bkind := gambit.NineK{}.Evaluate(model.Cards{
 			4, 17, 20,
 		})
 		a := as[0] + as[1]
@@ -1921,7 +1921,7 @@ func TestLoop20(t *testing.T) {
 
 func TestLoop21(t *testing.T) {
 	t.Run("8c,9c,10c is correct", func(t *testing.T) {
-		scores, kind := game.NineK{}.Evaluate(model.Cards{
+		scores, kind := gambit.NineK{}.Evaluate(model.Cards{
 			24, 28, 32,
 		})
 		score := scores[0] + scores[1]
@@ -1930,7 +1930,7 @@ func TestLoop21(t *testing.T) {
 		}
 	})
 	t.Run("5c,7c,8c is wrong", func(t *testing.T) {
-		scores, kind := game.NineK{}.Evaluate(model.Cards{
+		scores, kind := gambit.NineK{}.Evaluate(model.Cards{
 			12, 20, 24,
 		})
 		if scores[0] != 1000 || kind != constant.Flush {
@@ -1938,7 +1938,7 @@ func TestLoop21(t *testing.T) {
 		}
 	})
 	t.Run("Kc,Ad,2d is wrong", func(t *testing.T) {
-		scores, kind := game.NineK{}.Evaluate(model.Cards{
+		scores, kind := gambit.NineK{}.Evaluate(model.Cards{
 			44, 49, 1,
 		})
 		if scores[0] != 3 || kind != constant.Nothing {
@@ -1946,7 +1946,7 @@ func TestLoop21(t *testing.T) {
 		}
 	})
 	t.Run("Ac,2c,3c is wrong", func(t *testing.T) {
-		scores, kind := game.NineK{}.Evaluate(model.Cards{
+		scores, kind := gambit.NineK{}.Evaluate(model.Cards{
 			48, 0, 4,
 		})
 		if scores[0] != 1000 || scores[1] != 48 || kind != constant.Flush {
@@ -1954,7 +1954,7 @@ func TestLoop21(t *testing.T) {
 		}
 	})
 	t.Run("2c,3d,4h is wrong", func(t *testing.T) {
-		scores, kind := game.NineK{}.Evaluate(model.Cards{
+		scores, kind := gambit.NineK{}.Evaluate(model.Cards{
 			0, 5, 10,
 		})
 		score := scores[0] + scores[1]
@@ -1963,10 +1963,10 @@ func TestLoop21(t *testing.T) {
 		}
 	})
 	t.Run("2c,3c,4c < 6c,7c,8c", func(t *testing.T) {
-		as, akind := game.NineK{}.Evaluate(model.Cards{
+		as, akind := gambit.NineK{}.Evaluate(model.Cards{
 			0, 4, 8,
 		})
-		bs, bkind := game.NineK{}.Evaluate(model.Cards{
+		bs, bkind := gambit.NineK{}.Evaluate(model.Cards{
 			16, 20, 24,
 		})
 		a := as[0] + as[1]
@@ -1978,10 +1978,10 @@ func TestLoop21(t *testing.T) {
 		}
 	})
 	t.Run("2c,3c,4c > 5c,7c,8c", func(t *testing.T) {
-		as, akind := game.NineK{}.Evaluate(model.Cards{
+		as, akind := gambit.NineK{}.Evaluate(model.Cards{
 			0, 4, 8,
 		})
-		bs, bkind := game.NineK{}.Evaluate(model.Cards{
+		bs, bkind := gambit.NineK{}.Evaluate(model.Cards{
 			12, 20, 24,
 		})
 		a := as[0] + as[1]
@@ -1993,10 +1993,10 @@ func TestLoop21(t *testing.T) {
 		}
 	})
 	t.Run("2c,3c,4c < 2d,3d,4d", func(t *testing.T) {
-		as, akind := game.NineK{}.Evaluate(model.Cards{
+		as, akind := gambit.NineK{}.Evaluate(model.Cards{
 			0, 4, 8,
 		})
-		bs, bkind := game.NineK{}.Evaluate(model.Cards{
+		bs, bkind := gambit.NineK{}.Evaluate(model.Cards{
 			1, 5, 9,
 		})
 		a := as[0] + as[1]
@@ -2011,7 +2011,7 @@ func TestLoop21(t *testing.T) {
 
 func TestLoop22(t *testing.T) {
 	t.Run("2c,3d,4h is collect", func(t *testing.T) {
-		scores, kind := game.NineK{}.Evaluate(model.Cards{
+		scores, kind := gambit.NineK{}.Evaluate(model.Cards{
 			0, 5, 10,
 		})
 		score := scores[0] + scores[1]
@@ -2020,7 +2020,7 @@ func TestLoop22(t *testing.T) {
 		}
 	})
 	t.Run("Jc,Qs,Js", func(t *testing.T) {
-		scores, kind := game.NineK{}.Evaluate(model.Cards{
+		scores, kind := gambit.NineK{}.Evaluate(model.Cards{
 			36, 43, 39,
 		})
 		score := scores[0] + scores[1]
@@ -2033,7 +2033,7 @@ func TestLoop22(t *testing.T) {
 
 func TestLoop23(t *testing.T) {
 	t.Run("Qc,Jd,Js is correct", func(t *testing.T) {
-		scores, kind := game.NineK{}.Evaluate(model.Cards{
+		scores, kind := gambit.NineK{}.Evaluate(model.Cards{
 			40, 37, 39,
 		})
 		score := scores[0] + scores[1]
@@ -2042,7 +2042,7 @@ func TestLoop23(t *testing.T) {
 		}
 	})
 	t.Run("Jc,Jd,Js is not correct because it is three of a kind", func(t *testing.T) {
-		scores, kind := game.NineK{}.Evaluate(model.Cards{
+		scores, kind := gambit.NineK{}.Evaluate(model.Cards{
 			36, 37, 38,
 		})
 		score := scores[0] + scores[1]
@@ -2051,10 +2051,10 @@ func TestLoop23(t *testing.T) {
 		}
 	})
 	t.Run("Jc,Qs,Js < Kc,Qc,Jh", func(t *testing.T) {
-		as, akind := game.NineK{}.Evaluate(model.Cards{
+		as, akind := gambit.NineK{}.Evaluate(model.Cards{
 			36, 43, 39,
 		})
-		bs, bkind := game.NineK{}.Evaluate(model.Cards{
+		bs, bkind := gambit.NineK{}.Evaluate(model.Cards{
 			44, 40, 38,
 		})
 		a := as[0] + as[1]
@@ -2066,10 +2066,10 @@ func TestLoop23(t *testing.T) {
 		}
 	})
 	t.Run("Kh,Qs,Js > Kc,Qc,Jh", func(t *testing.T) {
-		as, akind := game.NineK{}.Evaluate(model.Cards{
+		as, akind := gambit.NineK{}.Evaluate(model.Cards{
 			46, 43, 39,
 		})
-		bs, bkind := game.NineK{}.Evaluate(model.Cards{
+		bs, bkind := gambit.NineK{}.Evaluate(model.Cards{
 			44, 40, 38,
 		})
 		a := as[0] + as[1]
@@ -2084,7 +2084,7 @@ func TestLoop23(t *testing.T) {
 
 func TestLoop24(t *testing.T) {
 	t.Run("Qc,10d,1s is nothing but has bonus", func(t *testing.T) {
-		scores, kind := game.NineK{}.Evaluate(model.Cards{
+		scores, kind := gambit.NineK{}.Evaluate(model.Cards{
 			40, 33, 51,
 		})
 		if scores[0] != 1 ||
@@ -2094,7 +2094,7 @@ func TestLoop24(t *testing.T) {
 		}
 	})
 	t.Run("Jd,Qd,Ah is nothing", func(t *testing.T) {
-		scores, kind := game.NineK{}.Evaluate(model.Cards{
+		scores, kind := gambit.NineK{}.Evaluate(model.Cards{
 			37, 41, 50,
 		})
 		if scores[0] != 1 ||
@@ -2107,10 +2107,10 @@ func TestLoop24(t *testing.T) {
 
 func TestLoop25(t *testing.T) {
 	t.Run("6,2,9 hearts must win 10s,2s,5d", func(t *testing.T) {
-		a, akind := game.NineK{}.Evaluate(model.Cards{
+		a, akind := gambit.NineK{}.Evaluate(model.Cards{
 			18, 2, 30,
 		})
-		b, bkind := game.NineK{}.Evaluate(model.Cards{
+		b, bkind := gambit.NineK{}.Evaluate(model.Cards{
 			4, 12, 16,
 		})
 		if a[0] != 1000 || akind != constant.Flush {
@@ -2128,7 +2128,7 @@ func TestLoop25(t *testing.T) {
 func TestLoop26(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -2300,7 +2300,7 @@ func TestLoop26(t *testing.T) {
 func TestLoop27(t *testing.T) {
 	decisionTime := int64(1)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -2339,7 +2339,7 @@ func TestLoop27(t *testing.T) {
 func TestLoop28(t *testing.T) {
 	decisionTime := int64(1)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -2408,7 +2408,7 @@ func TestLoop28(t *testing.T) {
 func TestLoop29(t *testing.T) {
 	decisionTime := int64(1)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -2503,7 +2503,7 @@ func TestLoop29(t *testing.T) {
 func TestLoop30(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -2589,7 +2589,7 @@ func TestLoop30(t *testing.T) {
 func TestLoop31(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -2628,7 +2628,7 @@ func TestLoop31(t *testing.T) {
 func TestLoop32(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -2675,7 +2675,7 @@ func TestLoop32(t *testing.T) {
 func TestLoop33(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -2707,7 +2707,7 @@ func TestLoop33(t *testing.T) {
 
 func TestLoop34(t *testing.T) {
 	decisionTime := int64(1)
-	ninek := game.NineK{
+	ninek := gambit.NineK{
 		MaxAFKCount:  1,
 		MaxPlayers:   6,
 		DecisionTime: decisionTime,
@@ -2799,6 +2799,15 @@ func TestLoop34(t *testing.T) {
 	}
 	state.GS.FinishRoundTime = 0
 	if state.GS.Gambit.Start() {
+		t.Error()
+	}
+	if !handler.Sit("player1", 2) || util.CountSitting(state.GS.Players) != 1 {
+		t.Error()
+	}
+	if !handler.Sit("player2", 5) || util.CountSitting(state.GS.Players) != 2 {
+		t.Error()
+	}
+	if !state.GS.Gambit.Start() {
 		t.Error()
 	}
 	// p1.Print()
