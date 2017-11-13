@@ -18,6 +18,14 @@ func WaitQueue() {
 // StartProcess set IsProcessing to true to blocking
 func StartProcess() {
 	state.GS.IsProcessing = true
+	ticker := time.NewTicker(time.Second)
+	go func() {
+		for range ticker.C {
+			FinishProcess()
+			ticker.Stop()
+			break
+		}
+	}()
 }
 
 // FinishProcess set IsProcessing to false to unblocking
@@ -250,8 +258,8 @@ func Deal(cardAmount int, playerAmount int) {
 	}
 }
 
-// FlushGame reset everything before new game and client no needs to see it
-func FlushGame() {
+// FlushPlayers reset everything before new game and client no needs to see it
+func FlushPlayers() {
 	for index := range state.GS.Players {
 		state.GS.Players[index].IsPlaying = false
 		state.GS.Players[index].Bets = []int{}
@@ -262,11 +270,6 @@ func FlushGame() {
 		state.GS.Players[index].DeadLine = 0
 		state.GS.Players[index].IsEarned = false
 	}
-	for index := range state.GS.Pots {
-		state.GS.Pots[index] = 0
-	}
-	state.GS.Turn = 0
-	state.GS.IsGameStart = false
 }
 
 // ShortenTimeline shift timeline of everyone because someone take action

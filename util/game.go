@@ -53,6 +53,15 @@ func SumPots(pots []int) int {
 	return sum
 }
 
+// SumRakes sum all rake in float64
+func SumRakes(rakes map[string]float64) float64 {
+	sum := 0.00
+	for _, rake := range rakes {
+		sum += rake
+	}
+	return sum
+}
+
 // GetHighestBet for get the highest bet and make a call action
 func GetHighestBet(players model.Players) int {
 	highest := 0

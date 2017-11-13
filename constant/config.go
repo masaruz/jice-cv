@@ -4,6 +4,9 @@ package constant
 const (
 	MaxPlayers   = "MaxPlayers"
 	DecisionTime = "DecisionTime"
-	MinimumBet   = "MinimumBet"
+	BlindsSmall  = "BlindsSmall"
+	BlindsBig    = "BlindsBig"
 	GambitType   = "GambitType"
+	Rake         = "Rake"
+	Cap          = "Cap"
 )

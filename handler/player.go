@@ -110,3 +110,16 @@ func Stand(id string) bool {
 	SetOtherActionsWhoAreNotPlaying(constant.Sit)
 	return true
 }
+
+// SetPlayersRake calculate and set rake for players
+func SetPlayersRake(rate float64, cap float64) {
+	pots := float64(util.SumPots(state.GS.Pots))
+	rake := (rate * pots) / 100
+	if rake > cap {
+		rake = cap
+	}
+	for _, player := range state.GS.Players {
+		percent := float64(util.SumBet(player)) / pots
+		state.GS.Rakes[player.ID] = rake * percent
+	}
+}

@@ -25,6 +25,7 @@ type GameState struct {
 	Pots            []int
 	AFKCounts       []int
 	DoActions       []bool
+	Rakes           map[string]float64
 	Event           string
 }
 

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"999k_engine/constant"
 	"999k_engine/model"
 	"encoding/json"
 	"fmt"
@@ -25,7 +24,7 @@ type PlayerResp struct {
 
 // GetPlayer get player data
 func GetPlayer(id string) model.Player {
-	body, err := get(fmt.Sprintf("%s/users?ids=%s", constant.Host, id))
+	body, err := get(fmt.Sprintf("%s/users?ids=%s", Host, id))
 	if err != nil {
 		log.Fatal(err)
 		return model.Player{}

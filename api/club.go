@@ -1,7 +1,6 @@
 package api
 
 import (
-	"999k_engine/constant"
 	"999k_engine/model"
 	"encoding/json"
 	"fmt"
@@ -38,7 +37,7 @@ func SyncPlayer(id string) model.Player {
 
 // GetPlayerFromClub get player data
 func GetPlayerFromClub(clubid string, memberid string) model.Player {
-	body, err := get(fmt.Sprintf("%s/clubs?ids=%s", constant.Host, clubid))
+	body, err := get(fmt.Sprintf("%s/clubs?ids=%s", Host, clubid))
 	if err != nil {
 		log.Fatal(err)
 		return model.Player{}

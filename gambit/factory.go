@@ -17,9 +17,17 @@ func Create(gambit string) engine.Gambit {
 	if err != nil {
 		dtime = 15
 	}
-	mbet, err := strconv.Atoi(os.Getenv(constant.MinimumBet))
+	bsm, err := strconv.Atoi(os.Getenv(constant.BlindsSmall))
 	if err != nil {
-		mbet = 2
+		bsm = 2
+	}
+	rake, err := strconv.ParseFloat(os.Getenv(constant.Rake), 64)
+	if err != nil {
+		rake = 5.0 // percent
+	}
+	cap, err := strconv.ParseFloat(os.Getenv(constant.Cap), 64)
+	if err != nil {
+		cap = 0.5
 	}
 	switch gambit {
 	default:
@@ -27,6 +35,11 @@ func Create(gambit string) engine.Gambit {
 			MaxPlayers:   max,
 			MaxAFKCount:  3,
 			DecisionTime: dtime,
-			MinimumBet:   mbet}
+			MinimumBet:   bsm,
+			BlindsSmall:  bsm,
+			BlindsBig:    bsm,
+			Rake:         rake,
+			Cap:          cap,
+		}
 	}
 }

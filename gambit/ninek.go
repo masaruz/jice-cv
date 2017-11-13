@@ -16,6 +16,12 @@ type NineK struct {
 	DecisionTime int64
 	MinimumBet   int
 	MaxAFKCount  int
+	BlindsSmall  int
+	BlindsBig    int
+	BuyInMin     int
+	BuyInMax     int
+	Rake         float64 // percentage
+	Cap          float64 // cap of rake
 }
 
 // Payload data accessed by continue
@@ -27,11 +33,11 @@ type Payload struct {
 // Init deck and environment variables
 func (game NineK) Init() {
 	// create counting afk
-	state.GS.AFKCounts = make([]int, game.MaxPlayers)
 	state.GS.Pots = make([]int, game.MaxPlayers)
+	state.GS.AFKCounts = make([]int, game.MaxPlayers)
 	// set the seats
 	handler.CreateSeats(game.MaxPlayers)
-	handler.SetMinimumBet(game.MinimumBet)
+	handler.SetMinimumBet(game.BlindsBig)
 }
 
 // Start game
@@ -44,18 +50,22 @@ func (game NineK) Start() bool {
 			if player.ID == "" {
 				continue
 			}
-			if player.Chips >= game.MinimumBet &&
+			if player.Chips >= game.BlindsBig &&
 				state.GS.AFKCounts[index] < game.MaxAFKCount {
 				continue
 			}
 			handler.Stand(player.ID)
 		}
 		if util.CountSitting(state.GS.Players) >= 2 {
+			// everyone is assumed afk
+			state.GS.DoActions = make([]bool, game.MaxPlayers)
+			state.GS.Rakes = make(map[string]float64)
+			state.GS.Pots = make([]int, game.MaxPlayers)
 			handler.MakePlayersReady()
 			handler.StartGame()
-			handler.SetMinimumBet(game.MinimumBet)
+			handler.SetMinimumBet(game.BlindsBig)
 			// let all players bets to the pots
-			handler.PlayersInvestToPots(game.MinimumBet)
+			handler.PlayersInvestToPots(game.BlindsBig)
 			// start turn
 			handler.IncreaseTurn()
 			// start new bets
@@ -67,8 +77,7 @@ func (game NineK) Start() bool {
 			handler.Shuffle()
 			handler.CreateTimeLine(game.DecisionTime)
 			handler.Deal(2, game.MaxPlayers)
-			// no one is assumed afk
-			state.GS.DoActions = make([]bool, game.MaxPlayers)
+			handler.SetPlayersRake(game.Rake, game.Cap*float64(game.BlindsBig))
 			return true
 		}
 	}
@@ -80,7 +89,7 @@ func (game NineK) NextRound() bool {
 	handler.OverwriteActionToBehindPlayers()
 	if !handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound() &&
 		util.CountPlayerNotFold(state.GS.Players) > 1 {
-		handler.SetMinimumBet(game.MinimumBet)
+		handler.SetMinimumBet(game.BlindsBig)
 		handler.SetOtherActions("", constant.Check)
 		handler.SetOtherDefaultAction("", constant.Check)
 		handler.CreateTimeLine(game.DecisionTime)
@@ -145,11 +154,11 @@ func (game NineK) Finish() bool {
 				}
 			}
 			if pos != -1 {
-				for poti, bets := range state.GS.Pots {
-					if bets == 0 {
+				for poti, pot := range state.GS.Pots {
+					if pot == 0 {
 						continue
 					}
-					playerbet := bets
+					playerbet := pot
 					winnerbet := state.GS.Pots[pos]
 					earnedbet := 0
 					if winnerbet > playerbet {
@@ -179,8 +188,10 @@ func (game NineK) Finish() bool {
 			}
 		}
 		// revert minimum bet
-		handler.SetMinimumBet(game.MinimumBet)
-		handler.FlushGame()
+		handler.SetMinimumBet(game.BlindsBig)
+		handler.FlushPlayers()
+		state.GS.Turn = 0
+		state.GS.IsGameStart = false
 		return true
 	}
 	return false
@@ -246,6 +257,8 @@ func (game NineK) Bet(id string, chips int) bool {
 	handler.ShortenTimeline(diff)
 	// duration extend the timeline
 	handler.ShiftPlayersToEndOfTimeline(id, game.DecisionTime)
+	// set players rake
+	handler.SetPlayersRake(game.Rake, game.Cap*float64(game.BlindsBig))
 	return true
 }
 
@@ -288,6 +301,8 @@ func (game NineK) Call(id string) bool {
 	handler.SetOtherActions(id, constant.Bet)
 	diff := time.Now().Unix() - state.GS.Players[index].DeadLine
 	handler.ShortenTimeline(diff)
+	// set players rake
+	handler.SetPlayersRake(game.Rake, game.Cap*float64(game.BlindsBig))
 	return true
 }
 
@@ -323,6 +338,8 @@ func (game NineK) AllIn(id string) bool {
 		handler.SetMinimumBet(state.GS.Players[index].Bets[state.GS.Turn])
 		handler.ShiftPlayersToEndOfTimeline(id, game.DecisionTime)
 	}
+	// set players rake
+	handler.SetPlayersRake(game.Rake, game.Cap*float64(game.BlindsBig))
 	return true
 }
 

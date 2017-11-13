@@ -258,6 +258,8 @@ func TestLoop03(t *testing.T) {
 	delay := int64(0)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -359,6 +361,8 @@ func TestLoop04(t *testing.T) {
 	delay := int64(0)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -458,6 +462,8 @@ func TestLoop05(t *testing.T) {
 	delay := int64(0)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -555,6 +561,8 @@ func TestLoop06(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -779,6 +787,8 @@ func TestLoop07(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -848,6 +858,8 @@ func TestLoop08(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -939,6 +951,8 @@ func TestLoop09(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1011,6 +1025,8 @@ func TestLoop10(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1071,6 +1087,8 @@ func TestLoop11(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1141,6 +1159,8 @@ func TestLoop12(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1171,6 +1191,8 @@ func TestLoop13(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1232,6 +1254,8 @@ func TestLoop14(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1345,6 +1369,8 @@ func TestLoop15(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1479,6 +1505,8 @@ func TestLoop16(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1591,6 +1619,8 @@ func TestLoop17(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1643,6 +1673,8 @@ func TestLoop18(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -1827,6 +1859,8 @@ func TestLoop19(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -2129,6 +2163,8 @@ func TestLoop26(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -2301,6 +2337,8 @@ func TestLoop27(t *testing.T) {
 	decisionTime := int64(1)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -2340,6 +2378,8 @@ func TestLoop28(t *testing.T) {
 	decisionTime := int64(1)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -2409,6 +2449,8 @@ func TestLoop29(t *testing.T) {
 	decisionTime := int64(1)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -2504,6 +2546,8 @@ func TestLoop30(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -2590,6 +2634,8 @@ func TestLoop31(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -2629,6 +2675,8 @@ func TestLoop32(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -2676,6 +2724,8 @@ func TestLoop33(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime,
@@ -2817,4 +2867,150 @@ func TestLoop34(t *testing.T) {
 	// fmt.Println("now:", time.Now().Unix())
 	// fmt.Println("end:", state.GS.FinishRoundTime)
 	// fmt.Println(state.GS.AFKCounts, state.GS.DoActions)
+}
+
+func TestLoop35(t *testing.T) {
+	decisionTime := int64(3)
+	minimumBet := 10
+	cap := 0.50
+	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
+		MaxPlayers:   6,
+		MaxAFKCount:  5,
+		DecisionTime: decisionTime,
+		MinimumBet:   minimumBet,
+		Rake:         5.00,
+		Cap:          cap}
+	handler.SetGambit(ninek)
+	state.GS.Gambit.Init()
+	handler.Connect("player1")
+	handler.Connect("player2")
+	handler.Connect("player3")
+	handler.Connect("player4")
+	handler.Sit("player1", 2)
+	if util.CountSitting(state.GS.Players) != 1 {
+		t.Error()
+	}
+	handler.Sit("player2", 5)
+	if util.CountSitting(state.GS.Players) != 2 {
+		t.Error()
+	}
+	handler.Sit("player3", 3)
+	if util.CountSitting(state.GS.Players) != 3 {
+		t.Error()
+	}
+	handler.Sit("player4", 1)
+	if util.CountSitting(state.GS.Players) != 4 {
+		t.Error()
+	}
+	p1 := &state.GS.Players[2]
+	p2 := &state.GS.Players[5]
+	p3 := &state.GS.Players[3]
+	p4 := &state.GS.Players[1]
+	handler.StartTable()
+	if !state.GS.Gambit.Start() {
+		t.Error()
+	}
+	for pid, rake := range state.GS.Rakes {
+		if pid != "" && rake != 0.5 {
+			t.Error()
+		}
+	}
+	if !state.GS.Gambit.Bet(p1.ID, 10) {
+		t.Error()
+	}
+	if state.GS.Rakes[p1.ID] != 1 ||
+		state.GS.Rakes[p2.ID] != 0.5 ||
+		state.GS.Rakes[p3.ID] != 0.5 ||
+		state.GS.Rakes[p4.ID] != 0.5 {
+		t.Error()
+	}
+	if !state.GS.Gambit.Raise(p3.ID, 30) {
+		t.Error()
+	}
+	if state.GS.Rakes[p1.ID] != 1 ||
+		state.GS.Rakes[p2.ID] != 0.5 ||
+		state.GS.Rakes[p3.ID] != 2 ||
+		state.GS.Rakes[p4.ID] != 0.5 {
+		t.Error()
+	}
+	if !state.GS.Gambit.Call(p2.ID) {
+		t.Error()
+	}
+	if !util.FloatEquals(state.GS.Rakes[p1.ID], 0.9090909090909092) ||
+		!util.FloatEquals(state.GS.Rakes[p2.ID], 1.8181818181818183) ||
+		!util.FloatEquals(state.GS.Rakes[p3.ID], 1.8181818181818183) ||
+		!util.FloatEquals(state.GS.Rakes[p4.ID], 0.4545454545454546) {
+		t.Error()
+	}
+	if !util.FloatEquals(util.SumRakes(state.GS.Rakes), cap*float64(minimumBet)) {
+		t.Error()
+	}
+	if !state.GS.Gambit.Fold(p4.ID) {
+		t.Error()
+	}
+	if !util.FloatEquals(state.GS.Rakes[p1.ID], 0.9090909090909092) ||
+		!util.FloatEquals(state.GS.Rakes[p2.ID], 1.8181818181818183) ||
+		!util.FloatEquals(state.GS.Rakes[p3.ID], 1.8181818181818183) ||
+		!util.FloatEquals(state.GS.Rakes[p4.ID], 0.4545454545454546) {
+		t.Error()
+	}
+	if !util.FloatEquals(util.SumRakes(state.GS.Rakes), cap*float64(minimumBet)) {
+		t.Error()
+	}
+	if !state.GS.Gambit.Raise(p1.ID, 60) {
+		t.Error()
+	}
+	if !util.FloatEquals(state.GS.Rakes[p1.ID], 2.3529411764705883) ||
+		!util.FloatEquals(state.GS.Rakes[p2.ID], 1.1764705882352942) ||
+		!util.FloatEquals(state.GS.Rakes[p3.ID], 1.1764705882352942) ||
+		!util.FloatEquals(state.GS.Rakes[p4.ID], 0.29411764705882354) {
+		t.Error()
+	}
+	if !util.FloatEquals(util.SumRakes(state.GS.Rakes), cap*float64(minimumBet)) {
+		t.Error()
+	}
+	if !state.GS.Gambit.Call(p3.ID) {
+		t.Error()
+	}
+	if !util.FloatEquals(state.GS.Rakes[p1.ID], 1.9047619047619047) ||
+		!util.FloatEquals(state.GS.Rakes[p2.ID], 0.9523809523809523) ||
+		!util.FloatEquals(state.GS.Rakes[p3.ID], 1.9047619047619047) ||
+		!util.FloatEquals(state.GS.Rakes[p4.ID], 0.23809523809523808) {
+		t.Error()
+	}
+	if !util.FloatEquals(util.SumRakes(state.GS.Rakes), cap*float64(minimumBet)) {
+		t.Error()
+	}
+	if !state.GS.Gambit.Call(p2.ID) {
+		t.Error()
+	}
+	if state.GS.Rakes[p1.ID] != 1.6 ||
+		state.GS.Rakes[p2.ID] != 1.6 ||
+		state.GS.Rakes[p3.ID] != 1.6 ||
+		state.GS.Rakes[p4.ID] != 0.2 {
+		t.Error()
+	}
+	if !util.FloatEquals(util.SumRakes(state.GS.Rakes), cap*float64(minimumBet)) {
+		t.Error()
+	}
+	if !state.GS.Gambit.NextRound() {
+		t.Error()
+	}
+	if !state.GS.Gambit.Bet(p1.ID, 40) {
+		t.Error()
+	}
+	if !util.FloatEquals(state.GS.Rakes[p1.ID], 2.0689655172413794) ||
+		!util.FloatEquals(state.GS.Rakes[p2.ID], 1.3793103448275863) ||
+		!util.FloatEquals(state.GS.Rakes[p3.ID], 1.3793103448275863) ||
+		!util.FloatEquals(state.GS.Rakes[p4.ID], 0.1724137931034483) {
+		t.Error()
+	}
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// p4.Print()
+	// fmt.Println(state.GS.Rakes)
+	// fmt.Println(state.GS.Pots)
 }

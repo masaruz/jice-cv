@@ -28,7 +28,3 @@ func (player Player) Print() {
 
 // Players in the battle
 type Players []Player
-
-func (p Players) Len() int           { return len(p) }
-func (p Players) Less(i, j int) bool { return p[i].Chips < p[j].Chips }
-func (p Players) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
