@@ -1,6 +1,7 @@
 package api
 
+// constant use for api package
 const (
-	// Host server api host name
-	Host = "http://13.228.123.188:8081"
+	Host   = "https://xysfh0h6qc.execute-api.ap-southeast-1.amazonaws.com/dev"
+	APIKey = "hozbzFOs516fH6Z5kEgwq21nHJhBhSHW6qvbvkmW"
 )

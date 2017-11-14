@@ -2,19 +2,23 @@ package api_test
 
 import (
 	"999k_engine/api"
+	"999k_engine/gambit"
+	"999k_engine/handler"
 	"testing"
 )
 
 func Test01(t *testing.T) {
-	player := api.GetPlayer("us3xq4zonwqj9is76ch")
-	if player.ID == "" {
-		t.Error()
-	}
-}
-
-func Test02(t *testing.T) {
-	player := api.GetPlayerFromClub("cl3xq4zop81j9jlvo9g", "us3xq4zop81j9jltiwj")
-	if player.ID == "" {
+	decisionTime := int64(3)
+	minimumBet := 10
+	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
+		MaxPlayers:   6,
+		MaxAFKCount:  5,
+		DecisionTime: decisionTime}
+	handler.SetGambit(ninek)
+	err := api.SaveToRealtime("test")
+	if err != nil {
 		t.Error()
 	}
 }

@@ -7,26 +7,28 @@ import (
 
 // GameState to record current game
 type GameState struct {
-	Deck            model.Deck
-	Visitors        model.Players
-	Players         model.Players
-	Version         int
-	Turn            int
-	IsTableStart    bool
-	IsGameStart     bool
-	IsProcessing    bool
-	StartTableTime  int64
-	FinishTableTime int64
-	StartRoundTime  int64
-	FinishRoundTime int64
-	MinimumBet      int
-	MaximumBet      int
-	Gambit          engine.Gambit
-	Pots            []int
-	AFKCounts       []int
-	DoActions       []bool
-	Rakes           map[string]float64
-	Event           string
+	Deck             model.Deck
+	Visitors         model.Players
+	Players          model.Players
+	Version          int
+	Turn             int
+	IsTableStart     bool
+	IsGameStart      bool
+	IsProcessing     bool
+	StartTableTime   int64
+	FinishTableTime  int64
+	StartRoundTime   int64
+	FinishRoundTime  int64
+	MinimumBet       int
+	MaximumBet       int
+	Gambit           engine.Gambit
+	Pots             []int
+	AFKCounts        []int
+	DoActions        []bool
+	Rakes            map[string]float64
+	Event            string
+	TableDisplayName string
+	GameIndex        int
 }
 
 // gameStates to record all gamestates

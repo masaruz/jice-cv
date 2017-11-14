@@ -42,7 +42,6 @@ func Create(gambit string) engine.Gambit {
 			BlindsSmall:  bsm,
 			BlindsBig:    bbg,
 			Rake:         rake,
-			Cap:          cap,
-		}
+			Cap:          cap}
 	}
 }

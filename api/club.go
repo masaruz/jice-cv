@@ -24,8 +24,8 @@ type Member struct {
 	JoinDate    string `json:"join_date"`
 }
 
-// ClubResp from api server
-type ClubResp struct {
+// ClubResponse from api server
+type ClubResponse struct {
 	Ok    bool   `json:"ok"`
 	Clubs []Club `json:"clubs"`
 }
@@ -42,7 +42,7 @@ func GetPlayerFromClub(clubid string, memberid string) model.Player {
 		log.Fatal(err)
 		return model.Player{}
 	}
-	resp := &ClubResp{}
+	resp := &ClubResponse{}
 	err = json.Unmarshal(body, resp)
 	if err != nil || !resp.Ok {
 		log.Fatal(err)

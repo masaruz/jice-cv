@@ -482,3 +482,38 @@ func (game NineK) Evaluate(values []int) (scores []int, kind string) {
 	}
 	return summary(constant.Nothing, sorted)
 }
+
+// GetBlindsSmall return blindsmall
+func (game NineK) GetBlindsSmall() int {
+	return game.BlindsSmall
+}
+
+// GetBlindsBig return blindbig
+func (game NineK) GetBlindsBig() int {
+	return game.BlindsBig
+}
+
+// GetBuyInMin return buyin_min
+func (game NineK) GetBuyInMin() int {
+	return game.BuyInMin
+}
+
+// GetBuyInMax return buyin_max
+func (game NineK) GetBuyInMax() int {
+	return game.BuyInMax
+}
+
+// GetRake return rake
+func (game NineK) GetRake() float64 {
+	return game.Rake
+}
+
+// GetCap return rake cap
+func (game NineK) GetCap() float64 {
+	return game.Cap
+}
+
+// GetMaxPlayers return player limit
+func (game NineK) GetMaxPlayers() int {
+	return game.MaxPlayers
+}

@@ -16,8 +16,8 @@ type Player struct {
 	PendingClubs []string `json:"pending_clubs"`
 }
 
-// PlayerResp from api server
-type PlayerResp struct {
+// PlayerResponse from api server
+type PlayerResponse struct {
 	Ok      bool     `json:"ok"`
 	Players []Player `json:"users"`
 }
@@ -29,7 +29,7 @@ func GetPlayer(id string) model.Player {
 		log.Fatal(err)
 		return model.Player{}
 	}
-	resp := &PlayerResp{}
+	resp := &PlayerResponse{}
 	err = json.Unmarshal(body, resp)
 	if err != nil || !resp.Ok {
 		log.Fatal(err)
@@ -38,4 +38,34 @@ func GetPlayer(id string) model.Player {
 	// get only one player
 	user := resp.Players[0]
 	return model.Player{ID: user.ID}
+}
+
+// SendSticker send sticker by using gems
+func SendSticker(id string) {
+
+}
+
+// BuyIn when player about to sitting to table
+func BuyIn(id string) {
+
+}
+
+// CashBack when player stand or leave the table will gain cash back from buyin
+func CashBack(id string) {
+
+}
+
+// ExtendActionTime when player decide to extend action time
+func ExtendActionTime(id string) {
+
+}
+
+// ExtendTableTime extend table time
+func ExtendTableTime(id string) {
+
+}
+
+// RemoveAuth remove player from the table
+func RemoveAuth(id string) {
+
 }

@@ -32,4 +32,12 @@ type Gambit interface {
 	Evaluate(cards []int) (scores []int, kind string)
 	// Reducer event and return action
 	Reducer(event string, id string) model.Actions
+
+	GetMaxPlayers() int
+	GetBlindsSmall() int
+	GetBlindsBig() int
+	GetBuyInMin() int
+	GetBuyInMax() int
+	GetRake() float64
+	GetCap() float64
 }
