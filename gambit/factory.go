@@ -21,6 +21,10 @@ func Create(gambit string) engine.Gambit {
 	if err != nil {
 		bsm = 2
 	}
+	bbg, err := strconv.Atoi(os.Getenv(constant.BlindsBig))
+	if err != nil {
+		bbg = 2
+	}
 	rake, err := strconv.ParseFloat(os.Getenv(constant.Rake), 64)
 	if err != nil {
 		rake = 5.0 // percent
@@ -35,9 +39,8 @@ func Create(gambit string) engine.Gambit {
 			MaxPlayers:   max,
 			MaxAFKCount:  3,
 			DecisionTime: dtime,
-			MinimumBet:   bsm,
 			BlindsSmall:  bsm,
-			BlindsBig:    bsm,
+			BlindsBig:    bbg,
 			Rake:         rake,
 			Cap:          cap,
 		}

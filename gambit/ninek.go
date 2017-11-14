@@ -14,7 +14,6 @@ import (
 type NineK struct {
 	MaxPlayers   int
 	DecisionTime int64
-	MinimumBet   int
 	MaxAFKCount  int
 	BlindsSmall  int
 	BlindsBig    int
