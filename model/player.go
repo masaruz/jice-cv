@@ -22,9 +22,9 @@ type Player struct {
 	WinLossAmount int      `json:"win_loss_amount,omitempty"`
 }
 
-// Print status of player only for development
-func (player Player) Print() {
-	fmt.Println(player.ID, player.Cards, player.Default, player.Action, player.StartLine, player.DeadLine, player.Chips, player.Bets, player.Type, player.IsWinner)
+// Print status of p only for development
+func (p Player) Print() {
+	fmt.Println(p.ID, p.Cards, p.Default, p.Action, p.StartLine, p.DeadLine, p.Chips, p.Bets, p.Type, p.IsWinner, p.WinLossAmount)
 }
 
 // Players in the battle

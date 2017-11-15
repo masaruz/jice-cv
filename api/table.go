@@ -39,8 +39,8 @@ func getURL(id string) string {
 	return fmt.Sprintf("%s/tables/%s", Host, id)
 }
 
-// SaveToRealtime save table state to realtime
-func SaveToRealtime(id string) error {
+// UpdateRealtimeData save table state to realtime
+func UpdateRealtimeData(id string) ([]byte, error) {
 	gambit := state.GS.Gambit
 	table := Table{
 		ID:            id,
@@ -54,26 +54,23 @@ func SaveToRealtime(id string) error {
 	// cast param to byte
 	data, err := json.Marshal(table)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// create url
 	url := fmt.Sprintf("%s/realtime", getURL(id))
-	body, err := post(url, data)
-	fmt.Println(string(body))
-	return err
+	return post(url, data)
 }
 
 // DeleteFromRealtime when delete table
-func DeleteFromRealtime(id string) error {
+func DeleteFromRealtime(id string) ([]byte, error) {
 	// create url
 	url := fmt.Sprintf("%s/realtime", getURL(id))
 	// create request
-	_, err := delete(url)
-	return err
+	return delete(url)
 }
 
 // GameStart set start_time only 1st game and send game index
-func GameStart(id string) error {
+func GameStart(id string) ([]byte, error) {
 	table := Table{}
 	table.ID = id
 	table.GameIndex = state.GS.GameIndex
@@ -83,25 +80,23 @@ func GameStart(id string) error {
 	// cast param to byte
 	data, err := json.Marshal(table)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// create url
 	url := fmt.Sprintf("%s/gamestart", getURL(id))
-	_, err = post(url, data)
-	return err
+	return post(url, data)
 }
 
 // Terminate caller will terminate itself
-func Terminate(id string) error {
+func Terminate(id string) ([]byte, error) {
 	// create url
 	url := fmt.Sprintf("%s/terminate", getURL(id))
 	// create request
-	_, err := post(url, nil)
-	return err
+	return post(url, nil)
 }
 
 // SaveSettlements after game's end
-func SaveSettlements(id string) error {
+func SaveSettlements(id string) ([]byte, error) {
 	summary := Summary{
 		CreateTime: time.Now().Unix()}
 	for _, player := range state.GS.Players {
@@ -116,16 +111,15 @@ func SaveSettlements(id string) error {
 	// cast param to byte
 	data, err := json.Marshal(summary)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// create url
 	url := fmt.Sprintf("%s/settlements", getURL(id))
-	_, err = post(url, data)
-	return err
+	return post(url, data)
 }
 
 // TableEnd set endtime
-func TableEnd(id string) error {
+func TableEnd(id string) ([]byte, error) {
 	table := Table{}
 	table.ID = id
 	table.EndTime = time.Now().Unix()
@@ -133,10 +127,9 @@ func TableEnd(id string) error {
 	// cast param to byte
 	data, err := json.Marshal(table)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// create url
 	url := fmt.Sprintf("%s/tableend", getURL(id))
-	_, err = post(url, data)
-	return err
+	return post(url, data)
 }

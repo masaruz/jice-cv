@@ -326,12 +326,12 @@ func PlayersInvestToPots(chips int) {
 	for index := range state.GS.Players {
 		if util.IsPlayingAndNotFoldAndNotAllIn(state.GS.Players[index]) {
 			state.GS.Players[index].Chips -= chips
+			state.GS.Players[index].WinLossAmount -= chips
 			state.GS.Players[index].Bets = append(state.GS.Players[index].Bets, chips)
 			IncreasePots(index, chips)
 			// start with first element in pots
 		} else if util.IsPlayingAndNotFold(state.GS.Players[index]) {
 			state.GS.Players[index].Bets = append(state.GS.Players[index].Bets, 0)
-			IncreasePots(index, chips)
 		}
 	}
 	SetMaximumBet(util.SumPots(state.GS.Pots))

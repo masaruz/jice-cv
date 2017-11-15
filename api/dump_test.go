@@ -17,8 +17,18 @@ func Test01(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.SetGambit(ninek)
-	err := api.SaveToRealtime("test")
+	body, err := api.GameStart("test")
 	if err != nil {
 		t.Error()
+	}
+	if data := string(body); data != `{"message":"Successfully start game"}` {
+		t.Error(data)
+	}
+	body, err = api.UpdateRealtimeData("test")
+	if err != nil {
+		t.Error()
+	}
+	if data := string(body); data != `{"message":"Successfully update table realtime"}` {
+		t.Error(data)
 	}
 }

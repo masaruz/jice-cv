@@ -169,6 +169,7 @@ func (game NineK) Finish() bool {
 					}
 					if earnedbet != 0 {
 						state.GS.Players[pos].Chips += earnedbet
+						state.GS.Players[pos].WinLossAmount += earnedbet
 						earnedplayers := util.CountPlayerAlreadyEarned(state.GS.Players)
 						if util.CountPlayerNotFold(state.GS.Players)-earnedplayers > 1 || earnedplayers == 0 {
 							state.GS.Players[pos].IsWinner = true
@@ -236,6 +237,7 @@ func (game NineK) Bet(id string, chips int) bool {
 	state.GS.DoActions[index] = true
 	// added value to the bet in this turn
 	state.GS.Players[index].Chips -= chips
+	state.GS.Players[index].WinLossAmount -= chips
 	state.GS.Players[index].Bets[state.GS.Turn] += chips
 	// broadcast to everyone that I bet
 	state.GS.Players[index].Default = model.Action{Name: constant.Bet}
@@ -288,6 +290,7 @@ func (game NineK) Call(id string) bool {
 	}
 	state.GS.DoActions[index] = true
 	state.GS.Players[index].Chips -= chips
+	state.GS.Players[index].WinLossAmount -= chips
 	state.GS.Players[index].Bets[state.GS.Turn] += chips
 	state.GS.Players[index].Default = model.Action{Name: constant.Call}
 	state.GS.Players[index].Action = model.Action{Name: constant.Call}
@@ -318,6 +321,7 @@ func (game NineK) AllIn(id string) bool {
 	}
 	state.GS.DoActions[index] = true
 	state.GS.Players[index].Bets[state.GS.Turn] += chips
+	state.GS.Players[index].WinLossAmount -= chips
 	state.GS.Players[index].Chips = 0
 	state.GS.Players[index].Default = model.Action{Name: constant.AllIn}
 	state.GS.Players[index].Action = model.Action{Name: constant.AllIn}

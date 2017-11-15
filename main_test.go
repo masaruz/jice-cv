@@ -2978,6 +2978,49 @@ func TestLoop35(t *testing.T) {
 		!util.FloatEquals(state.GS.Rakes[p4.ID], 0.1724137931034483) {
 		t.Error()
 	}
+	if !util.FloatEquals(util.SumRakes(state.GS.Rakes), cap*float64(minimumBet)) {
+		t.Error()
+	}
+	if !state.GS.Gambit.Call(p3.ID) {
+		t.Error()
+	}
+	if !util.FloatEquals(state.GS.Rakes[p1.ID], 1.8181818181818183) ||
+		!util.FloatEquals(state.GS.Rakes[p2.ID], 1.2121212121212122) ||
+		!util.FloatEquals(state.GS.Rakes[p3.ID], 1.8181818181818183) ||
+		!util.FloatEquals(state.GS.Rakes[p4.ID], 0.15151515151515152) {
+		t.Error()
+	}
+	if !util.FloatEquals(util.SumRakes(state.GS.Rakes), cap*float64(minimumBet)) {
+		t.Error()
+	}
+	if !state.GS.Gambit.Call(p2.ID) {
+		t.Error()
+	}
+	if !util.FloatEquals(state.GS.Rakes[p1.ID], 1.6216216216216217) ||
+		!util.FloatEquals(state.GS.Rakes[p2.ID], 1.6216216216216217) ||
+		!util.FloatEquals(state.GS.Rakes[p3.ID], 1.6216216216216217) ||
+		!util.FloatEquals(state.GS.Rakes[p4.ID], 0.13513513513513514) {
+		t.Error()
+	}
+	if !util.FloatEquals(util.SumRakes(state.GS.Rakes), cap*float64(minimumBet)) {
+		t.Error()
+	}
+	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
+		t.Error()
+	}
+	for _, player := range state.GS.Players {
+		if player.IsWinner {
+			if player.WinLossAmount != 250 {
+				t.Error()
+			}
+		} else if player.ID != "" {
+			if player.ID == "player4" && player.WinLossAmount != -10 {
+				t.Error()
+			} else if player.ID != "player4" && player.WinLossAmount != -120 {
+				t.Error()
+			}
+		}
+	}
 	// p1.Print()
 	// p2.Print()
 	// p3.Print()
