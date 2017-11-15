@@ -2,6 +2,8 @@ package api
 
 import (
 	"999k_engine/model"
+	"999k_engine/state"
+	"999k_engine/util"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -59,8 +61,20 @@ func BuyIn(id string) {
 }
 
 // CashBack when player stand or leave the table will gain cash back from buyin
-func CashBack(id string) {
-
+func CashBack(id string) ([]byte, error) {
+	_, player := util.Get(state.GS.Players, id)
+	setttlement := Settlement{
+		UserID:        player.ID,
+		WinLossAmount: player.WinLossAmount,
+		PaidRake:      state.GS.Rakes[player.ID]}
+	// cast param to byte
+	data, err := json.Marshal(setttlement)
+	if err != nil {
+		return nil, err
+	}
+	// create url
+	url := fmt.Sprintf("%s/cashback", getURL(id))
+	return post(url, data)
 }
 
 // ExtendActionTime when player decide to extend action time
