@@ -9,7 +9,7 @@ import (
 
 // Player response from api server
 type Player struct {
-	ID           string   `json:"id"`
+	ID           string   `json:"userid"`
 	AltID        string   `json:"alt_id"`
 	DisplayName  string   `json:"display_name"`
 	Clubs        []string `json:"clubs"`
@@ -41,8 +41,16 @@ func GetPlayer(id string) model.Player {
 }
 
 // SendSticker send sticker by using gems
-func SendSticker(id string) {
-
+func SendSticker(id string) ([]byte, error) {
+	// cast param to byte
+	data, err := json.Marshal(Player{
+		ID: id})
+	if err != nil {
+		return nil, err
+	}
+	// create url
+	url := fmt.Sprintf("%s/sendsticker", getURL(id))
+	return post(url, data)
 }
 
 // BuyIn when player about to sitting to table
@@ -56,8 +64,16 @@ func CashBack(id string) {
 }
 
 // ExtendActionTime when player decide to extend action time
-func ExtendActionTime(id string) {
-
+func ExtendActionTime(id string) ([]byte, error) {
+	// cast param to byte
+	data, err := json.Marshal(Player{
+		ID: id})
+	if err != nil {
+		return nil, err
+	}
+	// create url
+	url := fmt.Sprintf("%s/extendactiontime", getURL(id))
+	return post(url, data)
 }
 
 // ExtendTableTime extend table time

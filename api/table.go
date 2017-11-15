@@ -100,7 +100,7 @@ func SaveSettlements(id string) ([]byte, error) {
 	summary := Summary{
 		CreateTime: time.Now().Unix()}
 	for _, player := range state.GS.Players {
-		if !player.IsPlaying {
+		if player.ID == "" {
 			continue
 		}
 		summary.Settlements = append(summary.Settlements, Settlement{

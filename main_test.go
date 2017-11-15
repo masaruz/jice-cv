@@ -1,6 +1,7 @@
 package main_test
 
 import (
+	"999k_engine/api"
 	"999k_engine/constant"
 	"999k_engine/gambit"
 	"999k_engine/handler"
@@ -3027,4 +3028,159 @@ func TestLoop35(t *testing.T) {
 	// p4.Print()
 	// fmt.Println(state.GS.Rakes)
 	// fmt.Println(state.GS.Pots)
+}
+
+func TestLoop36(t *testing.T) {
+	decisionTime := int64(3)
+	minimumBet := 10
+	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
+		MaxPlayers:   6,
+		MaxAFKCount:  5,
+		DecisionTime: decisionTime}
+	handler.SetGambit(ninek)
+	id := "test"
+	body, err := api.GameStart(id)
+	if err != nil {
+		t.Error()
+	}
+	if data := string(body); data != `{"message":"Successfully start game"}` {
+		t.Error(data)
+	}
+	body, err = api.UpdateRealtimeData(id)
+	if err != nil {
+		t.Error()
+	}
+	if data := string(body); data != `{"message":"Successfully update table realtime"}` {
+		t.Error(data)
+	}
+	handler.Connect("player1")
+	handler.Connect("player2")
+	handler.Connect("player3")
+	handler.Connect("player4")
+	state.GS.Gambit.Init() // create seats
+	// dumb player
+	handler.Sit("player1", 2)
+	handler.Sit("player2", 3)
+	handler.Sit("player3", 5)
+	handler.Sit("player4", 1)
+	p1 := &state.GS.Players[2]
+	p2 := &state.GS.Players[3]
+	p3 := &state.GS.Players[5]
+	p4 := &state.GS.Players[1]
+	handler.StartTable()
+	if !state.GS.Gambit.Start() {
+		t.Error()
+	}
+	if !state.GS.Gambit.Check(p1.ID) ||
+		!state.GS.Gambit.Check(p2.ID) ||
+		!state.GS.Gambit.Check(p3.ID) ||
+		!state.GS.Gambit.Check(p4.ID) {
+		t.Error()
+	}
+	if !state.GS.Gambit.NextRound() {
+		t.Error()
+	}
+	body, err = api.SendSticker(p1.ID)
+	if err != nil {
+		t.Error()
+	}
+	if data := string(body); data != `{"message":"Successfully send sticker"}` {
+		t.Error(data)
+	}
+	if !state.GS.Gambit.Check(p1.ID) ||
+		!state.GS.Gambit.Check(p2.ID) ||
+		!state.GS.Gambit.Check(p3.ID) ||
+		!state.GS.Gambit.Check(p4.ID) {
+		t.Error()
+	}
+	if !state.GS.Gambit.Finish() {
+		t.Error()
+	}
+	body, err = api.SaveSettlements(id)
+	if err != nil {
+		t.Error()
+	}
+	if data := string(body); data != `{"message":"Successfully settlements"}` {
+		t.Error(data)
+	}
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// p4.Print()
+	// fmt.Println("now:", time.Now().Unix())
+	// fmt.Println("end:", state.GS.FinishRoundTime)
+}
+
+func TestLoop37(t *testing.T) {
+	decisionTime := int64(3)
+	minimumBet := 10
+	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
+		MaxPlayers:   6,
+		MaxAFKCount:  5,
+		DecisionTime: decisionTime}
+	handler.SetGambit(ninek)
+	handler.Connect("player1")
+	handler.Connect("player2")
+	handler.Connect("player3")
+	handler.Connect("player4")
+	state.GS.Gambit.Init() // create seats
+	// dumb player
+	handler.Sit("player1", 2)
+	handler.Sit("player2", 3)
+	handler.Sit("player3", 5)
+	handler.Sit("player4", 1)
+	p1 := &state.GS.Players[2]
+	p2 := &state.GS.Players[3]
+	p3 := &state.GS.Players[5]
+	p4 := &state.GS.Players[1]
+	handler.StartTable()
+	if !state.GS.Gambit.Start() {
+		t.Error()
+	}
+	if !state.GS.Gambit.Check(p1.ID) {
+		t.Error()
+	}
+	if handler.ExtendPlayerTimeline(p1.ID, 5) {
+		t.Error()
+	}
+	if !handler.ExtendPlayerTimeline(p2.ID, 5) {
+		t.Error()
+	}
+	if !state.GS.Gambit.Check(p2.ID) {
+		t.Error()
+	}
+	if !state.GS.Gambit.Bet(p3.ID, 20) {
+		t.Error()
+	}
+	if !handler.ExtendPlayerTimeline(p4.ID, 5) {
+		t.Error()
+	}
+	if !state.GS.Gambit.Raise(p4.ID, 40) {
+		t.Error()
+	}
+	if !handler.ExtendPlayerTimeline(p1.ID, 10) {
+		t.Error()
+	}
+	if !state.GS.Gambit.Call(p1.ID) {
+		t.Error()
+	}
+	if !state.GS.Gambit.Call(p2.ID) {
+		t.Error()
+	}
+	if !state.GS.Gambit.Fold(p3.ID) {
+		t.Error()
+	}
+	if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() {
+		t.Error()
+	}
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// p4.Print()
+	// fmt.Println("now:", time.Now().Unix())
+	// fmt.Println("end:", state.GS.FinishRoundTime)
 }

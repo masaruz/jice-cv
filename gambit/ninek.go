@@ -43,7 +43,7 @@ func (game NineK) Init() {
 func (game NineK) Start() bool {
 	if handler.IsTableStart() &&
 		!handler.IsGameStart() &&
-		!handler.IsInExtendTime() {
+		!handler.IsInExtendFinishRoundTime() {
 		// filter players who are not ready to play
 		for index, player := range state.GS.Players {
 			if player.ID == "" {
@@ -121,7 +121,7 @@ func (game NineK) Finish() bool {
 				state.GS.AFKCounts[index]++
 			}
 		}
-		handler.ExtendTime()
+		handler.ExtendFinishRoundTime()
 		// find winner and added their rewards
 		hscore := -1
 		hbonus := -1

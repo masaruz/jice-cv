@@ -70,8 +70,8 @@ func IsEndRound() bool {
 	return state.GS.FinishRoundTime <= time.Now().Unix()
 }
 
-// IsInExtendTime when end round but still not actually ended
-func IsInExtendTime() bool {
+// IsInExtendFinishRoundTime when end round but still not actually ended
+func IsInExtendFinishRoundTime() bool {
 	return state.GS.FinishRoundTime > time.Now().Unix()
 }
 
@@ -274,29 +274,49 @@ func ShortenTimeline(diff int64) {
 	diff = util.Absolute(diff)
 	for index, player := range state.GS.Players {
 		if player.IsPlaying {
-			state.GS.Players[index].StartLine = state.GS.Players[index].StartLine - diff
-			state.GS.Players[index].DeadLine = state.GS.Players[index].DeadLine - diff
+			state.GS.Players[index].StartLine -= diff
+			state.GS.Players[index].DeadLine -= diff
 		}
 	}
 	state.GS.FinishRoundTime = state.GS.FinishRoundTime - diff
 }
 
 // ShortenTimelineAfterTarget shift timeline of everyone behind target player
-func ShortenTimelineAfterTarget(id string, diff int64) {
-	diff = util.Absolute(diff)
+func ShortenTimelineAfterTarget(id string, second int64) {
+	second = util.Absolute(second)
 	_, caller := util.Get(state.GS.Players, id)
 	for index, player := range state.GS.Players {
 		// who start behind caller will be shifted
 		if util.IsPlayingAndNotFoldAndNotAllIn(player) && player.StartLine >= caller.DeadLine {
-			state.GS.Players[index].StartLine = state.GS.Players[index].StartLine - diff
-			state.GS.Players[index].DeadLine = state.GS.Players[index].DeadLine - diff
+			state.GS.Players[index].StartLine -= second
+			state.GS.Players[index].DeadLine -= second
 		}
 	}
-	state.GS.FinishRoundTime = state.GS.FinishRoundTime - diff
+	state.GS.FinishRoundTime = state.GS.FinishRoundTime - second
 }
 
-// ExtendTime force this timeline to be ended
-func ExtendTime() {
+// ExtendPlayerTimeline extend player timeline
+// return boolean because it needs to validate wth another server
+func ExtendPlayerTimeline(id string, second int64) bool {
+	if !IsPlayerTurn(id) {
+		return false
+	}
+	second = util.Absolute(second)
+	cindex, caller := util.Get(state.GS.Players, id)
+	state.GS.Players[cindex].DeadLine += second
+	for index, player := range state.GS.Players {
+		// who start behind caller will be shifted
+		if util.IsPlayingAndNotFoldAndNotAllIn(player) && player.StartLine >= caller.DeadLine {
+			state.GS.Players[index].StartLine += second
+			state.GS.Players[index].DeadLine += second
+		}
+	}
+	state.GS.FinishRoundTime += second
+	return true
+}
+
+// ExtendFinishRoundTime force this timeline to be ended
+func ExtendFinishRoundTime() {
 	// added delay for display the winner
 	state.GS.FinishRoundTime = time.Now().Unix() + 5
 }
