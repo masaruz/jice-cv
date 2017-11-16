@@ -61,9 +61,9 @@ func main() {
 			channel := ""
 			if state.GS.Gambit.Check(so.Id()) {
 				channel = constant.Check
-				fmt.Println(so.Id(), "Check", "Success")
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
+				fmt.Println(so.Id(), "Check", "Success")
 			}
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
@@ -79,11 +79,11 @@ func main() {
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			// client send amount of bet
-			if state.GS.Gambit.Bet(so.Id(), data.Payload.Parameters[0].ValueInteger) {
+			if state.GS.Gambit.Bet(so.Id(), data.Payload.Parameters[0].IntegerValue) {
 				channel = constant.Bet
-				fmt.Println(so.Id(), "Bet", "Success")
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
+				fmt.Println(so.Id(), "Bet", "Success")
 			}
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
@@ -99,11 +99,11 @@ func main() {
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			// client send amount of raise
-			if state.GS.Gambit.Raise(so.Id(), data.Payload.Parameters[0].ValueInteger) {
+			if state.GS.Gambit.Raise(so.Id(), data.Payload.Parameters[0].IntegerValue) {
 				channel = constant.Raise
-				fmt.Println(so.Id(), "Raise", "Success")
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
+				fmt.Println(so.Id(), "Raise", "Success")
 			}
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
@@ -115,9 +115,9 @@ func main() {
 			channel := ""
 			if state.GS.Gambit.Call(so.Id()) {
 				channel = constant.Call
-				fmt.Println(so.Id(), "Call", "Success")
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
+				fmt.Println(so.Id(), "Call", "Success")
 			}
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
@@ -129,9 +129,9 @@ func main() {
 			channel := ""
 			if state.GS.Gambit.AllIn(so.Id()) {
 				channel = constant.Raise
-				fmt.Println(so.Id(), "AllIn", "Success")
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, constant.Raise, so.Id())
+				fmt.Println(so.Id(), "AllIn", "Success")
 			}
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
@@ -143,10 +143,10 @@ func main() {
 			channel := ""
 			if state.GS.Gambit.Fold(so.Id()) {
 				channel = constant.Fold
-				fmt.Println(so.Id(), "Fold", "Success")
 				state.GS.Gambit.Finish()
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
+				fmt.Println(so.Id(), "Fold", "Success")
 			}
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
@@ -158,11 +158,11 @@ func main() {
 			channel := ""
 			if util.CountSitting(state.GS.Players) > 1 && !handler.IsTableStart() {
 				channel = constant.StartTable
-				fmt.Println(so.Id(), "StartTable", "Success")
 				handler.StartTable()
 				state.GS.Gambit.Start()
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
+				fmt.Println(so.Id(), "StartTable", "Success")
 			}
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
@@ -173,12 +173,12 @@ func main() {
 			handler.StartProcess()
 			channel := ""
 			data, err := handler.ConvertStringToRequestStruct(msg)
-			if err == nil && handler.Sit(so.Id(), data.Payload.Parameters[0].ValueInteger) {
+			if err == nil && handler.Sit(so.Id(), data.Payload.Parameters[0].IntegerValue) {
 				channel = constant.Sit
-				fmt.Println(so.Id(), "Sit", "Success")
 				state.GS.Gambit.Start()
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
+				fmt.Println(so.Id(), "Sit", "Success")
 			}
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
@@ -190,24 +190,39 @@ func main() {
 			channel := ""
 			if handler.Stand(so.Id()) {
 				channel = constant.Stand
-				fmt.Println(so.Id(), "Stand", "Success")
 				state.GS.Gambit.Finish()
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
+				fmt.Println(so.Id(), "Stand", "Success")
 			}
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
 		})
 		// when disconnected
 		so.On(constant.Disconnection, func() {
+			fmt.Println(so.Id(), "Leave")
+		})
+		// when exit
+		so.On(constant.Leave, func(msg string) {
 			handler.WaitQueue()
 			handler.StartProcess()
-			fmt.Println(so.Id(), "Disconnect")
-			handler.Disconnect(so.Id())
+			handler.Leave(so.Id())
 			state.GS.Gambit.Finish()
 			state.GS.IncreaseVersion()
-			handler.BroadcastGameState(so, constant.Disconnection, so.Id())
+			handler.BroadcastGameState(so, constant.Leave, so.Id())
 			handler.FinishProcess()
+			fmt.Println(so.Id(), "Leave")
+		})
+		// when send sticker
+		so.On(constant.SendSticker, func(msg string) string {
+			channel := ""
+			data, err := handler.ConvertStringToRequestStruct(msg)
+			// if cannot parse or client send nothing
+			if err != nil || len(data.Payload.Parameters) <= 0 {
+				return handler.CreateResponse(so.Id(), channel)
+			}
+			handler.SetStickerTarget(data.Payload.Parameters[0].StringValue, so.Id(), data.Payload.Parameters[1].IntegerValue)
+			return handler.CreateResponse(so.Id(), channel)
 		})
 	})
 	// listening for error

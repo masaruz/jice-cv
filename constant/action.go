@@ -19,4 +19,6 @@ const (
 	StartGame     = "startgame"
 	StartTable    = "starttable"
 	BetNotEqual   = "betnotequal"
+	Leave         = "leave"
+	SendSticker   = "SendSticker"
 )

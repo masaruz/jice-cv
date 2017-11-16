@@ -1197,7 +1197,7 @@ func TestLoop13(t *testing.T) {
 	if !state.GS.Gambit.Start() {
 		t.Error("has 2 players game should be start")
 	}
-	handler.Disconnect(id2)
+	handler.Leave(id2)
 	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() || state.GS.Gambit.Finish() {
 		t.Error("can go to next round or unable to finish game")
 	}
@@ -1628,15 +1628,15 @@ func TestLoop17(t *testing.T) {
 	if !state.GS.Gambit.Start() {
 		t.Error()
 	}
-	handler.Disconnect(id1)
+	handler.Leave(id1)
 	if state.GS.Gambit.Finish() {
 		t.Error()
 	}
-	handler.Disconnect(id2)
+	handler.Leave(id2)
 	if state.GS.Gambit.Finish() {
 		t.Error()
 	}
-	handler.Disconnect(id3)
+	handler.Leave(id3)
 	if !state.GS.Gambit.Finish() {
 		t.Error()
 	}
@@ -2683,7 +2683,7 @@ func TestLoop32(t *testing.T) {
 	if p2.Actions[0].Name != constant.Stand || p2.Actions[1].Name != constant.StartTable {
 		t.Error()
 	}
-	handler.Disconnect(id2)
+	handler.Leave(id2)
 	if p1.Actions[0].Name != constant.Stand || len(p1.Actions) > 1 {
 		t.Error()
 	}

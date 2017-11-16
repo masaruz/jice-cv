@@ -27,8 +27,8 @@ type Hint struct {
 type RequestParameter struct {
 	Name         string `json:"name"`
 	Type         string `json:"type"`
-	ValueInteger int    `json:"value_integer"`
-	ValueString  string `json:"value_string"`
+	IntegerValue int    `json:"value_integer"`
+	StringValue  string `json:"value_string"`
 }
 
 // Parameters action values

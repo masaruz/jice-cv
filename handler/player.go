@@ -37,8 +37,8 @@ func Connect(id string) {
 	state.GS.Visitors = util.Add(state.GS.Visitors, caller)
 }
 
-// Disconnect and Remove user from vistor or player list
-func Disconnect(id string) {
+// Leave and Remove user from vistor or player list
+func Leave(id string) {
 	_, caller := util.Get(state.GS.Players, id)
 	// if playing need to do something
 	if !caller.IsPlaying {
@@ -122,4 +122,15 @@ func SetPlayersRake(rate float64, cap float64) {
 		percent := float64(util.SumBet(player)) / pots
 		state.GS.Rakes[player.ID] = rake * percent
 	}
+}
+
+// SetStickerTarget added sticker action to gamestate
+func SetStickerTarget(stickerid string, senderid string, targetslot int) {
+	index, _ := util.Get(state.GS.Players, senderid)
+	sticker := &state.GS.Players[index].Sticker
+	start := time.Now().Unix()
+	sticker.StartTime = start
+	sticker.FinishTime = start + 2
+	sticker.ID = stickerid
+	sticker.ToTarget = targetslot
 }
