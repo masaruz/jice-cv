@@ -62,8 +62,8 @@ func TestLoop01(t *testing.T) {
 	if !handler.Stand(p3.ID) {
 		t.Error()
 	}
-	p1.Print()
-	p2.Print()
-	p3.Print()
-	p4.Print()
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// p4.Print()
 }

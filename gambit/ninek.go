@@ -1,6 +1,7 @@
 package gambit
 
 import (
+	"999k_engine/api"
 	"999k_engine/constant"
 	"999k_engine/handler"
 	"999k_engine/model"
@@ -55,11 +56,18 @@ func (game NineK) Start() bool {
 			}
 			handler.Stand(player.ID)
 		}
+		// if there are more than 2 players are sitting
 		if util.CountSitting(state.GS.Players) >= 2 {
 			// everyone is assumed afk
 			state.GS.DoActions = make([]bool, game.MaxPlayers)
 			state.GS.Rakes = make(map[string]float64)
 			state.GS.Pots = make([]int, game.MaxPlayers)
+			// request to start game
+			_, err := api.StartGame()
+			if err != nil {
+				panic(err)
+			}
+			// set players to be ready
 			handler.MakePlayersReady()
 			handler.StartGame()
 			handler.SetMinimumBet(game.BlindsBig)

@@ -3040,15 +3040,15 @@ func TestLoop36(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.SetGambit(ninek)
-	id := "test"
-	body, err := api.GameStart(id)
+	state.GS.TableID = "test"
+	body, err := api.StartGame()
 	if err != nil {
 		t.Error()
 	}
 	if data := string(body); data != `{"message":"Successfully start game"}` {
 		t.Error(data)
 	}
-	body, err = api.UpdateRealtimeData(id)
+	body, err = api.UpdateRealtimeData()
 	if err != nil {
 		t.Error()
 	}
@@ -3098,7 +3098,7 @@ func TestLoop36(t *testing.T) {
 	if !state.GS.Gambit.Finish() {
 		t.Error()
 	}
-	body, err = api.SaveSettlements(id)
+	body, err = api.SaveSettlements("test")
 	if err != nil {
 		t.Error()
 	}
@@ -3225,6 +3225,10 @@ func TestLoop38(t *testing.T) {
 	p2 := &state.GS.Players[3]
 	p3 := &state.GS.Players[5]
 	p4 := &state.GS.Players[1]
+	handler.StartTable()
+	if !state.GS.Gambit.Start() {
+		t.Error()
+	}
 	handler.SetStickerTarget("xxx", "player1", 2)
 	p1.Print()
 	p2.Print()

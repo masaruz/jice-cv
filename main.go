@@ -222,12 +222,33 @@ func main() {
 			channel := ""
 			data, err := handler.ConvertStringToRequestStruct(msg)
 			// if cannot parse or client send nothing
-			if err == nil && len(data.Payload.Parameters) > 0 {
-				channel = constant.SendSticker
-				handler.SetStickerTarget(data.Payload.Parameters[0].StringValue, so.Id(), data.Payload.Parameters[1].IntegerValue)
-				handler.BroadcastGameState(so, channel, so.Id())
-				log.Println(so.Id(), "Send Sticker", "Success")
-				return handler.CreateResponse(so.Id(), channel)
+			if err == nil && len(data.Payload.Parameters) == 2 {
+				param1 := data.Payload.Parameters[0]
+				param2 := data.Payload.Parameters[1]
+				stickerid, targetslot := "", -1
+				// handler prevent swap of parameters
+				switch param1.Name {
+				// in case of stickerid is param1
+				case "stickerid":
+					stickerid = param1.StringValue
+					targetslot = param2.IntegerValue
+					// in case of stickerid is param2
+				case "targetslot":
+					stickerid = param2.StringValue
+					targetslot = param1.IntegerValue
+				default:
+					// something wrong then return nothing
+					return handler.CreateResponse(so.Id(), channel)
+				}
+				if stickerid != "" && targetslot != -1 {
+					channel = constant.SendSticker
+					// set sticker state in player
+					handler.SetStickerTarget(stickerid, so.Id(), targetslot)
+					state.GS.IncreaseVersion()
+					// broadcast state to everyone
+					handler.BroadcastGameState(so, channel, so.Id())
+					log.Println(so.Id(), "Send Sticker", "Success")
+				}
 			}
 			return handler.CreateResponse(so.Id(), channel)
 		})

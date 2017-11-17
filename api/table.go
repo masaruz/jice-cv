@@ -11,6 +11,7 @@ import (
 // Table response from api server
 type Table struct {
 	ID            string `json:"tableid" validate:"required"`
+	GroupID       string `json:"groupid" validate:"required"`
 	GameIndex     int    `json:"gameindex" validate:"required"`
 	DisplayName   string `json:"display_name,omitempty"`
 	PlayersAmount int    `json:"players_amount,omitempty"`
@@ -40,10 +41,11 @@ func getURL(id string) string {
 }
 
 // UpdateRealtimeData save table state to realtime
-func UpdateRealtimeData(id string) ([]byte, error) {
+func UpdateRealtimeData() ([]byte, error) {
 	gambit := state.GS.Gambit
 	table := Table{
-		ID:            id,
+		ID:            state.GS.TableID,
+		GroupID:       state.GS.GroupID,
 		GameIndex:     state.GS.GameIndex,
 		PlayersAmount: util.CountSitting(state.GS.Players),
 		PlayersLimit:  gambit.GetMaxPlayers(),
@@ -57,25 +59,26 @@ func UpdateRealtimeData(id string) ([]byte, error) {
 		return nil, err
 	}
 	// create url
-	url := fmt.Sprintf("%s/realtime", getURL(id))
+	url := fmt.Sprintf("%s/realtime", getURL(state.GS.TableID))
 	return post(url, data)
 }
 
 // DeleteFromRealtime when delete table
-func DeleteFromRealtime(id string) ([]byte, error) {
+func DeleteFromRealtime() ([]byte, error) {
 	// create url
-	url := fmt.Sprintf("%s/realtime", getURL(id))
+	url := fmt.Sprintf("%s/realtime", getURL(state.GS.TableID))
 	// create request
 	return delete(url)
 }
 
-// GameStart set start_time only 1st game and send game index
-func GameStart(id string) ([]byte, error) {
+// StartGame set start_time only 1st game and send game index
+func StartGame() ([]byte, error) {
 	table := Table{}
-	table.ID = id
+	table.ID = state.GS.TableID
+	table.GroupID = state.GS.GroupID
 	table.GameIndex = state.GS.GameIndex
 	if table.GameIndex == 0 {
-		table.StartTime = state.GS.StartRoundTime
+		table.StartTime = time.Now().Unix()
 	}
 	// cast param to byte
 	data, err := json.Marshal(table)
@@ -83,7 +86,7 @@ func GameStart(id string) ([]byte, error) {
 		return nil, err
 	}
 	// create url
-	url := fmt.Sprintf("%s/gamestart", getURL(id))
+	url := fmt.Sprintf("%s/gamestart", getURL(state.GS.TableID))
 	return post(url, data)
 }
 
@@ -119,9 +122,10 @@ func SaveSettlements(id string) ([]byte, error) {
 }
 
 // TableEnd set endtime
-func TableEnd(id string) ([]byte, error) {
+func TableEnd() ([]byte, error) {
 	table := Table{}
-	table.ID = id
+	table.ID = state.GS.TableID
+	table.GroupID = state.GS.GroupID
 	table.EndTime = time.Now().Unix()
 	table.GameIndex = state.GS.GameIndex
 	// cast param to byte
@@ -130,6 +134,6 @@ func TableEnd(id string) ([]byte, error) {
 		return nil, err
 	}
 	// create url
-	url := fmt.Sprintf("%s/tableend", getURL(id))
+	url := fmt.Sprintf("%s/tableend", getURL(state.GS.TableID))
 	return post(url, data)
 }
