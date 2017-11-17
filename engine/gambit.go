@@ -40,4 +40,5 @@ type Gambit interface {
 	GetBuyInMax() int
 	GetRake() float64
 	GetCap() float64
+	GetDecisionTime() int64
 }

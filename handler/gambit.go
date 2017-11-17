@@ -297,21 +297,24 @@ func ShortenTimelineAfterTarget(id string, second int64) {
 
 // ExtendPlayerTimeline extend player timeline
 // return boolean because it needs to validate wth another server
-func ExtendPlayerTimeline(id string, second int64) bool {
+func ExtendPlayerTimeline(id string) bool {
 	if !IsPlayerTurn(id) {
 		return false
 	}
-	second = util.Absolute(second)
+	second := state.GS.Gambit.GetDecisionTime()
 	cindex, caller := util.Get(state.GS.Players, id)
-	state.GS.Players[cindex].DeadLine += second
+	start := time.Now().Unix()
+	diff := (start + second) - state.GS.Players[cindex].DeadLine
+	state.GS.Players[cindex].StartLine = start
+	state.GS.Players[cindex].DeadLine = start + second
 	for index, player := range state.GS.Players {
 		// who start behind caller will be shifted
 		if util.IsPlayingAndNotFoldAndNotAllIn(player) && player.StartLine >= caller.DeadLine {
-			state.GS.Players[index].StartLine += second
-			state.GS.Players[index].DeadLine += second
+			state.GS.Players[index].StartLine += diff
+			state.GS.Players[index].DeadLine += diff
 		}
 	}
-	state.GS.FinishRoundTime += second
+	state.GS.FinishRoundTime += diff
 	return true
 }
 

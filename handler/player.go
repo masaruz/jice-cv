@@ -38,15 +38,15 @@ func Connect(id string) {
 }
 
 // Leave and Remove user from vistor or player list
-func Leave(id string) {
-	_, caller := util.Get(state.GS.Players, id)
-	// if playing need to do something
-	if !caller.IsPlaying {
-		// TODO shift timeline
+func Leave(id string) bool {
+	// force them to stand
+	if !Stand(id) {
+		return false
 	}
-	state.GS.Players = util.Kick(state.GS.Players, id)
+	// after they stand then remove from visitor
 	state.GS.Visitors = util.Remove(state.GS.Visitors, id)
-	SetOtherActionsWhoAreNotPlaying(constant.Sit)
+	// TODO cashback here
+	return true
 }
 
 // AutoSit auto find a seat
@@ -67,7 +67,6 @@ func Sit(id string, slot int) bool {
 	for _, player := range state.GS.Players {
 		if slot == player.Slot && player.ID == "" {
 			caller.Slot = player.Slot
-			// TODO
 			caller.Name = player.Name
 			break
 		}
@@ -75,6 +74,7 @@ func Sit(id string, slot int) bool {
 	if caller.Slot == -1 {
 		return false
 	}
+	// TODO buyin here
 	// remove from visitor
 	state.GS.Visitors = util.Remove(state.GS.Visitors, id)
 	caller.Action = model.Action{Name: constant.Sit}
@@ -108,6 +108,7 @@ func Stand(id string) bool {
 	state.GS.Players = util.Kick(state.GS.Players, caller.ID)
 	state.GS.Visitors = util.Add(state.GS.Visitors, visitor)
 	SetOtherActionsWhoAreNotPlaying(constant.Sit)
+	// TODO cashback here
 	return true
 }
 

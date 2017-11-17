@@ -3144,10 +3144,19 @@ func TestLoop37(t *testing.T) {
 	if !state.GS.Gambit.Check(p1.ID) {
 		t.Error()
 	}
-	if handler.ExtendPlayerTimeline(p1.ID, 5) {
+	if handler.ExtendPlayerTimeline(p1.ID) {
 		t.Error()
 	}
-	if !handler.ExtendPlayerTimeline(p2.ID, 5) {
+	time.Sleep(time.Second * 1)
+	if !handler.ExtendPlayerTimeline(p2.ID) {
+		t.Error()
+	}
+	// gap between is equal how long we sleep
+	if p2.StartLine-p1.DeadLine != 1 ||
+		// timeline still valid
+		p3.StartLine != p2.DeadLine ||
+		// other decision time is not changed
+		p3.DeadLine-p3.StartLine != 3 {
 		t.Error()
 	}
 	if !state.GS.Gambit.Check(p2.ID) {
@@ -3156,13 +3165,15 @@ func TestLoop37(t *testing.T) {
 	if !state.GS.Gambit.Bet(p3.ID, 20) {
 		t.Error()
 	}
-	if !handler.ExtendPlayerTimeline(p4.ID, 5) {
+	time.Sleep(time.Second * 2)
+	if !handler.ExtendPlayerTimeline(p4.ID) {
 		t.Error()
 	}
 	if !state.GS.Gambit.Raise(p4.ID, 40) {
 		t.Error()
 	}
-	if !handler.ExtendPlayerTimeline(p1.ID, 10) {
+	time.Sleep(time.Second * 1)
+	if !handler.ExtendPlayerTimeline(p1.ID) {
 		t.Error()
 	}
 	if !state.GS.Gambit.Call(p1.ID) {
@@ -3177,10 +3188,46 @@ func TestLoop37(t *testing.T) {
 	if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() {
 		t.Error()
 	}
+	// check if new timeline is equal to player amount * decision
+	if state.GS.FinishRoundTime-time.Now().Unix() !=
+		decisionTime*int64(util.CountPlayerNotFoldAndNotAllIn(state.GS.Players)) {
+		t.Error()
+	}
 	// p1.Print()
 	// p2.Print()
 	// p3.Print()
 	// p4.Print()
 	// fmt.Println("now:", time.Now().Unix())
 	// fmt.Println("end:", state.GS.FinishRoundTime)
+}
+
+func TestLoop38(t *testing.T) {
+	decisionTime := int64(3)
+	minimumBet := 10
+	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
+		MaxPlayers:   6,
+		MaxAFKCount:  5,
+		DecisionTime: decisionTime}
+	handler.SetGambit(ninek)
+	handler.Connect("player1")
+	handler.Connect("player2")
+	handler.Connect("player3")
+	handler.Connect("player4")
+	state.GS.Gambit.Init() // create seats
+	// dumb player
+	handler.Sit("player1", 2)
+	handler.Sit("player2", 3)
+	handler.Sit("player3", 5)
+	handler.Sit("player4", 1)
+	p1 := &state.GS.Players[2]
+	p2 := &state.GS.Players[3]
+	p3 := &state.GS.Players[5]
+	p4 := &state.GS.Players[1]
+	handler.SetStickerTarget("xxx", "player1", 2)
+	p1.Print()
+	p2.Print()
+	p3.Print()
+	p4.Print()
 }

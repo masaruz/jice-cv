@@ -521,3 +521,8 @@ func (game NineK) GetCap() float64 {
 func (game NineK) GetMaxPlayers() int {
 	return game.MaxPlayers
 }
+
+// GetDecisionTime return decision time of action
+func (game NineK) GetDecisionTime() int64 {
+	return int64(game.DecisionTime)
+}
