@@ -237,17 +237,15 @@ func main() {
 					stickerid = param2.StringValue
 					targetslot = param1.IntegerValue
 				default:
-					// something wrong then return nothing
-					return handler.CreateResponse(so.Id(), channel)
 				}
 				if stickerid != "" && targetslot != -1 {
 					channel = constant.SendSticker
 					// set sticker state in player
-					handler.SetStickerTarget(stickerid, so.Id(), targetslot)
+					handler.SendSticker(stickerid, so.Id(), targetslot)
 					state.GS.IncreaseVersion()
 					// broadcast state to everyone
 					handler.BroadcastGameState(so, channel, so.Id())
-					log.Println(so.Id(), "Send Sticker", "Success")
+					log.Println(so.Id(), "Send Sticker", "Success", data.Payload)
 				}
 			}
 			return handler.CreateResponse(so.Id(), channel)

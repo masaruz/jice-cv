@@ -58,6 +58,8 @@ func (game NineK) Start() bool {
 		}
 		// if there are more than 2 players are sitting
 		if util.CountSitting(state.GS.Players) >= 2 {
+			// increase gameindex before send to startgame
+			handler.IncreaseGameIndex()
 			// everyone is assumed afk
 			state.GS.DoActions = make([]bool, game.MaxPlayers)
 			state.GS.Rakes = make(map[string]float64)

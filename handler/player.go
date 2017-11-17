@@ -125,13 +125,33 @@ func SetPlayersRake(rate float64, cap float64) {
 	}
 }
 
-// SetStickerTarget added sticker action to gamestate
-func SetStickerTarget(stickerid string, senderid string, targetslot int) {
+// SendSticker added sticker action to gamestate
+func SendSticker(stickerid string, senderid string, targetslot int) {
 	index, _ := util.Get(state.GS.Players, senderid)
-	sticker := &state.GS.Players[index].Sticker
-	start := time.Now().Unix()
-	sticker.StartTime = start
-	sticker.FinishTime = start + 2
+	// create sticker object
+	now := time.Now().Unix()
+	// clear expire stickers
+	for pi := range state.GS.Players {
+		// if no stickers continue
+		if len(state.GS.Players[pi].Stickers) <= 0 {
+			continue
+		}
+		for si := 0; si < len(state.GS.Players[pi].Stickers); si++ {
+			// delay for sticker after expired for 2 sec
+			if now-state.GS.Players[pi].Stickers[si].FinishTime >= 2 {
+				// update sticker
+				state.GS.Players[pi].Stickers =
+					append(state.GS.Players[pi].Stickers[:si],
+						state.GS.Players[pi].Stickers[si+1:]...)
+				si--
+			}
+		}
+	}
+	sticker := model.Sticker{}
+	sticker.StartTime = now
+	sticker.FinishTime = now + 2
 	sticker.ID = stickerid
 	sticker.ToTarget = targetslot
+	// append to stickers array
+	state.GS.Players[index].Stickers = append(state.GS.Players[index].Stickers, sticker)
 }

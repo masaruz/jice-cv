@@ -3226,12 +3226,83 @@ func TestLoop38(t *testing.T) {
 	p3 := &state.GS.Players[5]
 	p4 := &state.GS.Players[1]
 	handler.StartTable()
+	if state.GS.GameIndex != -1 {
+		t.Error()
+	}
 	if !state.GS.Gambit.Start() {
 		t.Error()
 	}
-	handler.SetStickerTarget("xxx", "player1", 2)
-	p1.Print()
-	p2.Print()
-	p3.Print()
-	p4.Print()
+	if state.GS.GameIndex != 0 {
+		t.Error()
+	}
+	if !state.GS.Gambit.Check(p1.ID) ||
+		!state.GS.Gambit.Check(p2.ID) ||
+		!state.GS.Gambit.Check(p3.ID) ||
+		!state.GS.Gambit.Check(p4.ID) {
+		t.Error()
+	}
+	if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() {
+		t.Error()
+	}
+	if !state.GS.Gambit.Check(p1.ID) ||
+		!state.GS.Gambit.Check(p2.ID) ||
+		!state.GS.Gambit.Check(p3.ID) ||
+		!state.GS.Gambit.Check(p4.ID) {
+		t.Error()
+	}
+	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
+		t.Error()
+	}
+	state.GS.FinishRoundTime = 0
+	if !state.GS.Gambit.Start() {
+		t.Error()
+	}
+	if state.GS.GameIndex != 1 {
+		t.Error()
+	}
+	if !state.GS.Gambit.Check(p2.ID) ||
+		!state.GS.Gambit.Check(p3.ID) ||
+		!state.GS.Gambit.Check(p4.ID) ||
+		!state.GS.Gambit.Check(p1.ID) {
+		t.Error()
+	}
+	if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() {
+		t.Error()
+	}
+	if !state.GS.Gambit.Check(p2.ID) ||
+		!state.GS.Gambit.Check(p3.ID) ||
+		!state.GS.Gambit.Check(p4.ID) ||
+		!state.GS.Gambit.Check(p1.ID) {
+		t.Error()
+	}
+	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
+		t.Error()
+	}
+	handler.SendSticker("xxx", "player1", 2)
+	handler.SendSticker("xxx", "player2", 2)
+	handler.SendSticker("xxx", "player3", 2)
+	if len(p1.Stickers) != 1 ||
+		len(p2.Stickers) != 1 ||
+		len(p3.Stickers) != 1 {
+		t.Error()
+	}
+	handler.SendSticker("xxx", "player1", 2)
+	if len(p1.Stickers) != 2 ||
+		len(p2.Stickers) != 1 ||
+		len(p3.Stickers) != 1 {
+		t.Error()
+	}
+	time.Sleep(time.Second * 4)
+	handler.SendSticker("xxx", "player1", 2)
+	handler.SendSticker("xxx", "player3", 2)
+	if len(p1.Stickers) != 1 ||
+		len(p2.Stickers) != 0 ||
+		len(p3.Stickers) != 1 {
+		t.Error()
+	}
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// p4.Print()
+	// fmt.Println("now:", time.Now().Unix())
 }

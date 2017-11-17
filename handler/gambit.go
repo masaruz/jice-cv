@@ -80,6 +80,11 @@ func IncreaseTurn() {
 	state.GS.Turn++
 }
 
+// IncreaseGameIndex every game start
+func IncreaseGameIndex() {
+	state.GS.GameIndex++
+}
+
 // IncreasePots when players pay chips
 func IncreasePots(index int, chips int) {
 	state.GS.Pots[index] += chips
