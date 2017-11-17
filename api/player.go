@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 )
 
 // Player response from api server
@@ -51,13 +52,32 @@ func SendSticker(id string) ([]byte, error) {
 		return nil, err
 	}
 	// create url
-	url := fmt.Sprintf("%s/sendsticker", getURL(id))
+	url := fmt.Sprintf("%s/sendsticker", getTableURL(id))
 	return post(url, data)
 }
 
 // BuyIn when player about to sitting to table
-func BuyIn(id string) {
-
+func BuyIn(userid string, buyinamount int) ([]byte, error) {
+	// cast param to byte
+	data, err := json.Marshal(struct {
+		UserID      string `json:"userid"`
+		GroupID     string `json:"groupid"`
+		CreateTime  int64  `json:"createtime"`
+		GameIndex   int    `json:"gameindex"`
+		BuyInAmount int    `json:"buyinamount"`
+	}{
+		UserID:      userid,
+		GameIndex:   state.GS.GameIndex,
+		GroupID:     state.GS.GroupID,
+		CreateTime:  time.Now().Unix(),
+		BuyInAmount: buyinamount,
+	})
+	if err != nil {
+		return nil, err
+	}
+	// create url
+	url := fmt.Sprintf("%s/buyin", getTableURL(state.GS.TableID))
+	return post(url, data)
 }
 
 // CashBack when player stand or leave the table will gain cash back from buyin
@@ -73,7 +93,7 @@ func CashBack(id string) ([]byte, error) {
 		return nil, err
 	}
 	// create url
-	url := fmt.Sprintf("%s/cashback", getURL(id))
+	url := fmt.Sprintf("%s/cashback", getTableURL(id))
 	return post(url, data)
 }
 
@@ -86,7 +106,7 @@ func ExtendActionTime(id string) ([]byte, error) {
 		return nil, err
 	}
 	// create url
-	url := fmt.Sprintf("%s/extendactiontime", getURL(id))
+	url := fmt.Sprintf("%s/extendactiontime", getTableURL(id))
 	return post(url, data)
 }
 

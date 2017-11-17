@@ -3306,3 +3306,26 @@ func TestLoop38(t *testing.T) {
 	// p4.Print()
 	// fmt.Println("now:", time.Now().Unix())
 }
+
+func TestLoop39(t *testing.T) {
+	decisionTime := int64(3)
+	minimumBet := 10
+	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
+		MaxPlayers:   6,
+		MaxAFKCount:  5,
+		DecisionTime: decisionTime}
+	handler.SetGambit(ninek)
+	handler.Connect("player1")
+	state.GS.Gambit.Init() // create seats
+	// dumb player
+	handler.Sit("player1", 2)
+	p1 := &state.GS.Players[2]
+	state.GS.GroupID = "cltel9kvy29vj9yehgjx"
+	body, err := api.BuyIn(p1.ID, 100)
+	if err != nil {
+		t.Error()
+	}
+	fmt.Println(string(body))
+}

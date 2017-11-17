@@ -143,7 +143,7 @@ func SendSticker(stickerid string, senderid string, targetslot int) {
 				state.GS.Players[pi].Stickers =
 					append(state.GS.Players[pi].Stickers[:si],
 						state.GS.Players[pi].Stickers[si+1:]...)
-				si--
+				si-- // reduce index to prevent out of bound
 			}
 		}
 	}

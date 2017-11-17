@@ -36,7 +36,7 @@ type Settlement struct {
 	PaidRake      float64 `json:"paidrake,omitempty"`
 }
 
-func getURL(id string) string {
+func getTableURL(id string) string {
 	return fmt.Sprintf("%s/tables/%s", Host, id)
 }
 
@@ -44,7 +44,6 @@ func getURL(id string) string {
 func UpdateRealtimeData() ([]byte, error) {
 	gambit := state.GS.Gambit
 	table := Table{
-		ID:            state.GS.TableID,
 		GroupID:       state.GS.GroupID,
 		GameIndex:     state.GS.GameIndex,
 		PlayersAmount: util.CountSitting(state.GS.Players),
@@ -59,14 +58,14 @@ func UpdateRealtimeData() ([]byte, error) {
 		return nil, err
 	}
 	// create url
-	url := fmt.Sprintf("%s/realtime", getURL(state.GS.TableID))
+	url := fmt.Sprintf("%s/realtime", getTableURL(state.GS.TableID))
 	return post(url, data)
 }
 
 // DeleteFromRealtime when delete table
 func DeleteFromRealtime() ([]byte, error) {
 	// create url
-	url := fmt.Sprintf("%s/realtime", getURL(state.GS.TableID))
+	url := fmt.Sprintf("%s/realtime", getTableURL(state.GS.TableID))
 	// create request
 	return delete(url)
 }
@@ -74,7 +73,6 @@ func DeleteFromRealtime() ([]byte, error) {
 // StartGame set start_time only 1st game and send game index
 func StartGame() ([]byte, error) {
 	table := Table{}
-	table.ID = state.GS.TableID
 	table.GroupID = state.GS.GroupID
 	table.GameIndex = state.GS.GameIndex
 	if table.GameIndex == 0 {
@@ -86,14 +84,14 @@ func StartGame() ([]byte, error) {
 		return nil, err
 	}
 	// create url
-	url := fmt.Sprintf("%s/gamestart", getURL(state.GS.TableID))
+	url := fmt.Sprintf("%s/gamestart", getTableURL(state.GS.TableID))
 	return post(url, data)
 }
 
 // Terminate caller will terminate itself
 func Terminate(id string) ([]byte, error) {
 	// create url
-	url := fmt.Sprintf("%s/terminate", getURL(id))
+	url := fmt.Sprintf("%s/terminate", getTableURL(id))
 	// create request
 	return post(url, nil)
 }
@@ -117,7 +115,7 @@ func SaveSettlements(id string) ([]byte, error) {
 		return nil, err
 	}
 	// create url
-	url := fmt.Sprintf("%s/settlements", getURL(id))
+	url := fmt.Sprintf("%s/settlements", getTableURL(id))
 	return post(url, data)
 }
 
@@ -134,6 +132,6 @@ func TableEnd() ([]byte, error) {
 		return nil, err
 	}
 	// create url
-	url := fmt.Sprintf("%s/tableend", getURL(state.GS.TableID))
+	url := fmt.Sprintf("%s/tableend", getTableURL(state.GS.TableID))
 	return post(url, data)
 }
