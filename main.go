@@ -254,6 +254,7 @@ func main() {
 			channel := ""
 			if handler.ExtendPlayerTimeline(so.Id()) {
 				channel = constant.ExtendDecisionTime
+				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
 				log.Println(so.Id(), "Extend", "Success")
 				return handler.CreateResponse(so.Id(), channel)
@@ -266,7 +267,7 @@ func main() {
 		log.Println("error:", err)
 	})
 
-	http.Handle("/socket.io/", server)
+	http.Handle("/socket.io", server)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		str := ""
 		for _, pair := range os.Environ() {

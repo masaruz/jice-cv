@@ -3202,6 +3202,9 @@ func TestLoop37(t *testing.T) {
 }
 
 func TestLoop38(t *testing.T) {
+	/**
+	 * Test send stickers
+	 */
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
@@ -3322,7 +3325,8 @@ func TestLoop39(t *testing.T) {
 	// dumb player
 	handler.Sit("player1", 2)
 	p1 := &state.GS.Players[2]
-	state.GS.GroupID = "cltel9kvy29vj9yehgjx"
+	state.GS.TableID = "tatel9kvy1zvrj9irvn1t"
+	state.GS.GroupID = "cltel9kvy1zvrj9irv4eq"
 	body, err := api.BuyIn(p1.ID, 100)
 	if err != nil {
 		t.Error()
