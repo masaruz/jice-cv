@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/googollee/go-socket.io"
+	"github.com/gorilla/mux"
 )
 
 const port = ":3000"
@@ -292,14 +293,19 @@ func main() {
 		log.Println("error:", err)
 	})
 
-	http.Handle("/socket.io/", server)
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	router := mux.NewRouter()
+	router.Handle("/{tableid}/socket.io/", server)
+	router.Handle("/{tableid}/socket.io", server)
+	router.Handle("/socket.io/", server)
+	router.Handle("/socket.io", server)
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		str := ""
 		for _, pair := range os.Environ() {
 			str += fmt.Sprintf("%s ", pair)
 		}
 		fmt.Fprintf(w, "All envs are here: %s", str)
 	})
+	http.Handle("/", router)
 	log.Println(fmt.Sprintf("Serving at localhost%s", port))
 
 	log.Fatal(http.ListenAndServe(port, nil))
