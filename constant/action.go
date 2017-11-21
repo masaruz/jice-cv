@@ -22,4 +22,5 @@ const (
 	Leave              = "leave"
 	SendSticker        = "sendsticker"
 	ExtendDecisionTime = "extendactiontime"
+	DisbandTable       = "disbandtable"
 )

@@ -1,7 +1,6 @@
 package gambit
 
 import (
-	"999k_engine/api"
 	"999k_engine/constant"
 	"999k_engine/handler"
 	"999k_engine/model"
@@ -65,10 +64,10 @@ func (game NineK) Start() bool {
 			state.GS.Rakes = make(map[string]float64)
 			state.GS.Pots = make([]int, game.MaxPlayers)
 			// request to start game
-			_, err := api.StartGame()
-			if err != nil {
-				panic(err)
-			}
+			// _, err := api.StartGame()
+			// if err != nil {
+			// 	panic(err)
+			// }
 			// set players to be ready
 			handler.MakePlayersReady()
 			handler.StartGame()

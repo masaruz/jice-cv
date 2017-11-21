@@ -153,5 +153,7 @@ func SendSticker(stickerid string, senderid string, targetslot int) {
 	sticker.ID = stickerid
 	sticker.ToTarget = targetslot
 	// append to stickers array
-	state.GS.Players[index].Stickers = append(state.GS.Players[index].Stickers, sticker)
+	if index != -1 {
+		state.GS.Players[index].Stickers = append(state.GS.Players[index].Stickers, sticker)
+	}
 }

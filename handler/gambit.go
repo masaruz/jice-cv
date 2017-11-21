@@ -9,6 +9,11 @@ import (
 	"time"
 )
 
+// Initiate required variables
+func Initiate(game engine.Gambit) {
+	state.GS.Gambit = game
+}
+
 // WaitQueue check if server is processing result
 func WaitQueue() {
 	for state.GS.IsProcessing {
@@ -33,11 +38,6 @@ func FinishProcess() {
 	state.GS.IsProcessing = false
 }
 
-// SetGambit current game to the gamestate
-func SetGambit(game engine.Gambit) {
-	state.GS.Gambit = game
-}
-
 // CreateSeats prepare empty seat for players
 func CreateSeats(seats int) {
 	for i := 0; i < seats; i++ {
@@ -47,7 +47,16 @@ func CreateSeats(seats int) {
 
 // StartTable set table start
 func StartTable() {
+	start := time.Now().Unix()
+	state.GS.StartTableTime = start
+	state.GS.FinishTableTime = start + (60 * 30)
 	state.GS.IsTableStart = true
+}
+
+// FinishTable set table start
+func FinishTable() {
+	state.GS.IsTableStart = false
+	state.GS.FinishTableTime = time.Now().Unix()
 }
 
 // StartGame set game start
@@ -57,7 +66,7 @@ func StartGame() {
 
 // IsTableStart true or false
 func IsTableStart() bool {
-	return state.GS.IsTableStart
+	return state.GS.IsTableStart && state.GS.FinishTableTime > time.Now().Unix()
 }
 
 // IsGameStart true or false
@@ -212,7 +221,7 @@ func IsFullHand(maxcards int) bool {
 			continue
 		}
 		// amount of cards are not equal
-		if len(player.Cards) != 3 {
+		if len(player.Cards) < maxcards {
 			return false
 		}
 	}
@@ -307,11 +316,11 @@ func ExtendPlayerTimeline(id string) bool {
 		return false
 	}
 	second := state.GS.Gambit.GetDecisionTime()
-	cindex, caller := util.Get(state.GS.Players, id)
+	current, caller := util.Get(state.GS.Players, id)
 	start := time.Now().Unix()
-	diff := (start + second) - state.GS.Players[cindex].DeadLine
-	state.GS.Players[cindex].StartLine = start
-	state.GS.Players[cindex].DeadLine = start + second
+	diff := (start + second) - state.GS.Players[current].DeadLine
+	state.GS.Players[current].StartLine = start
+	state.GS.Players[current].DeadLine = start + second
 	for index, player := range state.GS.Players {
 		// who start behind caller will be shifted
 		if util.IsPlayingAndNotFoldAndNotAllIn(player) && player.StartLine >= caller.DeadLine {
@@ -320,6 +329,7 @@ func ExtendPlayerTimeline(id string) bool {
 		}
 	}
 	state.GS.FinishRoundTime += diff
+	OverwriteActionToBehindPlayers()
 	return true
 }
 

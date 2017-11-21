@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/googollee/go-socket.io"
 )
@@ -25,7 +26,7 @@ func main() {
 		log.Println(r.Header)
 		return nil
 	})
-	handler.SetGambit(gambit.Create(os.Getenv(constant.GambitType)))
+	handler.Initiate(gambit.Create(os.Getenv(constant.GambitType)))
 	state.GS.Gambit.Init()
 	// when connection happend
 	server.On(constant.Connection, func(so socketio.Socket) {
@@ -44,7 +45,11 @@ func main() {
 			if !state.GS.Gambit.Start() &&
 				!state.GS.Gambit.NextRound() &&
 				!state.GS.Gambit.Finish() {
-				log.Println(so.Id(), "Stimulate", "Nothing")
+				log.Println(so.Id(),
+					"Stimulate",
+					"Nothing",
+					state.GS.FinishRoundTime,
+					time.Unix(state.GS.FinishRoundTime, 0))
 			} else {
 				channel = constant.PushState
 				state.GS.IncreaseVersion()
@@ -173,6 +178,7 @@ func main() {
 		})
 		// when player sit down
 		so.On(constant.Sit, func(msg string) string {
+			log.Println(so.Id(), "Sit", "Trying")
 			handler.WaitQueue()
 			handler.StartProcess()
 			channel := ""
@@ -183,12 +189,15 @@ func main() {
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
 				log.Println(so.Id(), "Sit", "Success")
+			} else {
+				log.Println(so.Id(), "Sit", "Fail")
 			}
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
 		})
 		// when player stand up
 		so.On(constant.Stand, func(msg string) string {
+			log.Println(so.Id(), "Stand", "Trying")
 			handler.WaitQueue()
 			handler.StartProcess()
 			channel := ""
@@ -198,6 +207,8 @@ func main() {
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
 				log.Println(so.Id(), "Stand", "Success")
+			} else {
+				log.Println(so.Id(), "Stand", "Fail")
 			}
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
@@ -219,6 +230,8 @@ func main() {
 		})
 		// when send sticker
 		so.On(constant.SendSticker, func(msg string) string {
+			handler.WaitQueue()
+			handler.StartProcess()
 			channel := ""
 			data, err := handler.ConvertStringToRequestStruct(msg)
 			// if cannot parse or client send nothing
@@ -248,17 +261,29 @@ func main() {
 					log.Println(so.Id(), "Send Sticker", "Success", data.Payload)
 				}
 			}
+			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
 		})
 		so.On(constant.ExtendDecisionTime, func(msg string) string {
+			handler.WaitQueue()
+			handler.StartProcess()
 			channel := ""
 			if handler.ExtendPlayerTimeline(so.Id()) {
 				channel = constant.ExtendDecisionTime
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
-				log.Println(so.Id(), "Extend", "Success")
-				return handler.CreateResponse(so.Id(), channel)
 			}
+			handler.FinishProcess()
+			return handler.CreateResponse(so.Id(), channel)
+		})
+		so.On(constant.DisbandTable, func(msg string) string {
+			handler.WaitQueue()
+			handler.StartProcess()
+			channel := ""
+			channel = constant.DisbandTable
+			handler.FinishTable()
+			handler.FinishProcess()
+			handler.BroadcastGameState(so, channel, so.Id())
 			return handler.CreateResponse(so.Id(), channel)
 		})
 	})
@@ -267,7 +292,7 @@ func main() {
 		log.Println("error:", err)
 	})
 
-	http.Handle("/socket.io", server)
+	http.Handle("/socket.io/", server)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		str := ""
 		for _, pair := range os.Environ() {

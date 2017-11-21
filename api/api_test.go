@@ -17,7 +17,7 @@ func TestLoop01(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")

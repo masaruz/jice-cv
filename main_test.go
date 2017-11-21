@@ -9,6 +9,7 @@ import (
 	"999k_engine/state"
 	"999k_engine/util"
 	"fmt"
+	"log"
 	"testing"
 	"time"
 )
@@ -23,7 +24,7 @@ func TestLoop01(t *testing.T) {
 	handler.Connect("player2")
 	handler.Connect("player3")
 	handler.Connect("player4")
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	if len(state.GS.Players) != 6 {
 		t.Error()
@@ -102,8 +103,6 @@ func TestLoop01(t *testing.T) {
 		t.Error()
 	}
 	if !state.GS.Gambit.Finish() {
-		fmt.Println(util.CountPlayerNotFoldAndNotAllIn(state.GS.Players) <= 1, handler.IsGameStart(),
-			handler.IsFullHand(3), handler.BetsEqual(), handler.IsEndRound())
 		t.Error()
 	}
 	// _, p1 = util.Get(state.GS.Players, "player1")
@@ -122,7 +121,7 @@ func TestLoop02(t *testing.T) {
 		MaxAFKCount:  5,
 		MaxPlayers:   6,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	handler.Connect("player1")
 	handler.Connect("player2")
@@ -262,7 +261,7 @@ func TestLoop03(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	handler.Connect("player1")
 	handler.Connect("player2")
@@ -368,7 +367,7 @@ func TestLoop04(t *testing.T) {
 	handler.Connect("player2")
 	handler.Connect("player3")
 	handler.Connect("player4")
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	// dumb player
 	handler.Sit("player1", 2) // dealer
@@ -464,7 +463,7 @@ func TestLoop05(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	handler.Connect("player1")
 	handler.Connect("player2")
@@ -537,8 +536,6 @@ func TestLoop05(t *testing.T) {
 		t.Error()
 	}
 	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
-		fmt.Println(util.CountPlayerNotFoldAndNotAllIn(state.GS.Players) <= 1, handler.IsGameStart(),
-			handler.IsFullHand(3), handler.BetsEqual(), handler.IsEndRound())
 		t.Error()
 	}
 	// _, p1 = util.Get(state.GS.Players, "player1")
@@ -562,7 +559,7 @@ func TestLoop06(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	// dumb player
 	id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
@@ -793,7 +790,7 @@ func TestLoop07(t *testing.T) {
 	handler.Connect(id2)
 	handler.Connect(id3)
 	handler.Connect(id4)
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	handler.Sit(id1, 2)    // first
 	handler.Sit(id2, 3)
@@ -857,7 +854,7 @@ func TestLoop08(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
@@ -949,7 +946,7 @@ func TestLoop09(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
 	handler.Connect(id1)
@@ -1022,7 +1019,7 @@ func TestLoop10(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
@@ -1083,7 +1080,7 @@ func TestLoop11(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
@@ -1154,7 +1151,7 @@ func TestLoop12(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
@@ -1185,7 +1182,7 @@ func TestLoop13(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2 := "player1", "player2"
 	handler.Connect(id1)
@@ -1247,7 +1244,7 @@ func TestLoop14(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
@@ -1361,7 +1358,7 @@ func TestLoop15(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
 	handler.Connect(id1)
@@ -1496,7 +1493,7 @@ func TestLoop16(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
 	handler.Connect(id1)
@@ -1609,7 +1606,7 @@ func TestLoop17(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
 	handler.Connect(id1)
@@ -1662,7 +1659,7 @@ func TestLoop18(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
@@ -1847,7 +1844,7 @@ func TestLoop19(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
@@ -2150,7 +2147,7 @@ func TestLoop26(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
@@ -2323,7 +2320,7 @@ func TestLoop27(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
@@ -2363,7 +2360,7 @@ func TestLoop28(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
@@ -2433,7 +2430,7 @@ func TestLoop29(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
@@ -2529,7 +2526,7 @@ func TestLoop30(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
@@ -2616,7 +2613,7 @@ func TestLoop31(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
@@ -2639,7 +2636,7 @@ func TestLoop31(t *testing.T) {
 	}
 	_, p1 := util.Get(state.GS.Players, id1)
 	// _, p2 := util.Get(state.GS.Players, id2)
-	if len(p1.Actions) > 2 {
+	if len(p1.Actions) > 3 {
 		t.Error()
 	}
 	// p1.Print()
@@ -2656,7 +2653,7 @@ func TestLoop32(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2 := "player1", "player2"
 	handler.Connect(id1)
@@ -2704,7 +2701,7 @@ func TestLoop33(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	id1, id2 := "player1", "player2"
 	handler.Connect(id1)
@@ -2739,7 +2736,7 @@ func TestLoop34(t *testing.T) {
 	handler.Connect("player2")
 	handler.Connect("player3")
 	handler.Connect("player4")
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	if len(state.GS.Players) != 6 {
 		t.Error()
@@ -2854,7 +2851,7 @@ func TestLoop35(t *testing.T) {
 		DecisionTime: decisionTime,
 		Rake:         5.00,
 		Cap:          cap}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.Gambit.Init()
 	handler.Connect("player1")
 	handler.Connect("player2")
@@ -3039,7 +3036,7 @@ func TestLoop36(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	state.GS.TableID = "test"
 	body, err := api.StartGame()
 	if err != nil {
@@ -3122,7 +3119,7 @@ func TestLoop37(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
@@ -3172,7 +3169,7 @@ func TestLoop37(t *testing.T) {
 	if !state.GS.Gambit.Raise(p4.ID, 40) {
 		t.Error()
 	}
-	time.Sleep(time.Second * 1)
+	time.Sleep(time.Microsecond * 1500)
 	if !handler.ExtendPlayerTimeline(p1.ID) {
 		t.Error()
 	}
@@ -3193,12 +3190,27 @@ func TestLoop37(t *testing.T) {
 		decisionTime*int64(util.CountPlayerNotFoldAndNotAllIn(state.GS.Players)) {
 		t.Error()
 	}
-	// p1.Print()
-	// p2.Print()
-	// p3.Print()
-	// p4.Print()
-	// fmt.Println("now:", time.Now().Unix())
-	// fmt.Println("end:", state.GS.FinishRoundTime)
+	if p1.Action.Name != "" {
+		t.Error()
+	}
+	if !state.GS.Gambit.Check(p1.ID) {
+		t.Error()
+	}
+	if p1.Action.Name != constant.Check {
+		t.Error()
+	}
+	if !handler.ExtendPlayerTimeline(p2.ID) {
+		t.Error()
+	}
+	if p1.Action.Name != constant.Check {
+		t.Error()
+	}
+	p1.Print()
+	p2.Print()
+	p3.Print()
+	p4.Print()
+	fmt.Println("now:", time.Now().Unix())
+	fmt.Println("end:", state.GS.FinishRoundTime)
 }
 
 func TestLoop38(t *testing.T) {
@@ -3213,7 +3225,7 @@ func TestLoop38(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
@@ -3319,17 +3331,20 @@ func TestLoop39(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
-	handler.SetGambit(ninek)
+	handler.Initiate(ninek)
 	handler.Connect("player1")
 	state.GS.Gambit.Init() // create seats
 	// dumb player
 	handler.Sit("player1", 2)
-	p1 := &state.GS.Players[2]
-	state.GS.TableID = "tatel9kvy1zvrj9irvn1t"
-	state.GS.GroupID = "cltel9kvy1zvrj9irv4eq"
-	body, err := api.BuyIn(p1.ID, 100)
-	if err != nil {
-		t.Error()
-	}
-	fmt.Println(string(body))
+	// p1 := &state.GS.Players[2]
+	// state.GS.TableID = "tatel9kvy1zvrj9irvn1t"
+	// state.GS.GroupID = "cltel9kvy1zvrj9irv4eq"
+	// body, err := api.BuyIn(p1.ID, 100)
+	// if err != nil {
+	// 	t.Error()
+	// }
+	// fmt.Println(string(body))
+	log.Println(state.GS.StartTableTime)
+	log.Println(time.Now().Unix())
+	log.Println(state.GS.FinishTableTime)
 }
