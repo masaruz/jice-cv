@@ -55,7 +55,6 @@ func StartTable() {
 
 // FinishTable set table start
 func FinishTable() {
-	state.GS.IsTableStart = false
 	state.GS.FinishTableTime = time.Now().Unix()
 }
 
@@ -66,7 +65,8 @@ func StartGame() {
 
 // IsTableStart true or false
 func IsTableStart() bool {
-	return state.GS.IsTableStart && state.GS.FinishTableTime > time.Now().Unix()
+	return state.GS.IsTableStart &&
+		time.Now().Unix() < state.GS.FinishTableTime
 }
 
 // IsGameStart true or false

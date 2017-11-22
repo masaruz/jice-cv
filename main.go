@@ -29,42 +29,39 @@ func main() {
 	})
 	handler.Initiate(gambit.Create(os.Getenv(constant.GambitType)))
 	state.GS.Gambit.Init()
-	// when connection happend
+	// When connection happend
 	server.On(constant.Connection, func(so socketio.Socket) {
-		// join the room
+		// Join the room
 		so.Join(so.Id())
 		handler.Connect(so.Id())
 		handler.BroadcastGameState(so, constant.GetState, so.Id())
 		state.GS.IncreaseVersion()
 		log.Println(so.Id(), "Connect")
-		// when player need server to check something
+		// When player need server to check something
 		so.On(constant.Stimulate, func(msg string) string {
 			handler.WaitQueue()
 			handler.StartProcess()
 			channel := ""
-			// if cannot start, next and finish then it is during gameplay
+			// If cannot start, next and finish then it is during gameplay
 			if !state.GS.Gambit.Start() &&
 				!state.GS.Gambit.NextRound() &&
 				!state.GS.Gambit.Finish() {
-				log.Println(so.Id(),
-					"Stimulate",
-					"Nothing",
-					state.GS.FinishRoundTime,
-					time.Unix(state.GS.FinishRoundTime, 0))
+				log.Println(so.Id(), "Stimulate", "Nothing")
 			} else {
 				channel = constant.PushState
 				state.GS.IncreaseVersion()
+				handler.BroadcastGameState(so, channel, so.Id())
 				log.Println(so.Id(), "Stimulate", "Success")
 			}
 			handler.FinishProcess()
-			// if no seat then just return current state
+			// If no seat then just return current state
 			return handler.CreateResponse(so.Id(), channel)
 		})
-		// when player need to get game state
+		// When player need to get game state
 		so.On(constant.GetState, func(msg string) string {
 			return handler.CreateResponse(so.Id(), constant.GetState)
 		})
-		// when player call check
+		// When player call check
 		so.On(constant.Check, func(msg string) string {
 			handler.WaitQueue()
 			handler.StartProcess()
@@ -78,7 +75,7 @@ func main() {
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
 		})
-		// when player need to bet chips
+		// When player need to bet chips
 		so.On(constant.Bet, func(msg string) string {
 			handler.WaitQueue()
 			handler.StartProcess()
@@ -98,7 +95,7 @@ func main() {
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
 		})
-		// when player need to raise chips
+		// When player need to raise chips
 		so.On(constant.Raise, func(msg string) string {
 			handler.WaitQueue()
 			handler.StartProcess()
@@ -118,7 +115,7 @@ func main() {
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
 		})
-		// when player need to call chips
+		// When player need to call chips
 		so.On(constant.Call, func(msg string) string {
 			handler.WaitQueue()
 			handler.StartProcess()
@@ -132,7 +129,7 @@ func main() {
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
 		})
-		// when player need to all in
+		// When player need to all in
 		so.On(constant.AllIn, func(msg string) string {
 			handler.WaitQueue()
 			handler.StartProcess()
@@ -146,7 +143,7 @@ func main() {
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
 		})
-		// when player fold their cards
+		// When player fold their cards
 		so.On(constant.Fold, func(msg string) string {
 			handler.WaitQueue()
 			handler.StartProcess()
@@ -161,7 +158,7 @@ func main() {
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
 		})
-		// start table and no ending until expire
+		// Start table and no ending until expire
 		so.On(constant.StartTable, func(msg string) string {
 			handler.WaitQueue()
 			handler.StartProcess()
@@ -177,7 +174,7 @@ func main() {
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
 		})
-		// when player sit down
+		// When player sit down
 		so.On(constant.Sit, func(msg string) string {
 			log.Println(so.Id(), "Sit", "Trying")
 			handler.WaitQueue()
@@ -196,7 +193,7 @@ func main() {
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
 		})
-		// when player stand up
+		// When player stand up
 		so.On(constant.Stand, func(msg string) string {
 			log.Println(so.Id(), "Stand", "Trying")
 			handler.WaitQueue()
@@ -214,11 +211,11 @@ func main() {
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
 		})
-		// when disconnected
+		// When disconnected
 		so.On(constant.Disconnection, func() {
 			log.Println(so.Id(), "Disconnect")
 		})
-		// when exit
+		// When exit
 		so.On(constant.Leave, func(msg string) {
 			handler.WaitQueue()
 			handler.StartProcess()
@@ -229,7 +226,7 @@ func main() {
 			handler.FinishProcess()
 			log.Println(so.Id(), "Leave")
 		})
-		// when send sticker
+		// When send sticker
 		so.On(constant.SendSticker, func(msg string) string {
 			handler.WaitQueue()
 			handler.StartProcess()
@@ -259,12 +256,14 @@ func main() {
 					state.GS.IncreaseVersion()
 					// broadcast state to everyone
 					handler.BroadcastGameState(so, channel, so.Id())
-					log.Println(so.Id(), "Send Sticker", "Success", data.Payload)
+					log.Println(so.Id(), "Send Sticker", "Success")
 				}
 			}
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
 		})
+		// Extend a player action time with effect to everyone's timeline
+		// And also finish round time of table
 		so.On(constant.ExtendDecisionTime, func(msg string) string {
 			handler.WaitQueue()
 			handler.StartProcess()
@@ -277,14 +276,25 @@ func main() {
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
 		})
+		// When admin disband table it should be set finish table time
 		so.On(constant.DisbandTable, func(msg string) string {
 			handler.WaitQueue()
 			handler.StartProcess()
 			channel := ""
 			channel = constant.DisbandTable
 			handler.FinishTable()
+			if !handler.IsGameStart() {
+				state.GS.IsTableExpired = true
+			}
 			handler.FinishProcess()
 			handler.BroadcastGameState(so, channel, so.Id())
+			go func() {
+				// fmt.Printf("caught sig: %+v", sig)
+				fmt.Println("Wait for 2 second to finish processing")
+				time.Sleep(2 * time.Second)
+				os.Exit(0)
+			}()
+			log.Println(so.Id(), "Disband", "Success")
 			return handler.CreateResponse(so.Id(), channel)
 		})
 	})
@@ -292,8 +302,9 @@ func main() {
 	server.On(constant.Error, func(so socketio.Socket, err error) {
 		log.Println("error:", err)
 	})
-
+	// Create router to support wildcard
 	router := mux.NewRouter()
+	// Handler
 	router.Handle("/{tableid}/socket.io/", server)
 	router.Handle("/{tableid}/socket.io", server)
 	router.Handle("/socket.io/", server)

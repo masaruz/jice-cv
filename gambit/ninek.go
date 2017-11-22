@@ -94,9 +94,16 @@ func (game NineK) Start() bool {
 
 // NextRound game after round by round
 func (game NineK) NextRound() bool {
+	// Assume every player must be default
 	handler.OverwriteActionToBehindPlayers()
-	if !handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound() &&
+	// Game must be start
+	// All players must not has 3 cards
+	// All bets must be equal
+	// Now must be more than finish round time
+	if handler.IsGameStart() && !handler.IsFullHand(3) &&
+		handler.BetsEqual() && handler.IsEndRound() &&
 		util.CountPlayerNotFold(state.GS.Players) > 1 {
+		// Initialize values
 		handler.SetMinimumBet(game.BlindsBig)
 		handler.SetOtherActions("", constant.Check)
 		handler.SetOtherDefaultAction("", constant.Check)
@@ -115,28 +122,30 @@ func (game NineK) NextRound() bool {
 func (game NineK) Finish() bool {
 	handler.OverwriteActionToBehindPlayers()
 	// no others to play with or all players have 3 cards but bet is not equal
-	if (util.CountPlayerNotFold(state.GS.Players) <= 1 && handler.IsGameStart()) ||
+	if handler.IsGameStart() && ((util.CountPlayerNotFold(state.GS.Players) <= 1) ||
 		// if has 3 cards bet equal
-		(handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound()) {
+		(handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound())) {
 		// calculate afk players
 		for index, doaction := range state.GS.DoActions {
+			// Skip empty players
 			if !util.IsPlayingAndNotFoldAndNotAllIn(state.GS.Players[index]) {
 				continue
 			}
-			// if this player do something in this round
+			// If this player do something in this round
 			if doaction {
 				state.GS.AFKCounts[index] = 0
 			} else {
+				// If this player never doaction in this game
 				state.GS.AFKCounts[index]++
 			}
 		}
+		// Extend more time for client to play animation after game finished
 		handler.ExtendFinishRoundTime()
-		// find winner and added their rewards
+		// Find winner and added their rewards
 		hscore := -1
 		hbonus := -1
 		pos := -1
-		// hkind := ""
-		// winner := model.Player{}
+		// Evaluate score from everyone's hand
 		for i := 0; i < len(state.GS.Players); i++ {
 			for index, player := range state.GS.Players {
 				if !util.IsPlayingAndNotFold(player) ||
@@ -150,17 +159,14 @@ func (game NineK) Finish() bool {
 				if hscore < score {
 					hscore = score
 					hbonus = bonus
-					// winner = player
-					// hkind = kind
 					pos = index
 				} else if hscore == score && hbonus < bonus {
 					hscore = score
 					hbonus = bonus
-					// winner = player
-					// hkind = kind
 					pos = index
 				}
 			}
+			// This mean we found some winners
 			if pos != -1 {
 				for poti, pot := range state.GS.Pots {
 					if pot == 0 {
@@ -170,10 +176,10 @@ func (game NineK) Finish() bool {
 					winnerbet := state.GS.Pots[pos]
 					earnedbet := 0
 					if winnerbet > playerbet {
-						// if winner has higher bet
+						// If winner has higher bet
 						earnedbet = playerbet
 					} else {
-						// if winner has lower bet
+						// If winner has lower bet
 						earnedbet = winnerbet
 					}
 					if earnedbet != 0 {
@@ -184,7 +190,7 @@ func (game NineK) Finish() bool {
 							state.GS.Players[pos].IsWinner = true
 						}
 					}
-					// if not caller
+					// If not caller
 					if poti != pos {
 						handler.BurnBet(poti, earnedbet)
 					}
@@ -196,11 +202,16 @@ func (game NineK) Finish() bool {
 				pos = -1
 			}
 		}
-		// revert minimum bet
+		// Revert minimum bet
 		handler.SetMinimumBet(game.BlindsBig)
 		handler.FlushPlayers()
 		state.GS.Turn = 0
 		state.GS.IsGameStart = false
+		// Check if current time is more than finish table time
+		if time.Now().Unix() >= state.GS.FinishTableTime {
+			// For force client to leave
+			state.GS.IsTableExpired = true
+		}
 		return true
 	}
 	return false

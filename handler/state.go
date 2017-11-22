@@ -75,6 +75,7 @@ func CreateResponse(id string, event string) string {
 				CurrentTime:     time.Now().Unix(),
 				StartRoundTime:  state.GS.StartRoundTime,
 				FinishRoundTime: state.GS.FinishRoundTime,
+				IsTableExpired:  state.GS.IsTableExpired,
 				GameState: state.PlayerState{
 					Player:       player,
 					Competitors:  competitors,

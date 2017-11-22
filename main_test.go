@@ -3095,7 +3095,7 @@ func TestLoop36(t *testing.T) {
 	if !state.GS.Gambit.Finish() {
 		t.Error()
 	}
-	body, err = api.SaveSettlements("test")
+	body, err = api.SaveSettlements()
 	if err != nil {
 		t.Error()
 	}
@@ -3205,12 +3205,12 @@ func TestLoop37(t *testing.T) {
 	if p1.Action.Name != constant.Check {
 		t.Error()
 	}
-	p1.Print()
-	p2.Print()
-	p3.Print()
-	p4.Print()
-	fmt.Println("now:", time.Now().Unix())
-	fmt.Println("end:", state.GS.FinishRoundTime)
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// p4.Print()
+	// fmt.Println("now:", time.Now().Unix())
+	// fmt.Println("end:", state.GS.FinishRoundTime)
 }
 
 func TestLoop38(t *testing.T) {
@@ -3336,14 +3336,14 @@ func TestLoop39(t *testing.T) {
 	state.GS.Gambit.Init() // create seats
 	// dumb player
 	handler.Sit("player1", 2)
-	// p1 := &state.GS.Players[2]
-	// state.GS.TableID = "tatel9kvy1zvrj9irvn1t"
-	// state.GS.GroupID = "cltel9kvy1zvrj9irv4eq"
-	// body, err := api.BuyIn(p1.ID, 100)
-	// if err != nil {
-	// 	t.Error()
-	// }
-	// fmt.Println(string(body))
+	p1 := &state.GS.Players[2]
+	state.GS.TableID = "tatel9kvy1zvrj9irvn1t"
+	state.GS.GroupID = "cltel9kvy1zvrj9irv4eq"
+	body, err := api.BuyIn(p1.ID, 100)
+	if err != nil {
+		t.Error()
+	}
+	fmt.Println(string(body))
 	log.Println(state.GS.StartTableTime)
 	log.Println(time.Now().Unix())
 	log.Println(state.GS.FinishTableTime)

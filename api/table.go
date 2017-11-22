@@ -89,17 +89,16 @@ func StartGame() ([]byte, error) {
 }
 
 // Terminate caller will terminate itself
-func Terminate(id string) ([]byte, error) {
+func Terminate() ([]byte, error) {
 	// create url
-	url := fmt.Sprintf("%s/terminate", getTableURL(id))
+	url := fmt.Sprintf("%s/terminate", getTableURL(state.GS.TableID))
 	// create request
 	return post(url, nil)
 }
 
 // SaveSettlements after game's end
-func SaveSettlements(id string) ([]byte, error) {
-	summary := Summary{
-		CreateTime: time.Now().Unix()}
+func SaveSettlements() ([]byte, error) {
+	summary := Summary{CreateTime: time.Now().Unix()}
 	for _, player := range state.GS.Players {
 		if player.ID == "" {
 			continue
@@ -115,7 +114,7 @@ func SaveSettlements(id string) ([]byte, error) {
 		return nil, err
 	}
 	// create url
-	url := fmt.Sprintf("%s/settlements", getTableURL(id))
+	url := fmt.Sprintf("%s/settlements", getTableURL(state.GS.TableID))
 	return post(url, data)
 }
 

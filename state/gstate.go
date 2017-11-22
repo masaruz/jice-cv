@@ -18,6 +18,7 @@ type GameState struct {
 	IsTableStart     bool
 	IsGameStart      bool
 	IsProcessing     bool
+	IsTableExpired   bool
 	StartTableTime   int64
 	FinishTableTime  int64
 	StartRoundTime   int64
