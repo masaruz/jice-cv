@@ -3452,3 +3452,111 @@ func TestLoop40(t *testing.T) {
 	fmt.Println(time.Now().Unix())
 	fmt.Println(state.GS.FinishRoundTime)
 }
+
+func TestLoop41(t *testing.T) {
+	/**
+	 * Test send stickers
+	 */
+	decisionTime := int64(3)
+	minimumBet := 10
+	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
+		BuyInMin:     200,
+		MaxPlayers:   6,
+		MaxAFKCount:  5,
+		DecisionTime: decisionTime}
+	handler.Initiate(ninek)
+	handler.Connect("player1")
+	handler.Connect("player2")
+	handler.Connect("player3")
+	handler.Connect("player4")
+	state.GS.Gambit.Init() // create seats
+	// dumb player
+	handler.Sit("player1", 2)
+	handler.Sit("player2", 3)
+	handler.Sit("player3", 5)
+	handler.Sit("player4", 1)
+	p1 := &state.GS.Players[2]
+	p2 := &state.GS.Players[3]
+	p3 := &state.GS.Players[5]
+	p4 := &state.GS.Players[1]
+	handler.StartTable()
+	if !state.GS.Gambit.Start() {
+		t.Error()
+	}
+	for _, player := range state.GS.Players {
+		if player.ID == "" {
+			continue
+		} else if player.ID != "player4" && player.Type != constant.Normal {
+			t.Error()
+		} else if player.ID == "player4" && player.Type != constant.Dealer {
+			t.Error()
+		}
+	}
+	if !handler.Stand(p4.ID) {
+		t.Error()
+	}
+	if p4.Type != constant.Dealer {
+		t.Error()
+	}
+	if !state.GS.Gambit.Check(p1.ID) ||
+		!state.GS.Gambit.Check(p2.ID) ||
+		!state.GS.Gambit.Check(p3.ID) {
+		t.Error()
+	}
+	if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() {
+		t.Error()
+	}
+	if !state.GS.Gambit.Check(p1.ID) ||
+		!state.GS.Gambit.Check(p2.ID) ||
+		!state.GS.Gambit.Check(p3.ID) {
+		t.Error()
+	}
+	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
+		t.Error()
+	}
+	state.GS.FinishRoundTime = 0
+	if !state.GS.Gambit.Start() {
+		t.Error()
+	}
+	if p1.Type != constant.Dealer {
+		t.Error()
+	}
+	if !handler.Stand(p1.ID) {
+		t.Error()
+	}
+	if !state.GS.Gambit.Check(p2.ID) ||
+		!state.GS.Gambit.Check(p3.ID) {
+		t.Error()
+	}
+	if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() {
+		t.Error()
+	}
+	if !handler.Sit("player1", 2) {
+		t.Error()
+	}
+	if p1.Type != constant.Dealer {
+		t.Error()
+	}
+	if !state.GS.Gambit.Check(p2.ID) ||
+		!state.GS.Gambit.Check(p3.ID) {
+		t.Error()
+	}
+	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
+		t.Error()
+	}
+	state.GS.FinishRoundTime = 0
+	if !state.GS.Gambit.Start() {
+		t.Error()
+	}
+	if p2.Type != constant.Dealer {
+		t.Error()
+	}
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// p4.Print()
+	// fmt.Println("now:", time.Now().Unix())
+	// fmt.Println("end:", state.GS.FinishRoundTime)
+}
