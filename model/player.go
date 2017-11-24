@@ -4,23 +4,23 @@ import "log"
 
 // Player in the battle
 type Player struct {
-	ID            string    `json:"id"`
-	Name          string    `json:"name"`
-	Cards         Cards     `json:"cards"`
-	Chips         int       `json:"chips"`
-	Type          string    `json:"type"`
-	Bets          []int     `json:"bets"`
-	Slot          int       `json:"slot,omitempty"`
-	Default       Action    `json:"default_action"`
-	Action        Action    `json:"action"`
-	Actions       []Action  `json:"actions"`
-	IsPlaying     bool      `json:"is_playing"`
-	IsEarned      bool      `json:"is_earned,omitempty"`
-	IsWinner      bool      `json:"is_winner,omitempty"`
-	DeadLine      int64     `json:"deadline"`
-	StartLine     int64     `json:"startline"`
-	WinLossAmount int       `json:"win_loss_amount,omitempty"`
-	Stickers      []Sticker `json:"send_stickers,omitempty"`
+	ID            string     `json:"id"`
+	Name          string     `json:"name"`
+	Cards         Cards      `json:"cards"`
+	Chips         int        `json:"chips"`
+	Type          string     `json:"type"`
+	Bets          []int      `json:"bets"`
+	Slot          int        `json:"slot,omitempty"`
+	Default       Action     `json:"default_action"`
+	Action        Action     `json:"action"`
+	Actions       []Action   `json:"actions"`
+	IsPlaying     bool       `json:"is_playing"`
+	IsEarned      bool       `json:"is_earned,omitempty"`
+	IsWinner      bool       `json:"is_winner,omitempty"`
+	DeadLine      int64      `json:"deadline"`
+	StartLine     int64      `json:"startline"`
+	WinLossAmount int        `json:"win_loss_amount,omitempty"`
+	Stickers      *[]Sticker `json:"send_stickers,omitempty"`
 }
 
 // Print status of p only for development

@@ -32,6 +32,7 @@ type GameState struct {
 	Rakes            map[string]float64
 	Event            string
 	TableDisplayName string
+	ClientAnimation  model.ClientAnimation
 }
 
 // gameStates to record all gamestates
@@ -41,7 +42,7 @@ var gameStates []GameState
 var GS = GameState{
 	TableID:   "from_manager",
 	GroupID:   "from_manager",
-	GameIndex: -1,
+	GameIndex: 0,
 }
 
 // IncreaseVersion validate with client

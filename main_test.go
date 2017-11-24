@@ -9,7 +9,6 @@ import (
 	"999k_engine/state"
 	"999k_engine/util"
 	"fmt"
-	"log"
 	"testing"
 	"time"
 )
@@ -19,6 +18,7 @@ func TestLoop01(t *testing.T) {
 	ninek := gambit.NineK{
 		MaxAFKCount:  5,
 		MaxPlayers:   6,
+		BuyInMin:     200,
 		DecisionTime: decisionTime}
 	handler.Connect("player1")
 	handler.Connect("player2")
@@ -120,6 +120,7 @@ func TestLoop02(t *testing.T) {
 	ninek := gambit.NineK{
 		MaxAFKCount:  5,
 		MaxPlayers:   6,
+		BuyInMin:     200,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
@@ -258,6 +259,7 @@ func TestLoop03(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -360,6 +362,7 @@ func TestLoop04(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -460,6 +463,7 @@ func TestLoop05(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -556,6 +560,7 @@ func TestLoop06(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -781,6 +786,7 @@ func TestLoop07(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -851,6 +857,7 @@ func TestLoop08(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -860,9 +867,10 @@ func TestLoop08(t *testing.T) {
 	handler.Connect(id1)
 	handler.Connect(id2)
 	handler.Connect(id3)
+	// When connect player does not has any chip until they buy in
 	for _, player := range state.GS.Visitors {
-		if player.Chips != 1000 {
-			t.Error("player's chips is not equal 1000")
+		if player.Chips != 0 {
+			t.Error()
 		}
 	}
 	handler.StartTable()
@@ -877,7 +885,7 @@ func TestLoop08(t *testing.T) {
 		t.Error("has 3 players game should be start")
 	}
 	for _, player := range state.GS.Visitors {
-		if player.Chips != 990 {
+		if player.Chips != 190 {
 			t.Error("player's chips is not equal 990")
 		}
 	}
@@ -891,7 +899,7 @@ func TestLoop08(t *testing.T) {
 	_, p1 := util.Get(state.GS.Players, id1)
 	_, p2 := util.Get(state.GS.Players, id2)
 	_, p3 := util.Get(state.GS.Players, id3)
-	if p2.Chips != 970 || util.SumBet(p2) != 30 || p2.Bets[state.GS.Turn] != 20 {
+	if p2.Chips != 170 || util.SumBet(p2) != 30 || p2.Bets[state.GS.Turn] != 20 {
 		t.Error()
 	}
 	if state.GS.Gambit.Bet(id3, 51) || !state.GS.Gambit.Bet(id3, 50) {
@@ -900,7 +908,7 @@ func TestLoop08(t *testing.T) {
 	_, p1 = util.Get(state.GS.Players, id1)
 	_, p2 = util.Get(state.GS.Players, id2)
 	_, p3 = util.Get(state.GS.Players, id3)
-	if p3.Chips != 940 || p3.Bets[state.GS.Turn] != 50 {
+	if p3.Chips != 140 || p3.Bets[state.GS.Turn] != 50 {
 		t.Error()
 	}
 	if !state.GS.Gambit.Call(id1) {
@@ -927,7 +935,7 @@ func TestLoop08(t *testing.T) {
 	_, p1 = util.Get(state.GS.Players, id1)
 	_, p2 = util.Get(state.GS.Players, id2)
 	_, p3 = util.Get(state.GS.Players, id3)
-	if p3.Chips != 1090 || p1.Chips != 940 || p2.Chips != 970 {
+	if p3.Chips != 290 || p1.Chips != 140 || p2.Chips != 170 {
 		t.Error()
 	}
 	// p1.Print()
@@ -943,6 +951,7 @@ func TestLoop09(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -1016,6 +1025,7 @@ func TestLoop10(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -1077,6 +1087,7 @@ func TestLoop11(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -1148,6 +1159,7 @@ func TestLoop12(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -1179,6 +1191,7 @@ func TestLoop13(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -1241,6 +1254,7 @@ func TestLoop14(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     1000,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -1355,6 +1369,7 @@ func TestLoop15(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     1000,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -1490,6 +1505,7 @@ func TestLoop16(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -1603,6 +1619,7 @@ func TestLoop17(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -1656,6 +1673,7 @@ func TestLoop18(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -1841,6 +1859,7 @@ func TestLoop19(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -2144,6 +2163,7 @@ func TestLoop26(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     1000,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -2317,6 +2337,7 @@ func TestLoop27(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -2357,6 +2378,7 @@ func TestLoop28(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -2427,6 +2449,7 @@ func TestLoop29(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -2523,6 +2546,7 @@ func TestLoop30(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -2610,6 +2634,7 @@ func TestLoop31(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -2650,6 +2675,7 @@ func TestLoop32(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -2698,6 +2724,7 @@ func TestLoop33(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -2731,6 +2758,7 @@ func TestLoop34(t *testing.T) {
 	ninek := gambit.NineK{
 		MaxAFKCount:  1,
 		MaxPlayers:   6,
+		BuyInMin:     1000,
 		DecisionTime: decisionTime}
 	handler.Connect("player1")
 	handler.Connect("player2")
@@ -2848,6 +2876,7 @@ func TestLoop35(t *testing.T) {
 		BlindsBig:    minimumBet,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
+		BuyInMin:     1000,
 		DecisionTime: decisionTime,
 		Rake:         5.00,
 		Cap:          cap}
@@ -3033,6 +3062,7 @@ func TestLoop36(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -3116,6 +3146,7 @@ func TestLoop37(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -3222,6 +3253,7 @@ func TestLoop38(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
@@ -3241,13 +3273,10 @@ func TestLoop38(t *testing.T) {
 	p3 := &state.GS.Players[5]
 	p4 := &state.GS.Players[1]
 	handler.StartTable()
-	if state.GS.GameIndex != -1 {
+	if state.GS.GameIndex != 0 {
 		t.Error()
 	}
 	if !state.GS.Gambit.Start() {
-		t.Error()
-	}
-	if state.GS.GameIndex != 0 {
 		t.Error()
 	}
 	if !state.GS.Gambit.Check(p1.ID) ||
@@ -3266,6 +3295,9 @@ func TestLoop38(t *testing.T) {
 		t.Error()
 	}
 	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
+		t.Error()
+	}
+	if state.GS.GameIndex != 1 {
 		t.Error()
 	}
 	state.GS.FinishRoundTime = 0
@@ -3293,26 +3325,29 @@ func TestLoop38(t *testing.T) {
 	if state.GS.Gambit.NextRound() || !state.GS.Gambit.Finish() {
 		t.Error()
 	}
-	handler.SendSticker("xxx", "player1", 2)
-	handler.SendSticker("xxx", "player2", 2)
-	handler.SendSticker("xxx", "player3", 2)
-	if len(p1.Stickers) != 1 ||
-		len(p2.Stickers) != 1 ||
-		len(p3.Stickers) != 1 {
+	if state.GS.GameIndex != 2 {
 		t.Error()
 	}
 	handler.SendSticker("xxx", "player1", 2)
-	if len(p1.Stickers) != 2 ||
-		len(p2.Stickers) != 1 ||
-		len(p3.Stickers) != 1 {
+	handler.SendSticker("xxx", "player2", 2)
+	handler.SendSticker("xxx", "player3", 2)
+	if len(*p1.Stickers) != 1 ||
+		len(*p2.Stickers) != 1 ||
+		len(*p3.Stickers) != 1 {
+		t.Error()
+	}
+	handler.SendSticker("xxx", "player1", 2)
+	if len(*p1.Stickers) != 2 ||
+		len(*p2.Stickers) != 1 ||
+		len(*p3.Stickers) != 1 {
 		t.Error()
 	}
 	time.Sleep(time.Second * 4)
 	handler.SendSticker("xxx", "player1", 2)
 	handler.SendSticker("xxx", "player3", 2)
-	if len(p1.Stickers) != 1 ||
-		len(p2.Stickers) != 0 ||
-		len(p3.Stickers) != 1 {
+	if len(*p1.Stickers) != 1 ||
+		len(*p2.Stickers) != 0 ||
+		len(*p3.Stickers) != 1 {
 		t.Error()
 	}
 	// p1.Print()
@@ -3328,23 +3363,92 @@ func TestLoop39(t *testing.T) {
 	ninek := gambit.NineK{
 		BlindsSmall:  minimumBet,
 		BlindsBig:    minimumBet,
+		BuyInMin:     200,
+		MaxPlayers:   6,
+		MaxAFKCount:  5,
+		DecisionTime: decisionTime}
+	handler.Initiate(ninek)
+	handler.Connect("us3xq4zomamja85xwx1")
+	state.GS.Gambit.Init() // create seats
+	// dumb player
+	handler.Sit("us3xq4zomamja85xwx1", 2)
+	p1 := &state.GS.Players[2]
+	state.GS.TableID = "ta3xq4zomamja86053q"
+	state.GS.GroupID = "cl3xq4zomamja85yp3t"
+	// Request hawkeye to request buyin (move chip from player's pocket to the table)
+	if body, err := api.BuyIn(p1.ID, ninek.GetBlindsSmall()); err != nil ||
+		string(body) != `{"body":{"message":"Successfully buyin"}}` {
+		t.Error(string(body), err)
+	}
+	p1.Chips = ninek.GetBlindsSmall()
+	p1.WinLossAmount = 20
+	state.GS.Rakes[p1.ID] = 0.05
+	// Request hawkeye to update buy-in cash amount
+	if body, err := api.SaveSettlement(p1.ID); err != nil ||
+		string(body) != `{"body":{"message":"Successfully settlement"}}` {
+		t.Error(string(body), err)
+	}
+	// Request hawkeye to request cashback (move chip from table to player's pocket)
+	if body, err := api.CashBack(p1.ID); err != nil ||
+		string(body) != `{"body":{"message":"Successfully cashback"}}` {
+		t.Error(string(body), err)
+	}
+}
+
+func TestLoop40(t *testing.T) {
+	/**
+	 * Test send stickers
+	 */
+	decisionTime := int64(3)
+	minimumBet := 10
+	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
+		BuyInMin:     200,
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
 	handler.Connect("player1")
+	handler.Connect("player2")
+	handler.Connect("player3")
+	handler.Connect("player4")
 	state.GS.Gambit.Init() // create seats
 	// dumb player
 	handler.Sit("player1", 2)
+	handler.Sit("player2", 3)
+	handler.Sit("player3", 5)
+	handler.Sit("player4", 1)
 	p1 := &state.GS.Players[2]
-	state.GS.TableID = "tatel9kvy1zvrj9irvn1t"
-	state.GS.GroupID = "cltel9kvy1zvrj9irv4eq"
-	body, err := api.BuyIn(p1.ID, 100)
-	if err != nil {
+	p2 := &state.GS.Players[3]
+	p3 := &state.GS.Players[5]
+	p4 := &state.GS.Players[1]
+	handler.StartTable()
+	if state.GS.GameIndex != 0 {
 		t.Error()
 	}
-	fmt.Println(string(body))
-	log.Println(state.GS.StartTableTime)
-	log.Println(time.Now().Unix())
-	log.Println(state.GS.FinishTableTime)
+	if !state.GS.Gambit.Start() {
+		t.Error()
+	}
+	if state.GS.ClientAnimation.Dealing.DealingNumber != 2 {
+		t.Error()
+	}
+	if !state.GS.Gambit.Check(p1.ID) ||
+		!state.GS.Gambit.Check(p2.ID) ||
+		!state.GS.Gambit.Check(p3.ID) ||
+		!state.GS.Gambit.Check(p4.ID) {
+		t.Error()
+	}
+	if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() {
+		t.Error()
+	}
+	if state.GS.ClientAnimation.Dealing.DealingNumber != 1 {
+		t.Error()
+	}
+	p1.Print()
+	p2.Print()
+	p3.Print()
+	p4.Print()
+	fmt.Println(time.Now().Unix())
+	fmt.Println(state.GS.FinishRoundTime)
 }

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"999k_engine/api"
 	"999k_engine/constant"
 	"999k_engine/model"
 	"999k_engine/state"
@@ -31,9 +30,10 @@ func Reducer(event string, id string) model.Actions {
 
 // Connect and move user as a visitor
 func Connect(id string) {
-	caller := api.SyncPlayer(id)
-	caller.Action = model.Action{Name: constant.Stand}
-	caller.Actions = Reducer(constant.Connection, id)
+	caller := model.Player{
+		ID:      id,
+		Action:  model.Action{Name: constant.Stand},
+		Actions: Reducer(constant.Connection, id)}
 	state.GS.Visitors = util.Add(state.GS.Visitors, caller)
 }
 
@@ -102,9 +102,15 @@ func Stand(id string) bool {
 		}
 		OverwriteActionToBehindPlayers()
 	}
-	visitor := api.SyncPlayer(id)
-	visitor.Action = model.Action{Name: constant.Stand}
-	visitor.Actions = Reducer(constant.Connection, id)
+	// Update buy-in cash
+	// api.SaveSettlement(id)
+	// Save buy-in cash to real player pocket
+	// api.CashBack(id)
+	// Change state player to visitor
+	visitor := model.Player{
+		ID:      id,
+		Action:  model.Action{Name: constant.Stand},
+		Actions: Reducer(constant.Connection, id)}
 	state.GS.Players = util.Kick(state.GS.Players, caller.ID)
 	state.GS.Visitors = util.Add(state.GS.Visitors, visitor)
 	SetOtherActionsWhoAreNotPlaying(constant.Sit)
@@ -133,27 +139,33 @@ func SendSticker(stickerid string, senderid string, targetslot int) {
 	// clear expire stickers
 	for pi := range state.GS.Players {
 		// if no stickers continue
-		if len(state.GS.Players[pi].Stickers) <= 0 {
+		if state.GS.Players[pi].Stickers == nil {
 			continue
 		}
-		for si := 0; si < len(state.GS.Players[pi].Stickers); si++ {
+		// Clear all stickers which expired
+		for si := 0; si < len(*state.GS.Players[pi].Stickers); si++ {
+			stickers := *state.GS.Players[pi].Stickers
 			// delay for sticker after expired for 2 sec
-			if now-state.GS.Players[pi].Stickers[si].FinishTime >= 2 {
+			if now-stickers[si].FinishTime >= 2 {
 				// update sticker
-				state.GS.Players[pi].Stickers =
-					append(state.GS.Players[pi].Stickers[:si],
-						state.GS.Players[pi].Stickers[si+1:]...)
+				stickers = append(stickers[:si], stickers[si+1:]...)
+				state.GS.Players[pi].Stickers = &stickers
 				si-- // reduce index to prevent out of bound
 			}
 		}
 	}
-	sticker := model.Sticker{}
-	sticker.StartTime = now
-	sticker.FinishTime = now + 2
-	sticker.ID = stickerid
-	sticker.ToTarget = targetslot
 	// append to stickers array
 	if index != -1 {
-		state.GS.Players[index].Stickers = append(state.GS.Players[index].Stickers, sticker)
+		sticker := model.Sticker{}
+		sticker.StartTime = now
+		sticker.FinishTime = now + 2
+		sticker.ID = stickerid
+		sticker.ToTarget = targetslot
+		if state.GS.Players[index].Stickers == nil {
+			state.GS.Players[index].Stickers = &[]model.Sticker{}
+		}
+		stickers := *state.GS.Players[index].Stickers
+		stickers = append(stickers, sticker)
+		state.GS.Players[index].Stickers = &stickers
 	}
 }

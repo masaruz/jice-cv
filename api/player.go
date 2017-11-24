@@ -1,12 +1,10 @@
 package api
 
 import (
-	"999k_engine/model"
 	"999k_engine/state"
 	"999k_engine/util"
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -21,26 +19,14 @@ type Player struct {
 
 // PlayerResponse from api server
 type PlayerResponse struct {
-	Ok      bool     `json:"ok"`
-	Players []Player `json:"users"`
+	Error PlayerError `json:"err"`
 }
 
-// GetPlayer get player data
-func GetPlayer(id string) model.Player {
-	body, err := get(fmt.Sprintf("%s/users?ids=%s", Host, id))
-	if err != nil {
-		log.Fatal(err)
-		return model.Player{}
-	}
-	resp := &PlayerResponse{}
-	err = json.Unmarshal(body, resp)
-	if err != nil || !resp.Ok {
-		log.Fatal(err)
-		return model.Player{}
-	}
-	// get only one player
-	user := resp.Players[0]
-	return model.Player{ID: user.ID}
+// PlayerError when receive something wrong from server
+type PlayerError struct {
+	StatusCode int    `json:"statusCode"`
+	Name       string `json:"name"`
+	Message    string `json:"message"`
 }
 
 // SendSticker send sticker by using gems
@@ -58,6 +44,10 @@ func SendSticker(id string) ([]byte, error) {
 
 // BuyIn when player about to sitting to table
 func BuyIn(userid string, buyinamount int) ([]byte, error) {
+	// Not allow empty string or buyinamount value must > 0
+	if userid == "" || buyinamount <= 0 {
+		return nil, fmt.Errorf("user_id or buy_in_amount is empty")
+	}
 	// cast param to byte
 	data, err := json.Marshal(struct {
 		UserID      string `json:"userid"`
@@ -81,19 +71,30 @@ func BuyIn(userid string, buyinamount int) ([]byte, error) {
 }
 
 // CashBack when player stand or leave the table will gain cash back from buyin
-func CashBack(id string) ([]byte, error) {
-	_, player := util.Get(state.GS.Players, id)
-	setttlement := Settlement{
-		UserID:        player.ID,
-		WinLossAmount: player.WinLossAmount,
-		PaidRake:      state.GS.Rakes[player.ID]}
+func CashBack(userid string) ([]byte, error) {
+	if userid == "" {
+		return nil, fmt.Errorf("user_id is empty")
+	}
+	_, player := util.Get(state.GS.Players, userid)
 	// cast param to byte
-	data, err := json.Marshal(setttlement)
+	data, err := json.Marshal(struct {
+		UserID         string `json:"userid"`
+		GroupID        string `json:"groupid"`
+		CreateTime     int64  `json:"createtime"`
+		GameIndex      int    `json:"gameindex"`
+		CashBackAmount int    `json:"cashbackamount"`
+	}{
+		UserID:         userid,
+		GameIndex:      state.GS.GameIndex,
+		GroupID:        state.GS.GroupID,
+		CreateTime:     time.Now().Unix(),
+		CashBackAmount: player.Chips,
+	})
 	if err != nil {
 		return nil, err
 	}
 	// create url
-	url := fmt.Sprintf("%s/cashback", getTableURL(id))
+	url := fmt.Sprintf("%s/cashback", getTableURL(state.GS.TableID))
 	return post(url, data)
 }
 

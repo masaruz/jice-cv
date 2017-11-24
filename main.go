@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/googollee/go-socket.io"
@@ -27,6 +28,10 @@ func main() {
 		log.Println(r.Header)
 		return nil
 	})
+	// Get gameindex from hawkeye who awake this container
+	gameindex, _ := strconv.Atoi(os.Getenv(constant.GameIndex))
+	// Assign to GameIndex
+	state.GS.GameIndex = gameindex
 	handler.Initiate(gambit.Create(os.Getenv(constant.GambitType)))
 	state.GS.Gambit.Init()
 	// When connection happend

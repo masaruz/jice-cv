@@ -1,6 +1,7 @@
 package gambit
 
 import (
+	"999k_engine/api"
 	"999k_engine/constant"
 	"999k_engine/handler"
 	"999k_engine/model"
@@ -45,29 +46,45 @@ func (game NineK) Start() bool {
 		!handler.IsGameStart() &&
 		!handler.IsInExtendFinishRoundTime() {
 		// filter players who are not ready to play
-		for index, player := range state.GS.Players {
+		for index := range state.GS.Players {
+			player := &state.GS.Players[index]
+			// If this position is empty seat continue
 			if player.ID == "" {
 				continue
 			}
-			if player.Chips >= game.BlindsBig &&
+			// If player has no chip
+			if player.Chips <= 0 {
+				player.Chips = game.GetBuyInMin()
+			}
+			// If player has minimum chip for able to play
+			if player.Chips >= game.GetBlindsSmall() &&
 				state.GS.AFKCounts[index] < game.MaxAFKCount {
 				continue
 			}
+			// Need request to server for buyin
+			// body, _ := api.BuyIn(player.ID, game.GetBlindsSmall())
+			// resp := &api.PlayerResponse{}
+			// json.Unmarshal(body, resp)
+			// If this player request buy in success
+			// if resp.Error.StatusCode == 0 {
+			// Assign how much they buy-in
+			// 	player.Chips = game.GetBlindsSmall()
+			// 	continue
+			// }
 			handler.Stand(player.ID)
 		}
+		// After pass through the critiria
 		// if there are more than 2 players are sitting
 		if util.CountSitting(state.GS.Players) >= 2 {
-			// increase gameindex before send to startgame
-			handler.IncreaseGameIndex()
 			// everyone is assumed afk
 			state.GS.DoActions = make([]bool, game.MaxPlayers)
 			state.GS.Rakes = make(map[string]float64)
 			state.GS.Pots = make([]int, game.MaxPlayers)
 			// request to start game
-			// _, err := api.StartGame()
-			// if err != nil {
-			// 	panic(err)
-			// }
+			_, err := api.StartGame()
+			if err != nil {
+				panic(err)
+			}
 			// set players to be ready
 			handler.MakePlayersReady()
 			handler.StartGame()
@@ -202,6 +219,10 @@ func (game NineK) Finish() bool {
 				pos = -1
 			}
 		}
+		// Update all players' buy-in amount
+		// api.SaveSettlements()
+		// Increase gameindex for backend process ex. realtime-data, analytic
+		handler.IncreaseGameIndex()
 		// Revert minimum bet
 		handler.SetMinimumBet(game.BlindsBig)
 		handler.FlushPlayers()

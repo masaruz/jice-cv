@@ -118,6 +118,24 @@ func SaveSettlements() ([]byte, error) {
 	return post(url, data)
 }
 
+// SaveSettlement support a player
+func SaveSettlement(userid string) ([]byte, error) {
+	_, player := util.Get(state.GS.Players, userid)
+	summary := Summary{CreateTime: time.Now().Unix()}
+	summary.Settlements = append(summary.Settlements, Settlement{
+		UserID:        player.ID,
+		WinLossAmount: player.WinLossAmount,
+		PaidRake:      state.GS.Rakes[player.ID]})
+	// cast param to byte
+	data, err := json.Marshal(summary)
+	if err != nil {
+		return nil, err
+	}
+	// create url
+	url := fmt.Sprintf("%s/settlements", getTableURL(state.GS.TableID))
+	return post(url, data)
+}
+
 // TableEnd set endtime
 func TableEnd() ([]byte, error) {
 	table := Table{}

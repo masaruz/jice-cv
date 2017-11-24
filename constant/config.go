@@ -9,4 +9,5 @@ const (
 	GambitType   = "GambitType"
 	Rake         = "Rake"
 	Cap          = "Cap"
+	GameIndex    = "GameIndex"
 )

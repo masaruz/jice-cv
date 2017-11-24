@@ -148,17 +148,18 @@ func CreateTimeLine(decisionTime int64) {
 
 // MakePlayersReady make everyone
 func MakePlayersReady() {
-	for index, player := range state.GS.Players {
+	for index := range state.GS.Players {
+		player := &state.GS.Players[index]
 		if player.ID == "" {
 			continue
 		}
-		state.GS.Players[index].Cards = model.Cards{}
-		state.GS.Players[index].Bets = []int{}
-		state.GS.Players[index].IsPlaying = true
-		state.GS.Players[index].IsEarned = false
-		state.GS.Players[index].IsWinner = false
-		state.GS.Players[index].Default = model.Action{Name: constant.Check}
-		state.GS.Players[index].Action = model.Action{}
+		player.Cards = model.Cards{}
+		player.Bets = []int{}
+		player.IsPlaying = true
+		player.IsEarned = false
+		player.IsWinner = false
+		player.Default = model.Action{Name: constant.Check}
+		player.Action = model.Action{}
 	}
 }
 
@@ -267,19 +268,26 @@ func Deal(cardAmount int, playerAmount int) {
 			}
 		}
 	}
+	start := time.Now().Unix()
+	state.GS.ClientAnimation.Dealing = model.DealingAnimation{
+		DealingStartTime:  start,
+		DealingFinishTime: start + 1,
+		DealingNumber:     cardAmount,
+	}
 }
 
 // FlushPlayers reset everything before new game and client no needs to see it
 func FlushPlayers() {
 	for index := range state.GS.Players {
-		state.GS.Players[index].IsPlaying = false
-		state.GS.Players[index].Bets = []int{}
-		state.GS.Players[index].Default = model.Action{}
-		state.GS.Players[index].Action = model.Action{}
-		state.GS.Players[index].Actions = model.Actions{}
-		state.GS.Players[index].StartLine = 0
-		state.GS.Players[index].DeadLine = 0
-		state.GS.Players[index].IsEarned = false
+		player := &state.GS.Players[index]
+		player.IsPlaying = false
+		player.Bets = []int{}
+		player.Default = model.Action{}
+		player.Action = model.Action{}
+		player.Actions = model.Actions{}
+		player.StartLine = 0
+		player.DeadLine = 0
+		player.IsEarned = false
 	}
 }
 
