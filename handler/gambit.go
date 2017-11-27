@@ -271,7 +271,7 @@ func Deal(cardAmount int, playerAmount int) {
 	start := time.Now().Unix()
 	state.GS.ClientAnimation.Dealing = model.DealingAnimation{
 		DealingStartTime:  start,
-		DealingFinishTime: start + 1,
+		DealingFinishTime: start + int64(cardAmount),
 		DealingNumber:     cardAmount,
 	}
 }

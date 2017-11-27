@@ -3125,13 +3125,6 @@ func TestLoop36(t *testing.T) {
 	if !state.GS.Gambit.Finish() {
 		t.Error()
 	}
-	body, err = api.SaveSettlements()
-	if err != nil {
-		t.Error()
-	}
-	if data := string(body); data != `{"message":"Successfully settlements"}` {
-		t.Error(data)
-	}
 	// p1.Print()
 	// p2.Print()
 	// p3.Print()
@@ -3396,9 +3389,6 @@ func TestLoop39(t *testing.T) {
 }
 
 func TestLoop40(t *testing.T) {
-	/**
-	 * Test send stickers
-	 */
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
@@ -3445,18 +3435,15 @@ func TestLoop40(t *testing.T) {
 	if state.GS.ClientAnimation.Dealing.DealingNumber != 1 {
 		t.Error()
 	}
-	p1.Print()
-	p2.Print()
-	p3.Print()
-	p4.Print()
-	fmt.Println(time.Now().Unix())
-	fmt.Println(state.GS.FinishRoundTime)
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// p4.Print()
+	// fmt.Println(time.Now().Unix())
+	// fmt.Println(state.GS.FinishRoundTime)
 }
 
 func TestLoop41(t *testing.T) {
-	/**
-	 * Test send stickers
-	 */
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{

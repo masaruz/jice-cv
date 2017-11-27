@@ -310,8 +310,6 @@ func main() {
 	// Create router to support wildcard
 	router := mux.NewRouter()
 	// Handler
-	router.Handle("/{tableid}/socket.io/", server)
-	router.Handle("/{tableid}/socket.io", server)
 	router.Handle("/socket.io/", server)
 	router.Handle("/socket.io", server)
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
