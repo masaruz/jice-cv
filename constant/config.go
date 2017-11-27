@@ -10,4 +10,8 @@ const (
 	Rake         = "Rake"
 	Cap          = "Cap"
 	GameIndex    = "GameIndex"
+	TableID      = "TableID"
+	GroupID      = "GroupID"
+	MinimumBuyIn = "MinimumBuyIn"
+	MaximumBuyIn = "MaximumBuyIn"
 )

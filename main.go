@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"time"
 
 	"github.com/googollee/go-socket.io"
 	"github.com/gorilla/mux"
@@ -56,7 +55,7 @@ func main() {
 				channel = constant.PushState
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
-				log.Println(so.Id(), "Stimulate", "Success")
+				log.Println(so.Id(), "Stimulate", "success")
 			}
 			handler.FinishProcess()
 			// If no seat then just return current state
@@ -75,7 +74,7 @@ func main() {
 				channel = constant.Check
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
-				log.Println(so.Id(), "Check", "Success")
+				log.Println(so.Id(), "Check", "success")
 			}
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
@@ -95,7 +94,7 @@ func main() {
 				channel = constant.Bet
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
-				log.Println(so.Id(), "Bet", "Success")
+				log.Println(so.Id(), "Bet", "success")
 			}
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
@@ -115,7 +114,7 @@ func main() {
 				channel = constant.Raise
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
-				log.Println(so.Id(), "Raise", "Success")
+				log.Println(so.Id(), "Raise", "success")
 			}
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
@@ -129,7 +128,7 @@ func main() {
 				channel = constant.Call
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
-				log.Println(so.Id(), "Call", "Success")
+				log.Println(so.Id(), "Call", "success")
 			}
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
@@ -143,7 +142,7 @@ func main() {
 				channel = constant.Raise
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, constant.Raise, so.Id())
-				log.Println(so.Id(), "AllIn", "Success")
+				log.Println(so.Id(), "AllIn", "success")
 			}
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
@@ -158,7 +157,7 @@ func main() {
 				state.GS.Gambit.Finish()
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
-				log.Println(so.Id(), "Fold", "Success")
+				log.Println(so.Id(), "Fold", "success")
 			}
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
@@ -174,7 +173,7 @@ func main() {
 				state.GS.Gambit.Start()
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
-				log.Println(so.Id(), "StartTable", "Success")
+				log.Println(so.Id(), "StartTable", "success")
 			}
 			handler.FinishProcess()
 			return handler.CreateResponse(so.Id(), channel)
@@ -191,7 +190,7 @@ func main() {
 				state.GS.Gambit.Start()
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
-				log.Println(so.Id(), "Sit", "Success")
+				log.Println(so.Id(), "Sit", "success")
 			} else {
 				log.Println(so.Id(), "Sit", "Fail")
 			}
@@ -209,7 +208,7 @@ func main() {
 				state.GS.Gambit.Finish()
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
-				log.Println(so.Id(), "Stand", "Success")
+				log.Println(so.Id(), "Stand", "success")
 			} else {
 				log.Println(so.Id(), "Stand", "Fail")
 			}
@@ -218,6 +217,7 @@ func main() {
 		})
 		// When disconnected
 		so.On(constant.Disconnection, func() {
+			so.Disconnect()
 			log.Println(so.Id(), "Disconnect")
 		})
 		// When exit
@@ -261,7 +261,7 @@ func main() {
 					state.GS.IncreaseVersion()
 					// broadcast state to everyone
 					handler.BroadcastGameState(so, channel, so.Id())
-					log.Println(so.Id(), "Send Sticker", "Success")
+					log.Println(so.Id(), "Send Sticker", "success")
 				}
 			}
 			handler.FinishProcess()
@@ -293,13 +293,8 @@ func main() {
 			}
 			handler.FinishProcess()
 			handler.BroadcastGameState(so, channel, so.Id())
-			go func() {
-				// fmt.Printf("caught sig: %+v", sig)
-				fmt.Println("Wait for 2 second to finish processing")
-				time.Sleep(2 * time.Second)
-				os.Exit(0)
-			}()
-			log.Println(so.Id(), "Disband", "Success")
+			log.Println(so.Id(), "Disband", "success")
+			defer handler.PrepareDestroyed()
 			return handler.CreateResponse(so.Id(), channel)
 		})
 	})

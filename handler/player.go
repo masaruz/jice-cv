@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"999k_engine/api"
 	"999k_engine/constant"
 	"999k_engine/model"
 	"999k_engine/state"
@@ -45,7 +46,6 @@ func Leave(id string) bool {
 	}
 	// after they stand then remove from visitor
 	state.GS.Visitors = util.Remove(state.GS.Visitors, id)
-	// TODO cashback here
 	return true
 }
 
@@ -103,9 +103,9 @@ func Stand(id string) bool {
 		OverwriteActionToBehindPlayers()
 	}
 	// Update buy-in cash
-	// api.SaveSettlement(id)
+	api.SaveSettlement(id)
 	// Save buy-in cash to real player pocket
-	// api.CashBack(id)
+	api.CashBack(id)
 	// Change state player to visitor
 	visitor := model.Player{
 		ID:      id,

@@ -3,6 +3,7 @@ package gambit
 import (
 	"999k_engine/constant"
 	"999k_engine/engine"
+	"999k_engine/state"
 	"os"
 	"strconv"
 )
@@ -33,6 +34,20 @@ func Create(gambit string) engine.Gambit {
 	if err != nil {
 		cap = 0.5
 	}
+	// Minimum buy-in
+	minbi, err := strconv.Atoi(os.Getenv(constant.MinimumBuyIn))
+	if err != nil {
+		minbi = 200
+	}
+	// Maximum buy-in
+	maxbi, err := strconv.Atoi(os.Getenv(constant.MaximumBuyIn))
+	if err != nil {
+		maxbi = 1000
+	}
+	// Assign required parameters
+	state.GS.GameIndex, _ = strconv.Atoi(os.Getenv(constant.GameIndex))
+	state.GS.TableID = os.Getenv(constant.TableID)
+	state.GS.GroupID = os.Getenv(constant.GroupID)
 	switch gambit {
 	default:
 		return NineK{
@@ -42,6 +57,8 @@ func Create(gambit string) engine.Gambit {
 			BlindsSmall:  bsm,
 			BlindsBig:    bbg,
 			Rake:         rake,
-			Cap:          cap}
+			Cap:          cap,
+			BuyInMax:     maxbi,
+			BuyInMin:     minbi}
 	}
 }

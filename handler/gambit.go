@@ -6,6 +6,8 @@ import (
 	"999k_engine/model"
 	"999k_engine/state"
 	"999k_engine/util"
+	"fmt"
+	"os"
 	"time"
 )
 
@@ -401,4 +403,14 @@ func BurnBet(index int, burn int) {
 	} else {
 		state.GS.Pots[index] -= burn
 	}
+}
+
+// PrepareDestroyed countdown to be closed
+func PrepareDestroyed() {
+	go func() {
+		// fmt.Printf("caught sig: %+v", sig)
+		fmt.Println("Wait for 2 second to finish processing")
+		time.Sleep(2 * time.Second)
+		os.Exit(0)
+	}()
 }
