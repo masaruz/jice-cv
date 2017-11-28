@@ -70,13 +70,13 @@ func CreateResponse(id string, event string) string {
 		state.Resp{
 			Header: state.Header{Token: "player_token"},
 			Payload: state.RespPayload{
-				EventName:        state.GS.Event,
-				Actions:          actions,
-				CurrentTime:      time.Now().Unix(),
-				StartRoundTime:   state.GS.StartRoundTime,
-				FinishRoundTime:  state.GS.FinishRoundTime,
-				IsTableExpired:   state.GS.IsTableExpired,
-				DealingAnimation: state.GS.ClientAnimation.Dealing,
+				EventName:       state.GS.Event,
+				Actions:         actions,
+				CurrentTime:     time.Now().Unix(),
+				StartRoundTime:  state.GS.StartRoundTime,
+				FinishRoundTime: state.GS.FinishRoundTime,
+				IsTableExpired:  state.GS.IsTableExpired,
+				GameIndex:       state.GS.GameIndex,
 				GameState: state.PlayerState{
 					Player:       player,
 					Competitors:  competitors,
@@ -95,6 +95,7 @@ func CreateResponse(id string, event string) string {
 func createSharedState(players model.Players) model.Players {
 	others := model.Players{}
 	for _, player := range players {
+		player.CardAmount = len(player.Cards)
 		if state.GS.IsGameStart {
 			player.Cards = model.Cards{}
 		}

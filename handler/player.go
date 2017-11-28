@@ -6,6 +6,7 @@ import (
 	"999k_engine/model"
 	"999k_engine/state"
 	"999k_engine/util"
+	"os"
 	"time"
 )
 
@@ -74,7 +75,6 @@ func Sit(id string, slot int) bool {
 	if caller.Slot == -1 {
 		return false
 	}
-	// TODO buyin here
 	// remove from visitor
 	state.GS.Visitors = util.Remove(state.GS.Visitors, id)
 	caller.Action = model.Action{Name: constant.Sit}
@@ -102,10 +102,13 @@ func Stand(id string) bool {
 		}
 		OverwriteActionToBehindPlayers()
 	}
-	// Update buy-in cash
-	api.SaveSettlement(id)
-	// Save buy-in cash to real player pocket
-	api.CashBack(id)
+	// If not in dev, call api
+	if os.Getenv("env") != "test" {
+		// Update buy-in cash
+		api.SaveSettlement(id)
+		// Save buy-in cash to real player pocket
+		api.CashBack(id)
+	}
 	// Change state player to visitor
 	visitor := model.Player{
 		ID:      id,

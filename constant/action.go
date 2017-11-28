@@ -23,4 +23,5 @@ const (
 	SendSticker        = "sendsticker"
 	ExtendDecisionTime = "extendactiontime"
 	DisbandTable       = "disbandtable"
+	Enter              = "enter"
 )

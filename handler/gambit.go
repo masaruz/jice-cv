@@ -262,19 +262,15 @@ func Deal(cardAmount int, playerAmount int) {
 			round++
 			index = start % playerAmount
 			// skip empty seat
-			if util.IsPlayingAndNotFold(state.GS.Players[index]) {
-				state.GS.Players[index].Cards = append(state.GS.Players[index].Cards, Draw())
+			player := &state.GS.Players[index]
+			if util.IsPlayingAndNotFold(*player) {
+				player.Cards = append(player.Cards, Draw())
+				player.CardAmount = len(player.Cards)
 				if index == dealer {
 					break
 				}
 			}
 		}
-	}
-	start := time.Now().Unix()
-	state.GS.ClientAnimation.Dealing = model.DealingAnimation{
-		DealingStartTime:  start,
-		DealingFinishTime: start + int64(cardAmount),
-		DealingNumber:     cardAmount,
 	}
 }
 
@@ -325,7 +321,7 @@ func ExtendPlayerTimeline(id string) bool {
 	if !IsPlayerTurn(id) {
 		return false
 	}
-	second := state.GS.Gambit.GetDecisionTime()
+	second := state.GS.Gambit.GetSettings().DecisionTime
 	current, caller := util.Get(state.GS.Players, id)
 	start := time.Now().Unix()
 	diff := (start + second) - state.GS.Players[current].DeadLine

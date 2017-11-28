@@ -20,6 +20,8 @@ func TestLoop01(t *testing.T) {
 		MaxPlayers:   6,
 		BuyInMin:     200,
 		BuyInMax:     1000,
+		BlindsSmall:  10,
+		BlindsBig:    10,
 		DecisionTime: decisionTime}
 	handler.Connect("player1")
 	handler.Connect("player2")
@@ -53,6 +55,9 @@ func TestLoop01(t *testing.T) {
 	for _, player := range state.GS.Players {
 		if player.ID == "" {
 			continue
+		}
+		if player.CardAmount != 2 {
+			t.Error()
 		}
 		if len(player.Cards) != 2 {
 			t.Error()
@@ -89,6 +94,9 @@ func TestLoop01(t *testing.T) {
 		if player.ID == "" {
 			continue
 		}
+		if player.CardAmount != 3 {
+			t.Error()
+		}
 		if len(player.Cards) != 3 {
 			t.Error()
 		}
@@ -123,6 +131,8 @@ func TestLoop02(t *testing.T) {
 		MaxPlayers:   6,
 		BuyInMin:     200,
 		BuyInMax:     1000,
+		BlindsSmall:  10,
+		BlindsBig:    10,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
@@ -1227,16 +1237,20 @@ func TestLoop13(t *testing.T) {
 	}
 	handler.Connect(id2)
 	handler.Sit(id2, 3)
-	index1, _ := util.Get(state.GS.Players, id1)
-	index2, _ := util.Get(state.GS.Players, id2)
-	state.GS.Players[index2].Chips = 9
+	p1 := &state.GS.Players[2]
+	p2 := &state.GS.Players[4]
 	state.GS.FinishRoundTime = 0
-	if state.GS.Gambit.Start() {
-		t.Error()
-	}
-	handler.Sit(id2, 3)
-	state.GS.Players[index1].Chips = 10
-	state.GS.Players[index2].Chips = 10
+	// Shipping force player to stand
+	// index1, _ := util.Get(state.GS.Players, id1)
+	// index2, _ := util.Get(state.GS.Players, id2)
+	// state.GS.Players[index2].Chips = 9
+	// state.GS.FinishRoundTime = 0
+	// if state.GS.Gambit.Start() {
+	// 	t.Error()
+	// }
+	// handler.Sit(id2, 3)
+	p1.Chips = state.GS.Gambit.GetSettings().BlindsSmall
+	p2.Chips = state.GS.Gambit.GetSettings().BlindsSmall
 	if !state.GS.Gambit.Start() {
 		t.Error()
 	}
@@ -1249,7 +1263,7 @@ func TestLoop13(t *testing.T) {
 	if util.CountPlayerNotFoldAndNotAllIn(state.GS.Players) != 0 {
 		t.Error()
 	}
-	state.GS.FinishRoundTime = 0
+	// state.GS.FinishRoundTime = 0
 	// state.GS.Gambit.Start()
 	// if util.CountSitting(state.GS.Players) != 1 || state.GS.IsGameStart {
 	// 	t.Error()
@@ -2788,6 +2802,8 @@ func TestLoop34(t *testing.T) {
 		MaxPlayers:   6,
 		BuyInMin:     1000,
 		BuyInMax:     1000,
+		BlindsSmall:  10,
+		BlindsBig:    10,
 		DecisionTime: decisionTime}
 	handler.Connect("player1")
 	handler.Connect("player2")
@@ -3403,11 +3419,11 @@ func TestLoop39(t *testing.T) {
 	state.GS.TableID = "ta3xq4zomamja86053q"
 	state.GS.GroupID = "cl3xq4zomamja85yp3t"
 	// Request hawkeye to request buyin (move chip from player's pocket to the table)
-	if body, err := api.BuyIn(p1.ID, ninek.GetBlindsSmall()); err != nil ||
+	if body, err := api.BuyIn(p1.ID, ninek.GetSettings().BlindsSmall); err != nil ||
 		string(body) != `{"body":{"message":"Successfully buyin"}}` {
 		t.Error(string(body), err)
 	}
-	p1.Chips = ninek.GetBlindsSmall()
+	p1.Chips = ninek.GetSettings().BlindsSmall
 	p1.WinLossAmount = 20
 	state.GS.Rakes[p1.ID] = 0.05
 	// Request hawkeye to update buy-in cash amount
@@ -3455,9 +3471,6 @@ func TestLoop40(t *testing.T) {
 	if !state.GS.Gambit.Start() {
 		t.Error()
 	}
-	if state.GS.ClientAnimation.Dealing.DealingNumber != 2 {
-		t.Error()
-	}
 	if !state.GS.Gambit.Check(p1.ID) ||
 		!state.GS.Gambit.Check(p2.ID) ||
 		!state.GS.Gambit.Check(p3.ID) ||
@@ -3465,9 +3478,6 @@ func TestLoop40(t *testing.T) {
 		t.Error()
 	}
 	if state.GS.Gambit.Finish() || !state.GS.Gambit.NextRound() {
-		t.Error()
-	}
-	if state.GS.ClientAnimation.Dealing.DealingNumber != 1 {
 		t.Error()
 	}
 	// p1.Print()
@@ -3609,7 +3619,7 @@ func TestLoop42(t *testing.T) {
 	if !state.GS.Gambit.Start() {
 		t.Error()
 	}
-	if !state.GS.Gambit.Check(p1) {
+	if !state.GS.Gambit.Check(p1.ID) {
 		t.Error()
 	}
 	p1.Print()

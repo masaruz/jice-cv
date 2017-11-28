@@ -47,9 +47,9 @@ func UpdateRealtimeData() ([]byte, error) {
 		GroupID:       state.GS.GroupID,
 		GameIndex:     state.GS.GameIndex,
 		PlayersAmount: util.CountSitting(state.GS.Players),
-		PlayersLimit:  gambit.GetMaxPlayers(),
-		BuyInMin:      gambit.GetBuyInMin(),
-		BuyInMax:      gambit.GetBuyInMax(),
+		PlayersLimit:  gambit.GetSettings().MaxPlayers,
+		BuyInMin:      gambit.GetSettings().BuyInMin,
+		BuyInMax:      gambit.GetSettings().BuyInMax,
 		DisplayName:   state.GS.TableDisplayName,
 		StartTime:     state.GS.StartTableTime}
 	// cast param to byte

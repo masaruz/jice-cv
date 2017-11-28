@@ -35,12 +35,24 @@ func main() {
 	state.GS.Gambit.Init()
 	// When connection happend
 	server.On(constant.Connection, func(so socketio.Socket) {
-		// Join the room
-		so.Join(so.Id())
-		handler.Connect(so.Id())
-		handler.BroadcastGameState(so, constant.GetState, so.Id())
-		state.GS.IncreaseVersion()
 		log.Println(so.Id(), "Connect")
+		// Create real enter work as connect
+		// Because connect does not support message payload
+		// Or retrieve player info
+		so.On(constant.Enter, func(msg string) string {
+			log.Println(msg)
+			handler.WaitQueue()
+			handler.StartProcess()
+			channel := constant.Enter
+			// Join the room
+			so.Join(so.Id())
+			handler.Connect(so.Id())
+			handler.BroadcastGameState(so, constant.GetState, so.Id())
+			state.GS.IncreaseVersion()
+			handler.FinishProcess()
+			// If no seat then just return current state
+			return handler.CreateResponse(so.Id(), channel)
+		})
 		// When player need server to check something
 		so.On(constant.Stimulate, func(msg string) string {
 			handler.WaitQueue()

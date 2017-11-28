@@ -7,6 +7,7 @@ type Player struct {
 	ID            string     `json:"id"`
 	Name          string     `json:"name"`
 	Cards         Cards      `json:"cards"`
+	CardAmount    int        `json:"card_amount"`
 	Chips         int        `json:"chips"`
 	Type          string     `json:"type"`
 	Bets          []int      `json:"bets"`

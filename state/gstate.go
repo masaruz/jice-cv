@@ -32,7 +32,6 @@ type GameState struct {
 	Rakes            map[string]float64
 	Event            string
 	TableDisplayName string
-	ClientAnimation  model.ClientAnimation
 }
 
 // gameStates to record all gamestates

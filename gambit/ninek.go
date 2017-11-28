@@ -3,6 +3,7 @@ package gambit
 import (
 	"999k_engine/api"
 	"999k_engine/constant"
+	"999k_engine/engine"
 	"999k_engine/handler"
 	"999k_engine/model"
 	"999k_engine/state"
@@ -57,27 +58,27 @@ func (game NineK) Start() bool {
 			}
 			// If player has no chip
 			// TODO if player has not enough chip then all-in their chips
-			if player.Chips < game.GetBlindsSmall() {
+			if player.Chips < game.GetSettings().BlindsSmall {
 				// Validate with other server when is not in dev
-				if os.Getenv("test") != "dev" {
+				if os.Getenv("env") != "test" {
 					// Need request to server for buyin
-					body, _ := api.BuyIn(player.ID, game.GetBuyInMin())
+					body, _ := api.BuyIn(player.ID, game.GetSettings().BuyInMin)
 					resp := &api.PlayerResponse{}
 					json.Unmarshal(body, resp)
 					// If this player request buy in success
 					if resp.Error.StatusCode == 0 {
 						log.Println("Buy-in success")
 						// Assign how much they buy-in
-						player.Chips = game.GetBuyInMin()
+						player.Chips = game.GetSettings().BuyInMin
 					} else {
-						log.Println(resp)
+						log.Fatal(resp)
 					}
 				} else {
-					player.Chips = game.GetBuyInMin()
+					player.Chips = game.GetSettings().BuyInMin
 				}
 			}
 			// If player has minimum chip for able to play
-			if player.Chips >= game.GetBlindsSmall() &&
+			if player.Chips >= game.GetSettings().BlindsSmall &&
 				state.GS.AFKCounts[index] < game.MaxAFKCount {
 				continue
 			}
@@ -556,42 +557,17 @@ func (game NineK) Evaluate(values []int) (scores []int, kind string) {
 	return summary(constant.Nothing, sorted)
 }
 
-// GetBlindsSmall return blindsmall
-func (game NineK) GetBlindsSmall() int {
-	return game.BlindsSmall
-}
-
-// GetBlindsBig return blindbig
-func (game NineK) GetBlindsBig() int {
-	return game.BlindsBig
-}
-
-// GetBuyInMin return buyin_min
-func (game NineK) GetBuyInMin() int {
-	return game.BuyInMin
-}
-
-// GetBuyInMax return buyin_max
-func (game NineK) GetBuyInMax() int {
-	return game.BuyInMax
-}
-
-// GetRake return rake
-func (game NineK) GetRake() float64 {
-	return game.Rake
-}
-
-// GetCap return rake cap
-func (game NineK) GetCap() float64 {
-	return game.Cap
-}
-
-// GetMaxPlayers return player limit
-func (game NineK) GetMaxPlayers() int {
-	return game.MaxPlayers
-}
-
-// GetDecisionTime return decision time of action
-func (game NineK) GetDecisionTime() int64 {
-	return int64(game.DecisionTime)
+// GetSettings return settings variables
+func (game NineK) GetSettings() engine.Settings {
+	return engine.Settings{
+		MaxPlayers:   game.MaxPlayers,
+		DecisionTime: game.DecisionTime,
+		MaxAFKCount:  game.MaxAFKCount,
+		BlindsSmall:  game.BlindsSmall,
+		BlindsBig:    game.BlindsSmall,
+		BuyInMin:     game.BuyInMin,
+		BuyInMax:     game.BuyInMax,
+		Rake:         game.Rake,
+		Cap:          game.Cap,
+	}
 }

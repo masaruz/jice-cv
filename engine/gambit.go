@@ -33,12 +33,18 @@ type Gambit interface {
 	// Reducer event and return action
 	Reducer(event string, id string) model.Actions
 
-	GetMaxPlayers() int
-	GetBlindsSmall() int
-	GetBlindsBig() int
-	GetBuyInMin() int
-	GetBuyInMax() int
-	GetRake() float64
-	GetCap() float64
-	GetDecisionTime() int64
+	GetSettings() Settings
+}
+
+// Settings attributes for gambit
+type Settings struct {
+	MaxPlayers   int
+	DecisionTime int64
+	MaxAFKCount  int
+	BlindsSmall  int
+	BlindsBig    int
+	BuyInMin     int
+	BuyInMax     int
+	Rake         float64 // percentage
+	Cap          float64 // cap of rake
 }
