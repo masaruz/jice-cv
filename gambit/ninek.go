@@ -46,6 +46,7 @@ func (game NineK) Init() {
 
 // Start game
 func (game NineK) Start() bool {
+	log.Println("Try to start")
 	if handler.IsTableStart() &&
 		!handler.IsGameStart() &&
 		!handler.IsInExtendFinishRoundTime() {
@@ -121,14 +122,17 @@ func (game NineK) Start() bool {
 			handler.Deal(2, game.MaxPlayers)
 			log.Println("2 cards dealed")
 			handler.SetPlayersRake(game.Rake, game.Cap*float64(game.BlindsBig))
+			log.Println("Start Success")
 			return true
 		}
 	}
+	log.Println("Start Failed")
 	return false
 }
 
 // NextRound game after round by round
 func (game NineK) NextRound() bool {
+	log.Println("Try to next round")
 	// Assume every player must be default
 	handler.OverwriteActionToBehindPlayers()
 	// Game must be start
@@ -138,25 +142,27 @@ func (game NineK) NextRound() bool {
 	if handler.IsGameStart() && !handler.IsFullHand(3) &&
 		handler.BetsEqual() && handler.IsEndRound() &&
 		util.CountPlayerNotFold(state.GS.Players) > 1 {
-		log.Println("Prepare to start next round")
 		// Initialize values
+		handler.Deal(1, game.MaxPlayers)
 		handler.SetMinimumBet(game.BlindsBig)
 		handler.SetOtherActions("", constant.Check)
 		handler.SetOtherDefaultAction("", constant.Check)
 		handler.CreateTimeLine(game.DecisionTime)
 		handler.PlayersInvestToPots(0)
-		handler.Deal(1, game.MaxPlayers)
 		log.Println("1 cards dealed")
 		handler.IncreaseTurn()
 		// no one is assumed afk
 		state.GS.DoActions = make([]bool, game.MaxPlayers)
+		log.Println("Next round Success")
 		return true
 	}
+	log.Println("Next round Failed")
 	return false
 }
 
 // Finish game
 func (game NineK) Finish() bool {
+	log.Println("Try to finish")
 	handler.OverwriteActionToBehindPlayers()
 	// no others to play with or all players have 3 cards but bet is not equal
 	if handler.IsGameStart() && ((util.CountPlayerNotFold(state.GS.Players) <= 1) ||
@@ -254,8 +260,10 @@ func (game NineK) Finish() bool {
 			state.GS.IsTableStart = false
 			defer handler.PrepareDestroyed()
 		}
+		log.Println("Finish Success")
 		return true
 	}
+	log.Println("Finish Failed")
 	return false
 }
 

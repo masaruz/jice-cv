@@ -19,32 +19,34 @@ func Initiate(game engine.Gambit) {
 
 // WaitQueue check if server is processing result
 func WaitQueue() {
-	channel := make(chan string, 1)
+	// channel := make(chan string, 1)
 	// Go routine while IsProcessing
-	go func() {
-		for state.GS.IsProcessing {
-			log.Println("Processing ...")
-		}
-		channel <- "result 1"
-	}()
-	// Select if from result from channel or timeout
-	select {
-	case <-channel:
-		log.Println("Done with process has actually finished")
-		FinishProcess()
-	case <-time.After(time.Second * 1):
-		log.Println("Done with timeout")
-		FinishProcess()
+	// go func() {
+	for state.GS.IsProcessing {
+		log.Println("Processing ...")
 	}
+	// 	channel <- "Done with process has actually finished"
+	// }()
+	// // Select if from result from channel or timeout
+	// select {
+	// case result := <-channel:
+	// 	log.Println(result)
+	// 	FinishProcess()
+	// case <-time.After(time.Second * 1):
+	// 	log.Println("Done with timeout")
+	// 	FinishProcess()
+	// }
 }
 
 // StartProcess set IsProcessing to true to blocking
 func StartProcess() {
+	log.Println("Start Processing ...")
 	state.GS.IsProcessing = true
 }
 
 // FinishProcess set IsProcessing to false to unblocking
 func FinishProcess() {
+	log.Println("Finish Processing ...")
 	state.GS.IsProcessing = false
 }
 

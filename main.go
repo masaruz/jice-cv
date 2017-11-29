@@ -21,6 +21,7 @@ import (
 const port = ":3000"
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lmicroseconds) //Log in microsecond
 	server, err := socketio.NewServer(nil)
 	if err != nil {
 		log.Fatal(err)
@@ -37,19 +38,17 @@ func main() {
 		so.On(constant.Enter, func(msg string) string {
 			channel := ""
 			data, err := handler.ConvertStringToRequestStruct(msg)
-			handler.WaitQueue()
-			handler.StartProcess()
 			// if cannot parse or client send nothing
 			if err != nil {
 				log.Println(so.Id(), "Enter", "Payload is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			if !handler.IsTableKeyValid(data.Header.Token) {
 				log.Println(so.Id(), "Enter", "Token is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
+			handler.WaitQueue()
+			handler.StartProcess()
 			channel = constant.Enter
 			// Join the room
 			so.Join(so.Id())
@@ -73,16 +72,15 @@ func main() {
 			// if cannot parse or client send nothing
 			if err != nil {
 				log.Println(so.Id(), "Stimulate", "Payload is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			if !handler.IsTableKeyValid(data.Header.Token) {
 				log.Println(so.Id(), "Stimulate", "Token is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			handler.WaitQueue()
 			handler.StartProcess()
+			log.Println("Prepare to check Start(), NextRound(), Finish()")
 			// If cannot start, next and finish then it is during gameplay
 			if !state.GS.Gambit.Start() &&
 				!state.GS.Gambit.NextRound() &&
@@ -105,12 +103,10 @@ func main() {
 			// if cannot parse or client send nothing
 			if err != nil {
 				log.Println(so.Id(), "GetState", "Payload is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			if !handler.IsTableKeyValid(data.Header.Token) {
 				log.Println(so.Id(), "GetState", "Token is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			return handler.CreateResponse(so.Id(), constant.GetState)
@@ -122,12 +118,10 @@ func main() {
 			// if cannot parse or client send nothing
 			if err != nil {
 				log.Println(so.Id(), "Check", "Payload is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			if !handler.IsTableKeyValid(data.Header.Token) {
 				log.Println(so.Id(), "Check", "Token is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			handler.WaitQueue()
@@ -148,12 +142,10 @@ func main() {
 			// if cannot parse or client send nothing
 			if err != nil || len(data.Payload.Parameters) <= 0 {
 				log.Println(so.Id(), "Bet", "Payload is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			if !handler.IsTableKeyValid(data.Header.Token) {
 				log.Println(so.Id(), "Bet", "Token is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			handler.WaitQueue()
@@ -175,12 +167,10 @@ func main() {
 			// if cannot parse or client send nothing
 			if err != nil {
 				log.Println(so.Id(), "Raise", "Payload is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			if !handler.IsTableKeyValid(data.Header.Token) {
 				log.Println(so.Id(), "Raise", "Token is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			handler.WaitQueue()
@@ -202,12 +192,10 @@ func main() {
 			// if cannot parse or client send nothing
 			if err != nil {
 				log.Println(so.Id(), "Call", "Payload is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			if !handler.IsTableKeyValid(data.Header.Token) {
 				log.Println(so.Id(), "Call", "Token is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			handler.WaitQueue()
@@ -228,12 +216,10 @@ func main() {
 			// if cannot parse or client send nothing
 			if err != nil {
 				log.Println(so.Id(), "AllIn", "Payload is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			if !handler.IsTableKeyValid(data.Header.Token) {
 				log.Println(so.Id(), "AllIn", "Token is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			handler.WaitQueue()
@@ -254,12 +240,10 @@ func main() {
 			// if cannot parse or client send nothing
 			if err != nil {
 				log.Println(so.Id(), "Fold", "Payload is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			if !handler.IsTableKeyValid(data.Header.Token) {
 				log.Println(so.Id(), "Fold", "Token is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			handler.WaitQueue()
@@ -281,12 +265,10 @@ func main() {
 			// if cannot parse or client send nothing
 			if err != nil {
 				log.Println(so.Id(), "StartTable", "Payload is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			if !handler.IsTableKeyValid(data.Header.Token) {
 				log.Println(so.Id(), "StartTable", "Token is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			handler.WaitQueue()
@@ -306,18 +288,16 @@ func main() {
 		so.On(constant.Sit, func(msg string) string {
 			channel := ""
 			data, err := handler.ConvertStringToRequestStruct(msg)
-			handler.WaitQueue()
-			handler.StartProcess()
 			if err != nil || len(data.Payload.Parameters) <= 0 {
 				log.Println(so.Id(), "Sit", "Payload is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			if !handler.IsTableKeyValid(data.Header.Token) {
 				log.Println(so.Id(), "Sit", "Token is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
+			handler.WaitQueue()
+			handler.StartProcess()
 			if err == nil && handler.Sit(so.Id(), data.Payload.Parameters[0].IntegerValue) {
 				channel = constant.Sit
 				state.GS.Gambit.Start()
@@ -337,12 +317,10 @@ func main() {
 			// if cannot parse or client send nothing
 			if err != nil {
 				log.Println(so.Id(), "Stand", "Payload is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			if !handler.IsTableKeyValid(data.Header.Token) {
 				log.Println(so.Id(), "Stand", "Token is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			handler.WaitQueue()
@@ -416,19 +394,17 @@ func main() {
 		so.On(constant.ExtendDecisionTime, func(msg string) string {
 			channel := ""
 			data, err := handler.ConvertStringToRequestStruct(msg)
-			handler.WaitQueue()
-			handler.StartProcess()
 			// if cannot parse or client send nothing
 			if err != nil {
 				log.Println(so.Id(), "Extend Decision Time", "Payload is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			if !handler.IsTableKeyValid(data.Header.Token) {
 				log.Println(so.Id(), "Extend Decision Time", "Token is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
+			handler.WaitQueue()
+			handler.StartProcess()
 			if handler.ExtendPlayerTimeline(so.Id()) {
 				channel = constant.ExtendDecisionTime
 				state.GS.IncreaseVersion()
@@ -441,19 +417,17 @@ func main() {
 		so.On(constant.DisbandTable, func(msg string) string {
 			channel := ""
 			data, err := handler.ConvertStringToRequestStruct(msg)
-			handler.WaitQueue()
-			handler.StartProcess()
 			// if cannot parse or client send nothing
 			if err != nil {
 				log.Println(so.Id(), "Disband Table", "Payload is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
 			if !handler.IsTableKeyValid(data.Header.Token) {
 				log.Println(so.Id(), "Disband Table", "Token is invalid")
-				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
+			handler.WaitQueue()
+			handler.StartProcess()
 			channel = constant.DisbandTable
 			handler.FinishTable()
 			if !handler.IsGameStart() {
