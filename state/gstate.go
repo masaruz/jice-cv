@@ -41,9 +41,10 @@ var gameStates []GameState
 
 // GS is global variable of GameState can be accessed from any where
 var GS = GameState{
-	TableID:   "from_manager",
-	GroupID:   "from_manager",
-	GameIndex: 0,
+	TableID:         "from_manager",
+	GroupID:         "from_manager",
+	GameIndex:       0,
+	PlayerTableKeys: make(map[string]string),
 }
 
 // IncreaseVersion validate with client

@@ -458,6 +458,14 @@ func main() {
 		}
 		b, _ := ioutil.ReadAll(r.Body)
 		json.Unmarshal(b, &playerTableKeys)
+		for suid, sptk := range state.GS.PlayerTableKeys {
+			for index, ptk := range playerTableKeys {
+				// Same table key but not same user
+				if suid != ptk.UserID && sptk == ptk.TableKey {
+					playerTableKeys[index].TableKey = ""
+				}
+			}
+		}
 		// Forloop and save key into state
 		for _, ptk := range playerTableKeys {
 			// Hawkeye hint should delete the tablekey from this player
@@ -467,6 +475,7 @@ func main() {
 				state.GS.PlayerTableKeys[ptk.UserID] = ptk.TableKey
 			}
 		}
+		log.Println(state.GS.PlayerTableKeys)
 		// Return success to hawkeye
 		resp, _ := json.Marshal(struct {
 			Code    int
