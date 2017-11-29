@@ -27,13 +27,29 @@ type Table struct {
 type Summary struct {
 	Settlements []Settlement `json:"settlements,omitempty"`
 	CreateTime  int64        `json:"createtime,omitempty"`
+	GameIndex   int          `json:"gameindex"`
+	GroupID     string       `json:"groupid"`
 }
 
 // Settlement of summerized gain or loss chips
 type Settlement struct {
 	UserID        string  `json:"userid" validate:"required"`
 	WinLossAmount int     `json:"winlossamount" validate:"required"`
-	PaidRake      float64 `json:"paidrake,omitempty"`
+	PaidRake      float64 `json:"paidrake" validate:"required"`
+}
+
+// Scoreboard history of winloss amount of this table
+type Scoreboard struct {
+	UserID         string `json:"userid"`
+	DisplayName    string `json:"display_name"`
+	BuyInAmount    int    `json:"buyinamount"`    // int, Buy-in amount shown on board
+	WinningsAmount int    `json:"winningsamount"` // int, Winnings amount shown on board
+}
+
+// Visitor for talk to hawkeye
+type Visitor struct {
+	UserID      string `json:"userid"`
+	DisplayName string `json:"display_name"`
 }
 
 func getTableURL(id string) string {
@@ -42,18 +58,44 @@ func getTableURL(id string) string {
 
 // UpdateRealtimeData save table state to realtime
 func UpdateRealtimeData() ([]byte, error) {
-	gambit := state.GS.Gambit
-	table := Table{
-		GroupID:       state.GS.GroupID,
-		GameIndex:     state.GS.GameIndex,
-		PlayersAmount: util.CountSitting(state.GS.Players),
-		PlayersLimit:  gambit.GetSettings().MaxPlayers,
-		BuyInMin:      gambit.GetSettings().BuyInMin,
-		BuyInMax:      gambit.GetSettings().BuyInMax,
-		DisplayName:   state.GS.TableDisplayName,
-		StartTime:     state.GS.StartTableTime}
+	// Create scoreboard
+	scoreboards := []Scoreboard{}
+	for _, player := range state.GS.Players {
+		scoreboards = append(scoreboards,
+			Scoreboard{
+				UserID:         player.ID,
+				DisplayName:    player.Name,
+				BuyInAmount:    player.Chips,
+				WinningsAmount: player.WinLossAmount,
+			})
+	}
+	// Create visitor
+	visitors := []Visitor{}
+	for _, visitor := range state.GS.Visitors {
+		visitors = append(visitors,
+			Visitor{
+				UserID:      visitor.ID,
+				DisplayName: visitor.Name,
+			})
+	}
+	// gambit := state.GS.Gambit
+	realtimedata := struct {
+		TableID     string        `json:"tableid"`
+		GroupID     string        `json:"groupid"`
+		GameIndex   int           `json:"gameindex"`
+		PlayerCount int           `json:"players_count"`
+		Scoreboard  *[]Scoreboard `json:"scoreboard"`
+		Visitors    *[]Visitor    `json:"visitors"`
+	}{
+		TableID:     state.GS.TableID,
+		GroupID:     state.GS.GroupID,
+		GameIndex:   state.GS.GameIndex,
+		PlayerCount: util.CountSitting(state.GS.Players),
+		Scoreboard:  &scoreboards,
+		Visitors:    &visitors,
+	}
 	// cast param to byte
-	data, err := json.Marshal(table)
+	data, err := json.Marshal(realtimedata)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +140,11 @@ func Terminate() ([]byte, error) {
 
 // SaveSettlements after game's end
 func SaveSettlements() ([]byte, error) {
-	summary := Summary{CreateTime: time.Now().Unix()}
+	summary := Summary{
+		CreateTime: time.Now().Unix(),
+		GameIndex:  state.GS.GameIndex,
+		GroupID:    state.GS.GroupID,
+	}
 	for _, player := range state.GS.Players {
 		if player.ID == "" {
 			continue
@@ -121,7 +167,11 @@ func SaveSettlements() ([]byte, error) {
 // SaveSettlement support a player
 func SaveSettlement(userid string) ([]byte, error) {
 	_, player := util.Get(state.GS.Players, userid)
-	summary := Summary{CreateTime: time.Now().Unix()}
+	summary := Summary{
+		CreateTime: time.Now().Unix(),
+		GameIndex:  state.GS.GameIndex,
+		GroupID:    state.GS.GroupID,
+	}
 	summary.Settlements = append(summary.Settlements, Settlement{
 		UserID:        player.ID,
 		WinLossAmount: player.WinLossAmount,

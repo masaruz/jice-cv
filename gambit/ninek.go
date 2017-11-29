@@ -60,10 +60,10 @@ func (game NineK) Start() bool {
 			// TODO if player has not enough chip then all-in their chips
 			if player.Chips < game.GetSettings().BlindsSmall {
 				// Validate with other server when is not in dev
-				if os.Getenv("env") != "test" {
+				if os.Getenv("env") != "dev" {
 					// Need request to server for buyin
 					body, _ := api.BuyIn(player.ID, game.GetSettings().BuyInMin)
-					resp := &api.PlayerResponse{}
+					resp := &api.Response{}
 					json.Unmarshal(body, resp)
 					// If this player request buy in success
 					if resp.Error.StatusCode == 0 {
@@ -87,14 +87,20 @@ func (game NineK) Start() bool {
 		// After pass through the critiria
 		// if there are more than 2 players are sitting
 		if util.CountSitting(state.GS.Players) >= 2 {
+			// Increase gameindex for backend process ex. realtime-data, analytic
+			handler.IncreaseGameIndex()
+			log.Println("Gameindex increased")
+			log.Println("Prepare to start game")
 			// everyone is assumed afk
 			state.GS.DoActions = make([]bool, game.MaxPlayers)
 			state.GS.Rakes = make(map[string]float64)
 			state.GS.Pots = make([]int, game.MaxPlayers)
-			// request to start game
-			_, err := api.StartGame()
-			if err != nil {
-				panic(err)
+			if os.Getenv("env") != "dev" {
+				// request to start game
+				_, err := api.StartGame()
+				if err != nil {
+					panic(err)
+				}
 			}
 			// set players to be ready
 			handler.MakePlayersReady()
@@ -113,6 +119,7 @@ func (game NineK) Start() bool {
 			handler.Shuffle()
 			handler.CreateTimeLine(game.DecisionTime)
 			handler.Deal(2, game.MaxPlayers)
+			log.Println("2 cards dealed")
 			handler.SetPlayersRake(game.Rake, game.Cap*float64(game.BlindsBig))
 			return true
 		}
@@ -131,6 +138,7 @@ func (game NineK) NextRound() bool {
 	if handler.IsGameStart() && !handler.IsFullHand(3) &&
 		handler.BetsEqual() && handler.IsEndRound() &&
 		util.CountPlayerNotFold(state.GS.Players) > 1 {
+		log.Println("Prepare to start next round")
 		// Initialize values
 		handler.SetMinimumBet(game.BlindsBig)
 		handler.SetOtherActions("", constant.Check)
@@ -138,6 +146,7 @@ func (game NineK) NextRound() bool {
 		handler.CreateTimeLine(game.DecisionTime)
 		handler.PlayersInvestToPots(0)
 		handler.Deal(1, game.MaxPlayers)
+		log.Println("1 cards dealed")
 		handler.IncreaseTurn()
 		// no one is assumed afk
 		state.GS.DoActions = make([]bool, game.MaxPlayers)
@@ -153,6 +162,7 @@ func (game NineK) Finish() bool {
 	if handler.IsGameStart() && ((util.CountPlayerNotFold(state.GS.Players) <= 1) ||
 		// if has 3 cards bet equal
 		(handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound())) {
+		log.Println("Prepare to finish game")
 		// calculate afk players
 		for index, doaction := range state.GS.DoActions {
 			// Skip empty players
@@ -173,6 +183,7 @@ func (game NineK) Finish() bool {
 		hscore := -1
 		hbonus := -1
 		pos := -1
+		log.Println("Find the winner(s)")
 		// Evaluate score from everyone's hand
 		for i := 0; i < len(state.GS.Players); i++ {
 			for index, player := range state.GS.Players {
@@ -230,10 +241,6 @@ func (game NineK) Finish() bool {
 				pos = -1
 			}
 		}
-		// Update all players' buy-in amount
-		// api.SaveSettlements()
-		// Increase gameindex for backend process ex. realtime-data, analytic
-		handler.IncreaseGameIndex()
 		// Revert minimum bet
 		handler.SetMinimumBet(game.BlindsBig)
 		handler.FlushPlayers()
@@ -241,6 +248,7 @@ func (game NineK) Finish() bool {
 		state.GS.IsGameStart = false
 		// Check if current time is more than finish table time
 		if time.Now().Unix() >= state.GS.FinishTableTime {
+			log.Println("Prepare to be destroyed")
 			// For force client to leave
 			state.GS.IsTableExpired = true
 			state.GS.IsTableStart = false

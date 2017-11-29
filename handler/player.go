@@ -6,6 +6,7 @@ import (
 	"999k_engine/model"
 	"999k_engine/state"
 	"999k_engine/util"
+	"log"
 	"os"
 	"time"
 )
@@ -103,7 +104,7 @@ func Stand(id string) bool {
 		OverwriteActionToBehindPlayers()
 	}
 	// If not in dev, call api
-	if os.Getenv("env") != "test" {
+	if os.Getenv("env") != "dev" {
 		// Update buy-in cash
 		api.SaveSettlement(id)
 		// Save buy-in cash to real player pocket
@@ -117,7 +118,6 @@ func Stand(id string) bool {
 	state.GS.Players = util.Kick(state.GS.Players, caller.ID)
 	state.GS.Visitors = util.Add(state.GS.Visitors, visitor)
 	SetOtherActionsWhoAreNotPlaying(constant.Sit)
-	// TODO cashback here
 	return true
 }
 
@@ -171,4 +171,11 @@ func SendSticker(stickerid string, senderid string, targetslot int) {
 		stickers = append(stickers, sticker)
 		state.GS.Players[index].Stickers = &stickers
 	}
+}
+
+// IsTableKeyValid make sure this player has valid table key
+// Validate this player has been allowed to access this table
+func IsTableKeyValid(tablekey string) bool {
+	log.Printf("Check table key %s", state.GS.PlayerTableKeys[tablekey])
+	return state.GS.PlayerTableKeys[tablekey] != "" || os.Getenv("env") == "dev"
 }

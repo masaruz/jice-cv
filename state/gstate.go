@@ -29,9 +29,10 @@ type GameState struct {
 	Pots             []int
 	AFKCounts        []int
 	DoActions        []bool
-	Rakes            map[string]float64
 	Event            string
 	TableDisplayName string
+	Rakes            map[string]float64
+	PlayerTableKeys  map[string]string // Map of each player_table_key and player_id
 }
 
 // gameStates to record all gamestates

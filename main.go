@@ -6,7 +6,9 @@ import (
 	"999k_engine/handler"
 	"999k_engine/state"
 	"999k_engine/util"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -23,10 +25,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	server.SetAllowRequest(func(r *http.Request) error {
-		log.Println(r.Header)
-		return nil
-	})
 	// Get gameindex from hawkeye who awake this container
 	gameindex, _ := strconv.Atoi(os.Getenv(constant.GameIndex))
 	// Assign to GameIndex
@@ -40,34 +38,59 @@ func main() {
 		// Because connect does not support message payload
 		// Or retrieve player info
 		so.On(constant.Enter, func(msg string) string {
-			log.Println(msg)
+			channel := ""
+			data, err := handler.ConvertStringToRequestStruct(msg)
 			handler.WaitQueue()
 			handler.StartProcess()
-			channel := constant.Enter
+			// if cannot parse or client send nothing
+			if err != nil {
+				log.Println(so.Id(), "Enter", "Payload is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
+			if !handler.IsTableKeyValid(data.Header.Token) {
+				log.Println(so.Id(), "Enter", "Token is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
+			channel = constant.Enter
 			// Join the room
 			so.Join(so.Id())
 			handler.Connect(so.Id())
 			handler.BroadcastGameState(so, constant.GetState, so.Id())
 			state.GS.IncreaseVersion()
 			handler.FinishProcess()
+			log.Println(so.Id(), "Enter", "success")
 			// If no seat then just return current state
 			return handler.CreateResponse(so.Id(), channel)
 		})
 		// When player need server to check something
 		so.On(constant.Stimulate, func(msg string) string {
+			channel := ""
+			data, err := handler.ConvertStringToRequestStruct(msg)
+			// if cannot parse or client send nothing
+			if err != nil {
+				log.Println(so.Id(), "Stimulate", "Payload is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
+			if !handler.IsTableKeyValid(data.Header.Token) {
+				log.Println(so.Id(), "Stimulate", "Token is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
 			handler.WaitQueue()
 			handler.StartProcess()
-			channel := ""
 			// If cannot start, next and finish then it is during gameplay
 			if !state.GS.Gambit.Start() &&
 				!state.GS.Gambit.NextRound() &&
 				!state.GS.Gambit.Finish() {
-				log.Println(so.Id(), "Stimulate", "Nothing")
+				// log.Println(so.Id(), "Stimulate", "nothing")
 			} else {
 				channel = constant.PushState
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, so.Id())
-				log.Println(so.Id(), "Stimulate", "success")
+				// log.Println(so.Id(), "Stimulate", "success")
 			}
 			handler.FinishProcess()
 			// If no seat then just return current state
@@ -75,13 +98,38 @@ func main() {
 		})
 		// When player need to get game state
 		so.On(constant.GetState, func(msg string) string {
+			channel := ""
+			data, err := handler.ConvertStringToRequestStruct(msg)
+			// if cannot parse or client send nothing
+			if err != nil {
+				log.Println(so.Id(), "GetState", "Payload is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
+			if !handler.IsTableKeyValid(data.Header.Token) {
+				log.Println(so.Id(), "GetState", "Token is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
 			return handler.CreateResponse(so.Id(), constant.GetState)
 		})
 		// When player call check
 		so.On(constant.Check, func(msg string) string {
+			channel := ""
+			data, err := handler.ConvertStringToRequestStruct(msg)
+			// if cannot parse or client send nothing
+			if err != nil {
+				log.Println(so.Id(), "Check", "Payload is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
+			if !handler.IsTableKeyValid(data.Header.Token) {
+				log.Println(so.Id(), "Check", "Token is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
 			handler.WaitQueue()
 			handler.StartProcess()
-			channel := ""
 			if state.GS.Gambit.Check(so.Id()) {
 				channel = constant.Check
 				state.GS.IncreaseVersion()
@@ -93,14 +141,21 @@ func main() {
 		})
 		// When player need to bet chips
 		so.On(constant.Bet, func(msg string) string {
-			handler.WaitQueue()
-			handler.StartProcess()
 			channel := ""
 			data, err := handler.ConvertStringToRequestStruct(msg)
 			// if cannot parse or client send nothing
 			if err != nil || len(data.Payload.Parameters) <= 0 {
+				log.Println(so.Id(), "Bet", "Payload is invalid")
+				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
+			if !handler.IsTableKeyValid(data.Header.Token) {
+				log.Println(so.Id(), "Bet", "Token is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
+			handler.WaitQueue()
+			handler.StartProcess()
 			// client send amount of bet
 			if state.GS.Gambit.Bet(so.Id(), data.Payload.Parameters[0].IntegerValue) {
 				channel = constant.Bet
@@ -113,14 +168,21 @@ func main() {
 		})
 		// When player need to raise chips
 		so.On(constant.Raise, func(msg string) string {
-			handler.WaitQueue()
-			handler.StartProcess()
 			channel := ""
 			data, err := handler.ConvertStringToRequestStruct(msg)
 			// if cannot parse or client send nothing
-			if err != nil || len(data.Payload.Parameters) <= 0 {
+			if err != nil {
+				log.Println(so.Id(), "Raise", "Payload is invalid")
+				handler.FinishProcess()
 				return handler.CreateResponse(so.Id(), channel)
 			}
+			if !handler.IsTableKeyValid(data.Header.Token) {
+				log.Println(so.Id(), "Raise", "Token is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
+			handler.WaitQueue()
+			handler.StartProcess()
 			// client send amount of raise
 			if state.GS.Gambit.Raise(so.Id(), data.Payload.Parameters[0].IntegerValue) {
 				channel = constant.Raise
@@ -133,9 +195,21 @@ func main() {
 		})
 		// When player need to call chips
 		so.On(constant.Call, func(msg string) string {
+			channel := ""
+			data, err := handler.ConvertStringToRequestStruct(msg)
+			// if cannot parse or client send nothing
+			if err != nil {
+				log.Println(so.Id(), "Call", "Payload is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
+			if !handler.IsTableKeyValid(data.Header.Token) {
+				log.Println(so.Id(), "Call", "Token is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
 			handler.WaitQueue()
 			handler.StartProcess()
-			channel := ""
 			if state.GS.Gambit.Call(so.Id()) {
 				channel = constant.Call
 				state.GS.IncreaseVersion()
@@ -147,9 +221,21 @@ func main() {
 		})
 		// When player need to all in
 		so.On(constant.AllIn, func(msg string) string {
+			channel := ""
+			data, err := handler.ConvertStringToRequestStruct(msg)
+			// if cannot parse or client send nothing
+			if err != nil {
+				log.Println(so.Id(), "AllIn", "Payload is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
+			if !handler.IsTableKeyValid(data.Header.Token) {
+				log.Println(so.Id(), "AllIn", "Token is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
 			handler.WaitQueue()
 			handler.StartProcess()
-			channel := ""
 			if state.GS.Gambit.AllIn(so.Id()) {
 				channel = constant.Raise
 				state.GS.IncreaseVersion()
@@ -161,9 +247,21 @@ func main() {
 		})
 		// When player fold their cards
 		so.On(constant.Fold, func(msg string) string {
+			channel := ""
+			data, err := handler.ConvertStringToRequestStruct(msg)
+			// if cannot parse or client send nothing
+			if err != nil {
+				log.Println(so.Id(), "Fold", "Payload is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
+			if !handler.IsTableKeyValid(data.Header.Token) {
+				log.Println(so.Id(), "Fold", "Token is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
 			handler.WaitQueue()
 			handler.StartProcess()
-			channel := ""
 			if state.GS.Gambit.Fold(so.Id()) {
 				channel = constant.Fold
 				state.GS.Gambit.Finish()
@@ -176,9 +274,21 @@ func main() {
 		})
 		// Start table and no ending until expire
 		so.On(constant.StartTable, func(msg string) string {
+			channel := ""
+			data, err := handler.ConvertStringToRequestStruct(msg)
+			// if cannot parse or client send nothing
+			if err != nil {
+				log.Println(so.Id(), "StartTable", "Payload is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
+			if !handler.IsTableKeyValid(data.Header.Token) {
+				log.Println(so.Id(), "StartTable", "Token is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
 			handler.WaitQueue()
 			handler.StartProcess()
-			channel := ""
 			if util.CountSitting(state.GS.Players) > 1 && !handler.IsTableStart() {
 				channel = constant.StartTable
 				handler.StartTable()
@@ -192,11 +302,20 @@ func main() {
 		})
 		// When player sit down
 		so.On(constant.Sit, func(msg string) string {
-			log.Println(so.Id(), "Sit", "Trying")
-			handler.WaitQueue()
-			handler.StartProcess()
 			channel := ""
 			data, err := handler.ConvertStringToRequestStruct(msg)
+			handler.WaitQueue()
+			handler.StartProcess()
+			if err != nil || len(data.Payload.Parameters) <= 0 {
+				log.Println(so.Id(), "Sit", "Payload is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
+			if !handler.IsTableKeyValid(data.Header.Token) {
+				log.Println(so.Id(), "Sit", "Token is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
 			if err == nil && handler.Sit(so.Id(), data.Payload.Parameters[0].IntegerValue) {
 				channel = constant.Sit
 				state.GS.Gambit.Start()
@@ -211,10 +330,21 @@ func main() {
 		})
 		// When player stand up
 		so.On(constant.Stand, func(msg string) string {
-			log.Println(so.Id(), "Stand", "Trying")
+			channel := ""
+			data, err := handler.ConvertStringToRequestStruct(msg)
+			// if cannot parse or client send nothing
+			if err != nil {
+				log.Println(so.Id(), "Stand", "Payload is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
+			if !handler.IsTableKeyValid(data.Header.Token) {
+				log.Println(so.Id(), "Stand", "Token is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
 			handler.WaitQueue()
 			handler.StartProcess()
-			channel := ""
 			if handler.Stand(so.Id()) {
 				channel = constant.Stand
 				state.GS.Gambit.Finish()
@@ -245,10 +375,10 @@ func main() {
 		})
 		// When send sticker
 		so.On(constant.SendSticker, func(msg string) string {
-			handler.WaitQueue()
-			handler.StartProcess()
 			channel := ""
 			data, err := handler.ConvertStringToRequestStruct(msg)
+			handler.WaitQueue()
+			handler.StartProcess()
 			// if cannot parse or client send nothing
 			if err == nil && len(data.Payload.Parameters) == 2 {
 				param1 := data.Payload.Parameters[0]
@@ -282,9 +412,21 @@ func main() {
 		// Extend a player action time with effect to everyone's timeline
 		// And also finish round time of table
 		so.On(constant.ExtendDecisionTime, func(msg string) string {
+			channel := ""
+			data, err := handler.ConvertStringToRequestStruct(msg)
 			handler.WaitQueue()
 			handler.StartProcess()
-			channel := ""
+			// if cannot parse or client send nothing
+			if err != nil {
+				log.Println(so.Id(), "Extend Decision Time", "Payload is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
+			if !handler.IsTableKeyValid(data.Header.Token) {
+				log.Println(so.Id(), "Extend Decision Time", "Token is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
 			if handler.ExtendPlayerTimeline(so.Id()) {
 				channel = constant.ExtendDecisionTime
 				state.GS.IncreaseVersion()
@@ -295,16 +437,28 @@ func main() {
 		})
 		// When admin disband table it should be set finish table time
 		so.On(constant.DisbandTable, func(msg string) string {
+			channel := ""
+			data, err := handler.ConvertStringToRequestStruct(msg)
 			handler.WaitQueue()
 			handler.StartProcess()
-			channel := ""
+			// if cannot parse or client send nothing
+			if err != nil {
+				log.Println(so.Id(), "Disband Table", "Payload is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
+			if !handler.IsTableKeyValid(data.Header.Token) {
+				log.Println(so.Id(), "Disband Table", "Token is invalid")
+				handler.FinishProcess()
+				return handler.CreateResponse(so.Id(), channel)
+			}
 			channel = constant.DisbandTable
 			handler.FinishTable()
 			if !handler.IsGameStart() {
 				state.GS.IsTableExpired = true
 			}
-			handler.FinishProcess()
 			handler.BroadcastGameState(so, channel, so.Id())
+			handler.FinishProcess()
 			log.Println(so.Id(), "Disband", "success")
 			defer handler.PrepareDestroyed()
 			return handler.CreateResponse(so.Id(), channel)
@@ -319,6 +473,29 @@ func main() {
 	// Handler
 	router.Handle("/socket.io/", server)
 	router.Handle("/socket.io", server)
+	router.HandleFunc("/updateAuth", func(w http.ResponseWriter, r *http.Request) {
+		// Set header to response as json format
+		w.Header().Set("Content-Type", "application/json")
+		var model []struct {
+			TableKey string `json:"tablekey"`
+			UserID   string `json:"userid"`
+		}
+		b, _ := ioutil.ReadAll(r.Body)
+		json.Unmarshal(b, &model)
+		// Forloop and save key into state
+		for _, m := range model {
+			state.GS.PlayerTableKeys[m.TableKey] = m.UserID
+		}
+		// Return success to hawkeye
+		resp, _ := json.Marshal(struct {
+			Code    int
+			Message string
+		}{
+			Code:    200, // Success code
+			Message: "Update successfully",
+		})
+		w.Write(resp)
+	}).Methods("POST") // Receive only post
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		str := ""
 		for _, pair := range os.Environ() {

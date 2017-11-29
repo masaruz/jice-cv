@@ -2,68 +2,69 @@ package api_test
 
 import (
 	"999k_engine/api"
-	"999k_engine/gambit"
-	"999k_engine/handler"
+	"999k_engine/model"
 	"999k_engine/state"
+	"encoding/json"
 	"testing"
 )
 
 func TestLoop01(t *testing.T) {
-	decisionTime := int64(3)
-	minimumBet := 10
-	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
-	handler.Initiate(ninek)
-	handler.Connect("player1")
-	handler.Connect("player2")
-	handler.Connect("player3")
-	handler.Connect("player4")
-	state.GS.Gambit.Init() // create seats
-	// dumb player
-	handler.Sit("player1", 2)
-	handler.Sit("player2", 3)
-	handler.Sit("player3", 5)
-	handler.Sit("player4", 1)
-	p1 := &state.GS.Players[2]
-	p2 := &state.GS.Players[3]
-	p3 := &state.GS.Players[5]
-	p4 := &state.GS.Players[1]
-	handler.StartTable()
-	if !state.GS.Gambit.Start() {
-		t.Error()
-	}
-	if !state.GS.Gambit.Check(p1.ID) {
-		t.Error()
-	}
-	if handler.ExtendPlayerTimeline(p1.ID, 5) {
-		t.Error()
-	}
-	body, err := api.ExtendActionTime(p2.ID)
+	id1 := "us3xq4zomamja85xwx1"
+	id2 := "ustel9kvy19hajahvzo3r"
+	state.GS.TableID = "ta3xq4zohckj9zjaj8d"
+	state.GS.GroupID = "cl3xq4zo7zojac32ay3"
+	state.GS.GameIndex = 2
+	state.GS.Players = model.Players{
+		model.Player{
+			ID:            id1,
+			WinLossAmount: 100},
+		model.Player{
+			ID:            id2,
+			WinLossAmount: -100}}
+	state.GS.Rakes = map[string]float64{id1: 0.5, id2: 0.5}
+	// Cannot save the settlements if players never buyin
+	body, err := api.SaveSettlements()
 	if err != nil {
 		t.Error()
 	}
-	if data := string(body); data != `{"message":"Successfully extend action time"}` {
-		t.Error(data)
-	}
-	if !handler.ExtendPlayerTimeline(p2.ID, 5) {
+	resp := &api.Response{}
+	if json.Unmarshal(body, resp); resp.Error.StatusCode != 422 {
 		t.Error()
 	}
-	body, err = api.CashBack(p3.ID)
+	body, err = api.BuyIn(id1, 200)
+	if err != nil {
+		t.Error()
+	}
+	if data := string(body); data != `{"message":"Successfully buyin"}` {
+		t.Error(data)
+	}
+	body, err = api.BuyIn(id2, 200)
+	if err != nil {
+		t.Error()
+	}
+	if data := string(body); data != `{"message":"Successfully buyin"}` {
+		t.Error(data)
+	}
+	// After they buyin success then able to save the settlement
+	body, err = api.SaveSettlements()
+	if err != nil {
+		t.Error()
+	}
+	if data := string(body); data != `{"message":"Successfully settlements"}` {
+		t.Error(data)
+	}
+	body, err = api.CashBack(id1)
 	if err != nil {
 		t.Error()
 	}
 	if data := string(body); data != `{"message":"Successfully cashback"}` {
 		t.Error(data)
 	}
-	if !handler.Stand(p3.ID) {
+	body, err = api.CashBack(id2)
+	if err != nil {
 		t.Error()
 	}
-	// p1.Print()
-	// p2.Print()
-	// p3.Print()
-	// p4.Print()
+	if data := string(body); data != `{"message":"Successfully cashback"}` {
+		t.Error(data)
+	}
 }

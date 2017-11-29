@@ -17,18 +17,6 @@ type Player struct {
 	PendingClubs []string `json:"pending_clubs"`
 }
 
-// PlayerResponse from api server
-type PlayerResponse struct {
-	Error PlayerError `json:"err"`
-}
-
-// PlayerError when receive something wrong from server
-type PlayerError struct {
-	StatusCode int    `json:"statusCode"`
-	Name       string `json:"name"`
-	Message    string `json:"message"`
-}
-
 // SendSticker send sticker by using gems
 func SendSticker(id string) ([]byte, error) {
 	// cast param to byte
@@ -57,9 +45,9 @@ func BuyIn(userid string, buyinamount int) ([]byte, error) {
 		BuyInAmount int    `json:"buyinamount"`
 	}{
 		UserID:      userid,
-		GameIndex:   state.GS.GameIndex,
 		GroupID:     state.GS.GroupID,
 		CreateTime:  time.Now().Unix(),
+		GameIndex:   state.GS.GameIndex,
 		BuyInAmount: buyinamount,
 	})
 	if err != nil {
@@ -85,9 +73,9 @@ func CashBack(userid string) ([]byte, error) {
 		CashBackAmount int    `json:"cashbackamount"`
 	}{
 		UserID:         userid,
-		GameIndex:      state.GS.GameIndex,
 		GroupID:        state.GS.GroupID,
 		CreateTime:     time.Now().Unix(),
+		GameIndex:      state.GS.GameIndex,
 		CashBackAmount: player.Chips,
 	})
 	if err != nil {
@@ -99,15 +87,28 @@ func CashBack(userid string) ([]byte, error) {
 }
 
 // ExtendActionTime when player decide to extend action time
-func ExtendActionTime(id string) ([]byte, error) {
+func ExtendActionTime(playerid string) ([]byte, error) {
+	// TODO need to be done
 	// cast param to byte
-	data, err := json.Marshal(Player{
-		ID: id})
+	data, err := json.Marshal(struct {
+		ConsumeAmount    int    `json:"consumeamount"`
+		ExtendActionTime int    `json:"extendactiontime"`
+		ActionCount      int    `json:"actioncount"`
+		UserID           string `json:"userid"`
+		GroupID          string `json:"groupid"`
+		CreateTime       int64  `json:"createtime"`
+		GameIndex        int    `json:"gameindex"`
+		CashBackAmount   int    `json:"cashbackamount"`
+	}{
+		UserID:    playerid,
+		GroupID:   state.GS.GroupID,
+		GameIndex: state.GS.GameIndex,
+	})
 	if err != nil {
 		return nil, err
 	}
 	// create url
-	url := fmt.Sprintf("%s/extendactiontime", getTableURL(id))
+	url := fmt.Sprintf("%s/extendactiontime", getTableURL(state.GS.TableID))
 	return post(url, data)
 }
 
