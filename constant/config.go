@@ -14,4 +14,6 @@ const (
 	GroupID      = "GroupID"
 	MinimumBuyIn = "MinimumBuyIn"
 	MaximumBuyIn = "MaximumBuyIn"
+	Scoreboard   = "Scoreboard"
+	Visitors     = "Visitors"
 )

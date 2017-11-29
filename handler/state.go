@@ -6,10 +6,31 @@ import (
 	"999k_engine/state"
 	"999k_engine/util"
 	"encoding/json"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/googollee/go-socket.io"
 )
+
+// ResumeState from env
+func ResumeState() {
+	// Get gameindex from hawkeye who awake this container
+	gameindex, _ := strconv.Atoi(os.Getenv(constant.GameIndex))
+	// TODO preapre to add scoreboard and visitor
+	if s := os.Getenv(constant.Visitors); s != "" {
+		visitors := &model.Players{}
+		json.Unmarshal([]byte(s), visitors)
+		state.GS.Visitors = *visitors
+	}
+	if s := os.Getenv(constant.Scoreboard); s != "" {
+		scoreboard := &[]model.Scoreboard{}
+		json.Unmarshal([]byte(s), scoreboard)
+		state.GS.Scoreboard = *scoreboard
+	}
+	// Assign to GameIndex
+	state.GS.GameIndex = gameindex
+}
 
 // ConvertStringToRequestStruct convert string to struct (state.Req)
 // ConvertStringToRequestStruct return as value of pointer

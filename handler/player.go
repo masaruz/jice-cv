@@ -6,7 +6,6 @@ import (
 	"999k_engine/model"
 	"999k_engine/state"
 	"999k_engine/util"
-	"log"
 	"os"
 	"time"
 )
@@ -38,6 +37,19 @@ func Connect(id string) {
 		Action:  model.Action{Name: constant.Stand},
 		Actions: Reducer(constant.Connection, id)}
 	state.GS.Visitors = util.Add(state.GS.Visitors, caller)
+}
+
+// Enter when player actually call to enter to the room
+func Enter(player model.Player) bool {
+	if player.ID == "" ||
+		player.Name == "" ||
+		player.Picture == "" {
+		return false
+	}
+	player.Action = model.Action{Name: constant.Stand}
+	player.Actions = Reducer(constant.Connection, player.ID)
+	state.GS.Visitors = util.Add(state.GS.Visitors, player)
+	return true
 }
 
 // Leave and Remove user from vistor or player list
@@ -114,7 +126,10 @@ func Stand(id string) bool {
 	visitor := model.Player{
 		ID:      id,
 		Action:  model.Action{Name: constant.Stand},
-		Actions: Reducer(constant.Connection, id)}
+		Actions: Reducer(constant.Connection, id),
+		Name:    caller.Name,
+		Picture: caller.Picture,
+	}
 	state.GS.Players = util.Kick(state.GS.Players, caller.ID)
 	state.GS.Visitors = util.Add(state.GS.Visitors, visitor)
 	SetOtherActionsWhoAreNotPlaying(constant.Sit)
@@ -176,6 +191,13 @@ func SendSticker(stickerid string, senderid string, targetslot int) {
 // IsTableKeyValid make sure this player has valid table key
 // Validate this player has been allowed to access this table
 func IsTableKeyValid(tablekey string) bool {
-	log.Printf("Check table key %s", state.GS.PlayerTableKeys[tablekey])
-	return state.GS.PlayerTableKeys[tablekey] != "" || os.Getenv("env") == "dev"
+	if os.Getenv("env") == "dev" {
+		return true
+	}
+	for _, key := range state.GS.PlayerTableKeys {
+		if key == tablekey {
+			return true
+		}
+	}
+	return false
 }

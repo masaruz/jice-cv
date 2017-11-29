@@ -4,6 +4,7 @@ import (
 	"999k_engine/constant"
 	"999k_engine/gambit"
 	"999k_engine/handler"
+	"999k_engine/model"
 	"999k_engine/state"
 	"999k_engine/util"
 	"encoding/json"
@@ -12,7 +13,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/googollee/go-socket.io"
 	"github.com/gorilla/mux"
@@ -25,10 +25,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// Get gameindex from hawkeye who awake this container
-	gameindex, _ := strconv.Atoi(os.Getenv(constant.GameIndex))
-	// Assign to GameIndex
-	state.GS.GameIndex = gameindex
+	handler.ResumeState()
 	handler.Initiate(gambit.Create(os.Getenv(constant.GambitType)))
 	state.GS.Gambit.Init()
 	// When connection happend
@@ -57,6 +54,11 @@ func main() {
 			// Join the room
 			so.Join(so.Id())
 			handler.Connect(so.Id())
+			handler.Enter(model.Player{
+				ID:      so.Id(),
+				Name:    "name",
+				Picture: "picture",
+			})
 			handler.BroadcastGameState(so, constant.GetState, so.Id())
 			state.GS.IncreaseVersion()
 			handler.FinishProcess()
@@ -476,15 +478,20 @@ func main() {
 	router.HandleFunc("/updateAuth", func(w http.ResponseWriter, r *http.Request) {
 		// Set header to response as json format
 		w.Header().Set("Content-Type", "application/json")
-		var model []struct {
+		var playerTableKeys []struct {
 			TableKey string `json:"tablekey"`
 			UserID   string `json:"userid"`
 		}
 		b, _ := ioutil.ReadAll(r.Body)
-		json.Unmarshal(b, &model)
+		json.Unmarshal(b, &playerTableKeys)
 		// Forloop and save key into state
-		for _, m := range model {
-			state.GS.PlayerTableKeys[m.TableKey] = m.UserID
+		for _, ptk := range playerTableKeys {
+			// Hawkeye hint should delete the tablekey from this player
+			if ptk.TableKey == "" {
+				delete(state.GS.PlayerTableKeys, ptk.UserID)
+			} else {
+				state.GS.PlayerTableKeys[ptk.UserID] = ptk.TableKey
+			}
 		}
 		// Return success to hawkeye
 		resp, _ := json.Marshal(struct {

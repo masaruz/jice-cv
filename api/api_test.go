@@ -17,10 +17,12 @@ func TestLoop01(t *testing.T) {
 	state.GS.Players = model.Players{
 		model.Player{
 			ID:            id1,
-			WinLossAmount: 100},
+			WinLossAmount: 100,
+			Name:          "Stamp"},
 		model.Player{
 			ID:            id2,
-			WinLossAmount: -100}}
+			WinLossAmount: -100,
+			Name:          "Joke"}}
 	state.GS.Rakes = map[string]float64{id1: 0.5, id2: 0.5}
 	// Cannot save the settlements if players never buyin
 	body, err := api.SaveSettlements()
@@ -65,6 +67,13 @@ func TestLoop01(t *testing.T) {
 		t.Error()
 	}
 	if data := string(body); data != `{"message":"Successfully cashback"}` {
+		t.Error(data)
+	}
+	body, err = api.UpdateRealtimeData()
+	if err != nil {
+		t.Error()
+	}
+	if data := string(body); data != `{"message":"Successfully update table realtime"}` {
 		t.Error(data)
 	}
 }

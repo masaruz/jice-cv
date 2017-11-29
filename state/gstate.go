@@ -33,6 +33,7 @@ type GameState struct {
 	TableDisplayName string
 	Rakes            map[string]float64
 	PlayerTableKeys  map[string]string // Map of each player_table_key and player_id
+	Scoreboard       []model.Scoreboard
 }
 
 // gameStates to record all gamestates

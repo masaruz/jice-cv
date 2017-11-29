@@ -1,6 +1,7 @@
 package api
 
 import (
+	"999k_engine/model"
 	"999k_engine/state"
 	"999k_engine/util"
 	"encoding/json"
@@ -25,31 +26,10 @@ type Table struct {
 
 // Summary summery gain or loss chips for every players
 type Summary struct {
-	Settlements []Settlement `json:"settlements,omitempty"`
-	CreateTime  int64        `json:"createtime,omitempty"`
-	GameIndex   int          `json:"gameindex"`
-	GroupID     string       `json:"groupid"`
-}
-
-// Settlement of summerized gain or loss chips
-type Settlement struct {
-	UserID        string  `json:"userid" validate:"required"`
-	WinLossAmount int     `json:"winlossamount" validate:"required"`
-	PaidRake      float64 `json:"paidrake" validate:"required"`
-}
-
-// Scoreboard history of winloss amount of this table
-type Scoreboard struct {
-	UserID         string `json:"userid"`
-	DisplayName    string `json:"display_name"`
-	BuyInAmount    int    `json:"buyinamount"`    // int, Buy-in amount shown on board
-	WinningsAmount int    `json:"winningsamount"` // int, Winnings amount shown on board
-}
-
-// Visitor for talk to hawkeye
-type Visitor struct {
-	UserID      string `json:"userid"`
-	DisplayName string `json:"display_name"`
+	Settlements []model.Settlement `json:"settlements,omitempty"`
+	CreateTime  int64              `json:"createtime,omitempty"`
+	GameIndex   int                `json:"gameindex"`
+	GroupID     string             `json:"groupid"`
 }
 
 func getTableURL(id string) string {
@@ -59,10 +39,10 @@ func getTableURL(id string) string {
 // UpdateRealtimeData save table state to realtime
 func UpdateRealtimeData() ([]byte, error) {
 	// Create scoreboard
-	scoreboards := []Scoreboard{}
+	scoreboards := []model.Scoreboard{}
 	for _, player := range state.GS.Players {
 		scoreboards = append(scoreboards,
-			Scoreboard{
+			model.Scoreboard{
 				UserID:         player.ID,
 				DisplayName:    player.Name,
 				BuyInAmount:    player.Chips,
@@ -70,22 +50,22 @@ func UpdateRealtimeData() ([]byte, error) {
 			})
 	}
 	// Create visitor
-	visitors := []Visitor{}
+	visitors := model.Players{}
 	for _, visitor := range state.GS.Visitors {
 		visitors = append(visitors,
-			Visitor{
-				UserID:      visitor.ID,
-				DisplayName: visitor.Name,
+			model.Player{
+				ID:   visitor.ID,
+				Name: visitor.Name,
 			})
 	}
 	// gambit := state.GS.Gambit
 	realtimedata := struct {
-		TableID     string        `json:"tableid"`
-		GroupID     string        `json:"groupid"`
-		GameIndex   int           `json:"gameindex"`
-		PlayerCount int           `json:"players_count"`
-		Scoreboard  *[]Scoreboard `json:"scoreboard"`
-		Visitors    *[]Visitor    `json:"visitors"`
+		TableID     string              `json:"tableid"`
+		GroupID     string              `json:"groupid"`
+		GameIndex   int                 `json:"gameindex"`
+		PlayerCount int                 `json:"players_count"`
+		Scoreboard  *[]model.Scoreboard `json:"scoreboard"`
+		Visitors    *model.Players      `json:"visitors"`
 	}{
 		TableID:     state.GS.TableID,
 		GroupID:     state.GS.GroupID,
@@ -149,7 +129,7 @@ func SaveSettlements() ([]byte, error) {
 		if player.ID == "" {
 			continue
 		}
-		summary.Settlements = append(summary.Settlements, Settlement{
+		summary.Settlements = append(summary.Settlements, model.Settlement{
 			UserID:        player.ID,
 			WinLossAmount: player.WinLossAmount,
 			PaidRake:      state.GS.Rakes[player.ID]})
@@ -172,7 +152,7 @@ func SaveSettlement(userid string) ([]byte, error) {
 		GameIndex:  state.GS.GameIndex,
 		GroupID:    state.GS.GroupID,
 	}
-	summary.Settlements = append(summary.Settlements, Settlement{
+	summary.Settlements = append(summary.Settlements, model.Settlement{
 		UserID:        player.ID,
 		WinLossAmount: player.WinLossAmount,
 		PaidRake:      state.GS.Rakes[player.ID]})

@@ -6,6 +6,7 @@ import "log"
 type Player struct {
 	ID            string     `json:"id"`
 	Name          string     `json:"name"`
+	Picture       string     `json:"picture"`
 	Cards         Cards      `json:"cards"`
 	CardAmount    int        `json:"card_amount"`
 	Chips         int        `json:"chips"`
