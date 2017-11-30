@@ -118,6 +118,17 @@ func ExtendTableTime(id string) {
 }
 
 // RemoveAuth remove player from the table
-func RemoveAuth(id string) {
-
+func RemoveAuth(playerid string) ([]byte, error) {
+	// cast param to byte
+	data, err := json.Marshal(struct {
+		UserID string `json:"userid"`
+	}{
+		UserID: playerid,
+	})
+	if err != nil {
+		return nil, err
+	}
+	// create url
+	url := fmt.Sprintf("%s/unauth", getTableURL(state.GS.TableID))
+	return post(url, data)
 }

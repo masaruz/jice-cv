@@ -61,6 +61,9 @@ func Leave(id string) bool {
 	}
 	// after they stand then remove from visitor
 	state.GS.Visitors = util.Remove(state.GS.Visitors, id)
+	if os.Getenv("env") != "dev" {
+		api.RemoveAuth(id)
+	}
 	return true
 }
 
