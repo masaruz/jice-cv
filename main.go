@@ -59,10 +59,12 @@ func main() {
 				if err != nil {
 					log.Println(so.Id(), "Enter", "Payload is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if !handler.IsTableKeyValid(data.Header.Token) {
 					log.Println(so.Id(), "Enter", "Token is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				channel = constant.Enter
 				// Join the room
@@ -78,6 +80,7 @@ func main() {
 				log.Println(so.Id(), "Enter", "success")
 				// If no seat then just return current state
 				result <- handler.CreateResponse(so.Id(), channel)
+				return
 			}
 			return <-result
 		})
@@ -91,10 +94,12 @@ func main() {
 				if err != nil {
 					log.Println(so.Id(), "Stimulate", "Payload is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if !handler.IsTableKeyValid(data.Header.Token) {
 					log.Println(so.Id(), "Stimulate", "Token is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				log.Println("Prepare to check Start(), NextRound(), Finish()")
 				// If cannot start, next and finish then it is during gameplay
@@ -110,6 +115,7 @@ func main() {
 				}
 				// If no seat then just result current state
 				result <- handler.CreateResponse(so.Id(), channel)
+				return
 			}
 			return <-result
 		})
@@ -123,10 +129,12 @@ func main() {
 				if err != nil {
 					log.Println(so.Id(), "GetState", "Payload is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if !handler.IsTableKeyValid(data.Header.Token) {
 					log.Println(so.Id(), "GetState", "Token is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				result <- handler.CreateResponse(so.Id(), constant.GetState)
 			}
@@ -142,10 +150,12 @@ func main() {
 				if err != nil {
 					log.Println(so.Id(), "Check", "Payload is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if !handler.IsTableKeyValid(data.Header.Token) {
 					log.Println(so.Id(), "Check", "Token is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if state.GS.Gambit.Check(so.Id()) {
 					channel = constant.Check
@@ -154,6 +164,7 @@ func main() {
 					log.Println(so.Id(), "Check", "success")
 				}
 				result <- handler.CreateResponse(so.Id(), channel)
+				return
 			}
 			return <-result
 		})
@@ -167,10 +178,12 @@ func main() {
 				if err != nil || len(data.Payload.Parameters) <= 0 {
 					log.Println(so.Id(), "Bet", "Payload is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if !handler.IsTableKeyValid(data.Header.Token) {
 					log.Println(so.Id(), "Bet", "Token is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				// client send amount of bet
 				if state.GS.Gambit.Bet(so.Id(), data.Payload.Parameters[0].IntegerValue) {
@@ -180,6 +193,7 @@ func main() {
 					log.Println(so.Id(), "Bet", "success")
 				}
 				result <- handler.CreateResponse(so.Id(), channel)
+				return
 			}
 			return <-result
 		})
@@ -193,10 +207,12 @@ func main() {
 				if err != nil {
 					log.Println(so.Id(), "Raise", "Payload is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if !handler.IsTableKeyValid(data.Header.Token) {
 					log.Println(so.Id(), "Raise", "Token is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				// client send amount of raise
 				if state.GS.Gambit.Raise(so.Id(), data.Payload.Parameters[0].IntegerValue) {
@@ -206,6 +222,7 @@ func main() {
 					log.Println(so.Id(), "Raise", "success")
 				}
 				result <- handler.CreateResponse(so.Id(), channel)
+				return
 			}
 			return <-result
 		})
@@ -219,10 +236,12 @@ func main() {
 				if err != nil {
 					log.Println(so.Id(), "Call", "Payload is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if !handler.IsTableKeyValid(data.Header.Token) {
 					log.Println(so.Id(), "Call", "Token is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if state.GS.Gambit.Call(so.Id()) {
 					channel = constant.Call
@@ -231,6 +250,7 @@ func main() {
 					log.Println(so.Id(), "Call", "success")
 				}
 				result <- handler.CreateResponse(so.Id(), channel)
+				return
 			}
 			return <-result
 		})
@@ -244,10 +264,12 @@ func main() {
 				if err != nil {
 					log.Println(so.Id(), "AllIn", "Payload is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if !handler.IsTableKeyValid(data.Header.Token) {
 					log.Println(so.Id(), "AllIn", "Token is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if state.GS.Gambit.AllIn(so.Id()) {
 					channel = constant.Raise
@@ -256,6 +278,7 @@ func main() {
 					log.Println(so.Id(), "AllIn", "success")
 				}
 				result <- handler.CreateResponse(so.Id(), channel)
+				return
 			}
 			return <-result
 		})
@@ -269,10 +292,12 @@ func main() {
 				if err != nil {
 					log.Println(so.Id(), "Fold", "Payload is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if !handler.IsTableKeyValid(data.Header.Token) {
 					log.Println(so.Id(), "Fold", "Token is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if state.GS.Gambit.Fold(so.Id()) {
 					channel = constant.Fold
@@ -282,6 +307,7 @@ func main() {
 					log.Println(so.Id(), "Fold", "success")
 				}
 				result <- handler.CreateResponse(so.Id(), channel)
+				return
 			}
 			return <-result
 		})
@@ -295,10 +321,12 @@ func main() {
 				if err != nil {
 					log.Println(so.Id(), "StartTable", "Payload is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if !handler.IsTableKeyValid(data.Header.Token) {
 					log.Println(so.Id(), "StartTable", "Token is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if util.CountSitting(state.GS.Players) > 1 && !handler.IsTableStart() {
 					channel = constant.StartTable
@@ -309,6 +337,7 @@ func main() {
 					log.Println(so.Id(), "StartTable", "success")
 				}
 				result <- handler.CreateResponse(so.Id(), channel)
+				return
 			}
 			return <-result
 		})
@@ -321,10 +350,12 @@ func main() {
 				if err != nil || len(data.Payload.Parameters) <= 0 {
 					log.Println(so.Id(), "Sit", "Payload is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if !handler.IsTableKeyValid(data.Header.Token) {
 					log.Println(so.Id(), "Sit", "Token is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if err == nil && handler.Sit(so.Id(), data.Payload.Parameters[0].IntegerValue) {
 					channel = constant.Sit
@@ -336,6 +367,7 @@ func main() {
 					log.Println(so.Id(), "Sit", "Fail")
 				}
 				result <- handler.CreateResponse(so.Id(), channel)
+				return
 			}
 			return <-result
 		})
@@ -349,10 +381,12 @@ func main() {
 				if err != nil {
 					log.Println(so.Id(), "Stand", "Payload is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if !handler.IsTableKeyValid(data.Header.Token) {
 					log.Println(so.Id(), "Stand", "Token is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if handler.Stand(so.Id()) {
 					channel = constant.Stand
@@ -364,6 +398,7 @@ func main() {
 					log.Println(so.Id(), "Stand", "Fail")
 				}
 				result <- handler.CreateResponse(so.Id(), channel)
+				return
 			}
 			return <-result
 		})
@@ -416,6 +451,7 @@ func main() {
 					}
 				}
 				result <- handler.CreateResponse(so.Id(), channel)
+				return
 			}
 			return <-result
 		})
@@ -430,10 +466,12 @@ func main() {
 				if err != nil {
 					log.Println(so.Id(), "Extend Decision Time", "Payload is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if !handler.IsTableKeyValid(data.Header.Token) {
 					log.Println(so.Id(), "Extend Decision Time", "Token is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if handler.ExtendPlayerTimeline(so.Id()) {
 					channel = constant.ExtendDecisionTime
@@ -441,6 +479,7 @@ func main() {
 					handler.BroadcastGameState(so, channel, so.Id())
 				}
 				result <- handler.CreateResponse(so.Id(), channel)
+				return
 			}
 			return <-result
 		})
@@ -454,20 +493,25 @@ func main() {
 				if err != nil {
 					log.Println(so.Id(), "Disband Table", "Payload is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
 				if !handler.IsTableKeyValid(data.Header.Token) {
 					log.Println(so.Id(), "Disband Table", "Token is invalid")
 					result <- handler.CreateResponse(so.Id(), channel)
+					return
 				}
-				channel = constant.DisbandTable
+				// Set table expired equal 0 to make sure it actually expired
 				handler.FinishTable()
+				// Never let player force close this table when game is started
 				if !handler.IsGameStart() {
 					state.GS.IsTableExpired = true
+					handler.TryTerminate()
 				}
+				channel = constant.DisbandTable
 				handler.BroadcastGameState(so, channel, so.Id())
 				log.Println(so.Id(), "Disband", "success")
-				defer handler.PrepareDestroyed()
 				result <- handler.CreateResponse(so.Id(), channel)
+				return
 			}
 			return <-result
 		})
@@ -482,7 +526,6 @@ func main() {
 	router.Handle("/socket.io/", server)
 	router.Handle("/socket.io", server)
 	router.HandleFunc("/updateAuth", func(w http.ResponseWriter, r *http.Request) {
-		// Set header to response as json format
 		w.Header().Set("Content-Type", "application/json")
 		var playerTableKeys []struct {
 			TableKey string `json:"tablekey"`

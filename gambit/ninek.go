@@ -250,19 +250,15 @@ func (game NineK) Finish() bool {
 		// Revert minimum bet
 		handler.SetMinimumBet(game.BlindsBig)
 		handler.FlushPlayers()
+		// Check if table expired then terminate
+		handler.TryTerminate()
 		state.GS.Turn = 0
 		state.GS.IsGameStart = false
-		// Check if current time is more than finish table time
-		if time.Now().Unix() >= state.GS.FinishTableTime {
-			log.Println("Prepare to be destroyed")
-			// For force client to leave
-			state.GS.IsTableExpired = true
-			state.GS.IsTableStart = false
-			defer handler.PrepareDestroyed()
-		}
 		log.Println("Finish Success")
 		return true
 	}
+	// Check if table expired then terminate
+	handler.TryTerminate()
 	log.Println("Finish Failed")
 	return false
 }

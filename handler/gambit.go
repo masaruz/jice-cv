@@ -1,12 +1,13 @@
 package handler
 
 import (
+	"999k_engine/api"
 	"999k_engine/constant"
 	"999k_engine/engine"
 	"999k_engine/model"
 	"999k_engine/state"
 	"999k_engine/util"
-	"fmt"
+	"log"
 	"os"
 	"time"
 )
@@ -33,7 +34,7 @@ func StartTable() {
 
 // FinishTable set table start
 func FinishTable() {
-	state.GS.FinishTableTime = time.Now().Unix()
+	state.GS.FinishTableTime = 0
 }
 
 // StartGame set game start
@@ -377,12 +378,21 @@ func BurnBet(index int, burn int) {
 	}
 }
 
-// PrepareDestroyed countdown to be closed
-func PrepareDestroyed() {
-	go func() {
-		// fmt.Printf("caught sig: %+v", sig)
-		fmt.Println("Wait for 2 second to finish processing")
-		time.Sleep(2 * time.Second)
-		os.Exit(0)
-	}()
+// TryTerminate try to terminate the container
+func TryTerminate() {
+	// Check if current time is more than finish table time
+	if time.Now().Unix() >= state.GS.FinishTableTime {
+		log.Println("Prepare to be destroyed")
+		// For force client to leave
+		state.GS.IsTableExpired = true
+		state.GS.IsTableStart = false
+		// TODO call terminate api
+		if os.Getenv("env") != "dev" {
+			// Delay 5 second before send signal to hawkeye that please kill this container
+			go func() {
+				time.Sleep(time.Second * 5)
+				api.Terminate()
+			}()
+		}
+	}
 }
