@@ -73,7 +73,7 @@ func (game NineK) Start() bool {
 						// Assign how much they buy-in
 						player.Chips = game.GetSettings().BuyInMin
 					} else {
-						log.Fatal(resp)
+						log.Println("BuyIn amount is insufficient")
 					}
 				} else {
 					player.Chips = game.GetSettings().BuyInMin
