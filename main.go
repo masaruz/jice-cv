@@ -548,8 +548,10 @@ func main() {
 	}).Methods("POST") // Receive only post
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		str := ""
-		for _, pair := range os.Environ() {
-			str += fmt.Sprintf("%s ", pair)
+		if os.Getenv("env") == "dev" {
+			for _, pair := range os.Environ() {
+				str += fmt.Sprintf("%s ", pair)
+			}
 		}
 		fmt.Fprintf(w, "All envs are here: %s", str)
 	})
