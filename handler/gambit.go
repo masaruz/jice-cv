@@ -7,7 +7,6 @@ import (
 	"999k_engine/state"
 	"999k_engine/util"
 	"fmt"
-	"log"
 	"os"
 	"time"
 )
@@ -15,39 +14,6 @@ import (
 // Initiate required variables
 func Initiate(game engine.Gambit) {
 	state.GS.Gambit = game
-}
-
-// WaitQueue check if server is processing result
-func WaitQueue() {
-	// channel := make(chan string, 1)
-	// Go routine while IsProcessing
-	// go func() {
-	for state.GS.IsProcessing {
-		log.Println("Processing ...")
-	}
-	// 	channel <- "Done with process has actually finished"
-	// }()
-	// // Select if from result from channel or timeout
-	// select {
-	// case result := <-channel:
-	// 	log.Println(result)
-	// 	FinishProcess()
-	// case <-time.After(time.Second * 1):
-	// 	log.Println("Done with timeout")
-	// 	FinishProcess()
-	// }
-}
-
-// StartProcess set IsProcessing to true to blocking
-func StartProcess() {
-	log.Println("Start Processing ...")
-	state.GS.IsProcessing = true
-}
-
-// FinishProcess set IsProcessing to false to unblocking
-func FinishProcess() {
-	log.Println("Finish Processing ...")
-	state.GS.IsProcessing = false
 }
 
 // CreateSeats prepare empty seat for players

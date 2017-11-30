@@ -191,9 +191,9 @@ func SendSticker(stickerid string, senderid string, targetslot int) {
 // IsTableKeyValid make sure this player has valid table key
 // Validate this player has been allowed to access this table
 func IsTableKeyValid(tablekey string) bool {
-	if os.Getenv("env") == "dev" {
-		return true
-	}
+	// if os.Getenv("env") == "dev" {
+	// 	return true
+	// }
 	for _, key := range state.GS.PlayerTableKeys {
 		if key == tablekey {
 			return true
