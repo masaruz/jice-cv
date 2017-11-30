@@ -34,7 +34,8 @@ func StartTable() {
 
 // FinishTable set table start
 func FinishTable() {
-	state.GS.FinishTableTime = 0
+	// Cannot set to 0 because 0 is a initialized value
+	state.GS.FinishTableTime = time.Now().Unix() - 5
 }
 
 // StartGame set game start
@@ -381,7 +382,8 @@ func BurnBet(index int, burn int) {
 // TryTerminate try to terminate the container
 func TryTerminate() {
 	// Check if current time is more than finish table time
-	if time.Now().Unix() >= state.GS.FinishTableTime {
+	if time.Now().Unix() >= state.GS.FinishTableTime &&
+		state.GS.FinishTableTime != 0 {
 		log.Println("Prepare to be destroyed")
 		// For force client to leave
 		state.GS.IsTableExpired = true
@@ -392,6 +394,7 @@ func TryTerminate() {
 			go func() {
 				time.Sleep(time.Second * 5)
 				api.Terminate()
+				log.Println("Should be destroyed")
 			}()
 		}
 	}
