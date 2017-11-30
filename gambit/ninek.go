@@ -124,6 +124,12 @@ func (game NineK) Start() bool {
 			log.Println("Start Success")
 			return true
 		}
+		// Cashback to everyone if cannot start the game
+		log.Println("Start CashBack to player when unable to start")
+		for _, player := range state.GS.Players {
+			body, err := api.CashBack(player.ID)
+			log.Println("Response from CashBack", string(body), err)
+		}
 	}
 	log.Println("Start Failed")
 	return false
