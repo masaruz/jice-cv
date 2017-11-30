@@ -384,7 +384,7 @@ func TryTerminate() {
 	// Check if current time is more than finish table time
 	if time.Now().Unix() >= state.GS.FinishTableTime &&
 		state.GS.FinishTableTime != 0 {
-		log.Println("Prepare to be destroyed")
+		log.Println("Table is timeout then terminate")
 		// For force client to leave
 		state.GS.IsTableExpired = true
 		state.GS.IsTableStart = false
@@ -395,8 +395,8 @@ func TryTerminate() {
 				time.Sleep(time.Second * 3)
 				body, err := api.Terminate()
 				log.Println("Response from Terminate", string(body), err)
-				log.Println("Should be destroyed")
 			}()
 		}
 	}
+	log.Println("Try terminate success")
 }

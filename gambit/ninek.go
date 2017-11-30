@@ -246,6 +246,10 @@ func (game NineK) Finish() bool {
 				pos = -1
 			}
 		}
+		body, err := api.SaveSettlements()
+		log.Println("Response from SaveSettlements", string(body), err)
+		body, err = api.UpdateRealtimeData()
+		log.Println("Response from UpdateRealtimeData", string(body), err)
 		// Revert minimum bet
 		handler.SetMinimumBet(game.BlindsBig)
 		handler.FlushPlayers()

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"999k_engine/api"
 	"999k_engine/constant"
 	"999k_engine/gambit"
 	"999k_engine/handler"
@@ -13,6 +14,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/googollee/go-socket.io"
 	"github.com/gorilla/mux"
@@ -58,7 +60,7 @@ func main() {
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
 				if userid == "" {
-					log.Println("Enter", "Token is invalid")
+					log.Println(userid, "Enter", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
@@ -375,10 +377,21 @@ func main() {
 				channel = constant.Leave
 				handler.Leave(userid)
 				state.GS.Gambit.Finish()
+				log.Printf("Sitting: %d", util.CountSitting(state.GS.Players))
+				log.Printf("Visitors: %d", len(state.GS.Visitors))
 				// If no one in the room terminate itself
+				log.Println("Try terminate ...")
 				if util.CountSitting(state.GS.Players) <= 0 &&
 					len(state.GS.Visitors) <= 0 {
-					handler.TryTerminate()
+					log.Println("No players then terminate")
+					if os.Getenv("env") != "dev" {
+						// Delay 5 second before send signal to hawkeye that please kill this container
+						go func() {
+							time.Sleep(time.Second * 3)
+							body, err := api.Terminate()
+							log.Println("Response from Terminate", string(body), err)
+						}()
+					}
 				}
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, userid)
