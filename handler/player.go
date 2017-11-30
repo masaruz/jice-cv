@@ -62,7 +62,8 @@ func Leave(id string) bool {
 	// after they stand then remove from visitor
 	state.GS.Visitors = util.Remove(state.GS.Visitors, id)
 	if os.Getenv("env") != "dev" {
-		api.RemoveAuth(id)
+		body, err := api.RemoveAuth(id)
+		log.Println("Response from RemoveAuth", string(body), err)
 	}
 	return true
 }
@@ -122,9 +123,11 @@ func Stand(id string) bool {
 	// If not in dev, call api
 	if os.Getenv("env") != "dev" {
 		// Update buy-in cash
-		api.SaveSettlement(id)
+		body, err := api.SaveSettlement(id)
+		log.Println("Response from SaveSettlement", string(body), err)
 		// Save buy-in cash to real player pocket
-		api.CashBack(id)
+		body, err = api.CashBack(id)
+		log.Println("Response from CashBack", string(body), err)
 	}
 	// Change state player to visitor
 	visitor := model.Player{

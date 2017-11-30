@@ -393,7 +393,8 @@ func TryTerminate() {
 			// Delay 5 second before send signal to hawkeye that please kill this container
 			go func() {
 				time.Sleep(time.Second * 3)
-				api.Terminate()
+				body, err := api.Terminate()
+				log.Println("Response from Terminate", string(body), err)
 				log.Println("Should be destroyed")
 			}()
 		}

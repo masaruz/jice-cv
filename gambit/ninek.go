@@ -63,7 +63,8 @@ func (game NineK) Start() bool {
 				// Validate with other server when is not in dev
 				if os.Getenv("env") != "dev" {
 					// Need request to server for buyin
-					body, _ := api.BuyIn(player.ID, game.GetSettings().BuyInMin)
+					body, err := api.BuyIn(player.ID, game.GetSettings().BuyInMin)
+					log.Println("Response from BuyIn", string(body), err)
 					resp := &api.Response{}
 					json.Unmarshal(body, resp)
 					// If this player request buy in success
@@ -98,10 +99,8 @@ func (game NineK) Start() bool {
 			state.GS.Pots = make([]int, game.MaxPlayers)
 			if os.Getenv("env") != "dev" {
 				// request to start game
-				_, err := api.StartGame()
-				if err != nil {
-					panic(err)
-				}
+				body, err := api.StartGame()
+				log.Println("Response from StartGame", string(body), err)
 			}
 			// set players to be ready
 			handler.MakePlayersReady()
