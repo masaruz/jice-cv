@@ -79,7 +79,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
-			util.Log()
+			defer util.Log()
 			defer close(result)
 			return <-result
 		})
@@ -111,7 +111,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
-			util.Log()
+			defer util.Log()
 			defer close(result)
 			return <-result
 		})
@@ -129,7 +129,7 @@ func main() {
 				}
 				result <- handler.CreateResponse(userid, constant.GetState)
 			}
-			util.Log()
+			defer util.Log()
 			defer close(result)
 			return <-result
 		})
@@ -154,7 +154,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
-			util.Log()
+			defer util.Log()
 			defer close(result)
 			return <-result
 		})
@@ -180,7 +180,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
-			util.Log()
+			defer util.Log()
 			defer close(result)
 			return <-result
 		})
@@ -206,7 +206,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
-			util.Log()
+			defer util.Log()
 			defer close(result)
 			return <-result
 		})
@@ -231,7 +231,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
-			util.Log()
+			defer util.Log()
 			defer close(result)
 			return <-result
 		})
@@ -256,7 +256,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
-			util.Log()
+			defer util.Log()
 			defer close(result)
 			return <-result
 		})
@@ -282,7 +282,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
-			util.Log()
+			defer util.Log()
 			defer close(result)
 			return <-result
 		})
@@ -309,7 +309,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
-			util.Log()
+			defer util.Log()
 			defer close(result)
 			return <-result
 		})
@@ -337,7 +337,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
-			util.Log()
+			defer util.Log()
 			defer close(result)
 			return <-result
 		})
@@ -365,7 +365,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
-			util.Log()
+			defer util.Log()
 			defer close(result)
 			return <-result
 		})
@@ -411,7 +411,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
-			util.Log()
+			defer util.Log()
 			defer close(result)
 			return <-result
 		})
@@ -457,7 +457,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
-			util.Log()
+			defer util.Log()
 			defer close(result)
 			return <-result
 		})
@@ -482,7 +482,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
-			util.Log()
+			defer util.Log()
 			defer close(result)
 			return <-result
 		})
@@ -511,7 +511,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
-			util.Log()
+			defer util.Log()
 			defer close(result)
 			return <-result
 		})
