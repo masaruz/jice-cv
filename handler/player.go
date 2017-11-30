@@ -6,6 +6,7 @@ import (
 	"999k_engine/model"
 	"999k_engine/state"
 	"999k_engine/util"
+	"log"
 	"os"
 	"time"
 )
@@ -188,16 +189,18 @@ func SendSticker(stickerid string, senderid string, targetslot int) {
 	}
 }
 
-// IsTableKeyValid make sure this player has valid table key
+// GetUserIDFromToken make sure this player has valid table key
 // Validate this player has been allowed to access this table
-func IsTableKeyValid(tablekey string) bool {
+func GetUserIDFromToken(tablekey string) string {
 	if os.Getenv("env") == "dev" {
-		return true
+		return "default"
 	}
-	for _, key := range state.GS.PlayerTableKeys {
+	for userid, key := range state.GS.PlayerTableKeys {
 		if key == tablekey {
-			return true
+			log.Printf("Found userid [%s] from tablekey [%s]", userid[:4], tablekey[:4])
+			return userid
 		}
 	}
-	return false
+	log.Printf("Not found userid from tablekey [%s]", tablekey[:4])
+	return ""
 }

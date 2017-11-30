@@ -54,32 +54,27 @@ func main() {
 			result := make(chan string)
 			queue <- func() {
 				channel := ""
-				data, err := handler.ConvertStringToRequestStruct(msg)
-				// if cannot parse or client send nothing
-				if err != nil {
-					log.Println(so.Id(), "Enter", "Payload is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
-					return
-				}
-				if !handler.IsTableKeyValid(data.Header.Token) {
-					log.Println(so.Id(), "Enter", "Token is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
+				data, _ := handler.ConvertStringToRequestStruct(msg)
+				userid := handler.GetUserIDFromToken(data.Header.Token)
+				if userid == "" {
+					log.Println("Enter", "Token is invalid")
+					result <- handler.CreateResponse("", channel)
 					return
 				}
 				channel = constant.Enter
 				// Join the room
-				so.Join(so.Id())
-				handler.Connect(so.Id())
+				so.Join(userid)
+				handler.Connect(userid)
 				handler.Enter(model.Player{
-					ID:      so.Id(),
+					ID:      userid,
 					Name:    "name",
 					Picture: "picture",
 				})
-				handler.BroadcastGameState(so, constant.GetState, so.Id())
+				handler.BroadcastGameState(so, constant.GetState, userid)
 				state.GS.IncreaseVersion()
-				log.Println(so.Id(), "Enter", "success")
+				log.Println(userid, "Enter", "success")
 				// If no seat then just return current state
-				result <- handler.CreateResponse(so.Id(), channel)
+				result <- handler.CreateResponse(userid, channel)
 				return
 			}
 			return <-result
@@ -89,16 +84,11 @@ func main() {
 			result := make(chan string)
 			queue <- func() {
 				channel := ""
-				data, err := handler.ConvertStringToRequestStruct(msg)
-				// if cannot parse or client send nothing
-				if err != nil {
-					log.Println(so.Id(), "Stimulate", "Payload is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
-					return
-				}
-				if !handler.IsTableKeyValid(data.Header.Token) {
-					log.Println(so.Id(), "Stimulate", "Token is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
+				data, _ := handler.ConvertStringToRequestStruct(msg)
+				userid := handler.GetUserIDFromToken(data.Header.Token)
+				if userid == "" {
+					log.Println(userid, "Stimulate", "Token is invalid")
+					result <- handler.CreateResponse(userid, channel)
 					return
 				}
 				log.Println("Prepare to check Start(), NextRound(), Finish()")
@@ -106,15 +96,15 @@ func main() {
 				if !state.GS.Gambit.Start() &&
 					!state.GS.Gambit.NextRound() &&
 					!state.GS.Gambit.Finish() {
-					// log.Println(so.Id(), "Stimulate", "nothing")
+					// log.Println(userid, "Stimulate", "nothing")
 				} else {
 					channel = constant.PushState
 					state.GS.IncreaseVersion()
-					handler.BroadcastGameState(so, channel, so.Id())
-					// log.Println(so.Id(), "Stimulate", "success")
+					handler.BroadcastGameState(so, channel, userid)
+					// log.Println(userid, "Stimulate", "success")
 				}
 				// If no seat then just result current state
-				result <- handler.CreateResponse(so.Id(), channel)
+				result <- handler.CreateResponse(userid, channel)
 				return
 			}
 			return <-result
@@ -124,19 +114,14 @@ func main() {
 			result := make(chan string)
 			queue <- func() {
 				channel := ""
-				data, err := handler.ConvertStringToRequestStruct(msg)
-				// if cannot parse or client send nothing
-				if err != nil {
-					log.Println(so.Id(), "GetState", "Payload is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
+				data, _ := handler.ConvertStringToRequestStruct(msg)
+				userid := handler.GetUserIDFromToken(data.Header.Token)
+				if userid == "" {
+					log.Println(userid, "GetState", "Token is invalid")
+					result <- handler.CreateResponse(userid, channel)
 					return
 				}
-				if !handler.IsTableKeyValid(data.Header.Token) {
-					log.Println(so.Id(), "GetState", "Token is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
-					return
-				}
-				result <- handler.CreateResponse(so.Id(), constant.GetState)
+				result <- handler.CreateResponse(userid, constant.GetState)
 			}
 			return <-result
 		})
@@ -145,25 +130,20 @@ func main() {
 			result := make(chan string)
 			queue <- func() {
 				channel := ""
-				data, err := handler.ConvertStringToRequestStruct(msg)
-				// if cannot parse or client send nothing
-				if err != nil {
-					log.Println(so.Id(), "Check", "Payload is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
+				data, _ := handler.ConvertStringToRequestStruct(msg)
+				userid := handler.GetUserIDFromToken(data.Header.Token)
+				if userid == "" {
+					log.Println(userid, "Check", "Token is invalid")
+					result <- handler.CreateResponse(userid, channel)
 					return
 				}
-				if !handler.IsTableKeyValid(data.Header.Token) {
-					log.Println(so.Id(), "Check", "Token is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
-					return
-				}
-				if state.GS.Gambit.Check(so.Id()) {
+				if state.GS.Gambit.Check(userid) {
 					channel = constant.Check
 					state.GS.IncreaseVersion()
-					handler.BroadcastGameState(so, channel, so.Id())
-					log.Println(so.Id(), "Check", "success")
+					handler.BroadcastGameState(so, channel, userid)
+					log.Println(userid, "Check", "success")
 				}
-				result <- handler.CreateResponse(so.Id(), channel)
+				result <- handler.CreateResponse(userid, channel)
 				return
 			}
 			return <-result
@@ -173,26 +153,21 @@ func main() {
 			result := make(chan string)
 			queue <- func() {
 				channel := ""
-				data, err := handler.ConvertStringToRequestStruct(msg)
-				// if cannot parse or client send nothing
-				if err != nil || len(data.Payload.Parameters) <= 0 {
-					log.Println(so.Id(), "Bet", "Payload is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
-					return
-				}
-				if !handler.IsTableKeyValid(data.Header.Token) {
-					log.Println(so.Id(), "Bet", "Token is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
+				data, _ := handler.ConvertStringToRequestStruct(msg)
+				userid := handler.GetUserIDFromToken(data.Header.Token)
+				if userid == "" {
+					log.Println(userid, "Bet", "Token is invalid")
+					result <- handler.CreateResponse(userid, channel)
 					return
 				}
 				// client send amount of bet
-				if state.GS.Gambit.Bet(so.Id(), data.Payload.Parameters[0].IntegerValue) {
+				if state.GS.Gambit.Bet(userid, data.Payload.Parameters[0].IntegerValue) {
 					channel = constant.Bet
 					state.GS.IncreaseVersion()
-					handler.BroadcastGameState(so, channel, so.Id())
-					log.Println(so.Id(), "Bet", "success")
+					handler.BroadcastGameState(so, channel, userid)
+					log.Println(userid, "Bet", "success")
 				}
-				result <- handler.CreateResponse(so.Id(), channel)
+				result <- handler.CreateResponse(userid, channel)
 				return
 			}
 			return <-result
@@ -202,26 +177,21 @@ func main() {
 			result := make(chan string)
 			queue <- func() {
 				channel := ""
-				data, err := handler.ConvertStringToRequestStruct(msg)
-				// if cannot parse or client send nothing
-				if err != nil {
-					log.Println(so.Id(), "Raise", "Payload is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
-					return
-				}
-				if !handler.IsTableKeyValid(data.Header.Token) {
-					log.Println(so.Id(), "Raise", "Token is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
+				data, _ := handler.ConvertStringToRequestStruct(msg)
+				userid := handler.GetUserIDFromToken(data.Header.Token)
+				if userid == "" {
+					log.Println(userid, "Raise", "Token is invalid")
+					result <- handler.CreateResponse(userid, channel)
 					return
 				}
 				// client send amount of raise
-				if state.GS.Gambit.Raise(so.Id(), data.Payload.Parameters[0].IntegerValue) {
+				if state.GS.Gambit.Raise(userid, data.Payload.Parameters[0].IntegerValue) {
 					channel = constant.Raise
 					state.GS.IncreaseVersion()
-					handler.BroadcastGameState(so, channel, so.Id())
-					log.Println(so.Id(), "Raise", "success")
+					handler.BroadcastGameState(so, channel, userid)
+					log.Println(userid, "Raise", "success")
 				}
-				result <- handler.CreateResponse(so.Id(), channel)
+				result <- handler.CreateResponse(userid, channel)
 				return
 			}
 			return <-result
@@ -231,25 +201,20 @@ func main() {
 			result := make(chan string)
 			queue <- func() {
 				channel := ""
-				data, err := handler.ConvertStringToRequestStruct(msg)
-				// if cannot parse or client send nothing
-				if err != nil {
-					log.Println(so.Id(), "Call", "Payload is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
+				data, _ := handler.ConvertStringToRequestStruct(msg)
+				userid := handler.GetUserIDFromToken(data.Header.Token)
+				if userid == "" {
+					log.Println(userid, "Call", "Token is invalid")
+					result <- handler.CreateResponse(userid, channel)
 					return
 				}
-				if !handler.IsTableKeyValid(data.Header.Token) {
-					log.Println(so.Id(), "Call", "Token is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
-					return
-				}
-				if state.GS.Gambit.Call(so.Id()) {
+				if state.GS.Gambit.Call(userid) {
 					channel = constant.Call
 					state.GS.IncreaseVersion()
-					handler.BroadcastGameState(so, channel, so.Id())
-					log.Println(so.Id(), "Call", "success")
+					handler.BroadcastGameState(so, channel, userid)
+					log.Println(userid, "Call", "success")
 				}
-				result <- handler.CreateResponse(so.Id(), channel)
+				result <- handler.CreateResponse(userid, channel)
 				return
 			}
 			return <-result
@@ -259,25 +224,20 @@ func main() {
 			result := make(chan string)
 			queue <- func() {
 				channel := ""
-				data, err := handler.ConvertStringToRequestStruct(msg)
-				// if cannot parse or client send nothing
-				if err != nil {
-					log.Println(so.Id(), "AllIn", "Payload is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
+				data, _ := handler.ConvertStringToRequestStruct(msg)
+				userid := handler.GetUserIDFromToken(data.Header.Token)
+				if userid == "" {
+					log.Println(userid, "AllIn", "Token is invalid")
+					result <- handler.CreateResponse(userid, channel)
 					return
 				}
-				if !handler.IsTableKeyValid(data.Header.Token) {
-					log.Println(so.Id(), "AllIn", "Token is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
-					return
-				}
-				if state.GS.Gambit.AllIn(so.Id()) {
+				if state.GS.Gambit.AllIn(userid) {
 					channel = constant.Raise
 					state.GS.IncreaseVersion()
-					handler.BroadcastGameState(so, constant.Raise, so.Id())
-					log.Println(so.Id(), "AllIn", "success")
+					handler.BroadcastGameState(so, constant.Raise, userid)
+					log.Println(userid, "AllIn", "success")
 				}
-				result <- handler.CreateResponse(so.Id(), channel)
+				result <- handler.CreateResponse(userid, channel)
 				return
 			}
 			return <-result
@@ -287,26 +247,21 @@ func main() {
 			result := make(chan string)
 			queue <- func() {
 				channel := ""
-				data, err := handler.ConvertStringToRequestStruct(msg)
-				// if cannot parse or client send nothing
-				if err != nil {
-					log.Println(so.Id(), "Fold", "Payload is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
+				data, _ := handler.ConvertStringToRequestStruct(msg)
+				userid := handler.GetUserIDFromToken(data.Header.Token)
+				if userid == "" {
+					log.Println(userid, "Fold", "Token is invalid")
+					result <- handler.CreateResponse(userid, channel)
 					return
 				}
-				if !handler.IsTableKeyValid(data.Header.Token) {
-					log.Println(so.Id(), "Fold", "Token is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
-					return
-				}
-				if state.GS.Gambit.Fold(so.Id()) {
+				if state.GS.Gambit.Fold(userid) {
 					channel = constant.Fold
 					state.GS.Gambit.Finish()
 					state.GS.IncreaseVersion()
-					handler.BroadcastGameState(so, channel, so.Id())
-					log.Println(so.Id(), "Fold", "success")
+					handler.BroadcastGameState(so, channel, userid)
+					log.Println(userid, "Fold", "success")
 				}
-				result <- handler.CreateResponse(so.Id(), channel)
+				result <- handler.CreateResponse(userid, channel)
 				return
 			}
 			return <-result
@@ -316,16 +271,11 @@ func main() {
 			result := make(chan string)
 			queue <- func() {
 				channel := ""
-				data, err := handler.ConvertStringToRequestStruct(msg)
-				// if cannot parse or client send nothing
-				if err != nil {
-					log.Println(so.Id(), "StartTable", "Payload is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
-					return
-				}
-				if !handler.IsTableKeyValid(data.Header.Token) {
-					log.Println(so.Id(), "StartTable", "Token is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
+				data, _ := handler.ConvertStringToRequestStruct(msg)
+				userid := handler.GetUserIDFromToken(data.Header.Token)
+				if userid == "" {
+					log.Println(userid, "StartTable", "Token is invalid")
+					result <- handler.CreateResponse(userid, channel)
 					return
 				}
 				if util.CountSitting(state.GS.Players) > 1 && !handler.IsTableStart() {
@@ -333,10 +283,10 @@ func main() {
 					handler.StartTable()
 					state.GS.Gambit.Start()
 					state.GS.IncreaseVersion()
-					handler.BroadcastGameState(so, channel, so.Id())
-					log.Println(so.Id(), "StartTable", "success")
+					handler.BroadcastGameState(so, channel, userid)
+					log.Println(userid, "StartTable", "success")
 				}
-				result <- handler.CreateResponse(so.Id(), channel)
+				result <- handler.CreateResponse(userid, channel)
 				return
 			}
 			return <-result
@@ -346,27 +296,23 @@ func main() {
 			result := make(chan string)
 			queue <- func() {
 				channel := ""
-				data, err := handler.ConvertStringToRequestStruct(msg)
-				if err != nil || len(data.Payload.Parameters) <= 0 {
-					log.Println(so.Id(), "Sit", "Payload is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
+				data, _ := handler.ConvertStringToRequestStruct(msg)
+				userid := handler.GetUserIDFromToken(data.Header.Token)
+				if userid == "" {
+					log.Println(userid, "Sit", "Token is invalid")
+					result <- handler.CreateResponse(userid, channel)
 					return
 				}
-				if !handler.IsTableKeyValid(data.Header.Token) {
-					log.Println(so.Id(), "Sit", "Token is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
-					return
-				}
-				if err == nil && handler.Sit(so.Id(), data.Payload.Parameters[0].IntegerValue) {
+				if handler.Sit(userid, data.Payload.Parameters[0].IntegerValue) {
 					channel = constant.Sit
 					state.GS.Gambit.Start()
 					state.GS.IncreaseVersion()
-					handler.BroadcastGameState(so, channel, so.Id())
-					log.Println(so.Id(), "Sit", "success")
+					handler.BroadcastGameState(so, channel, userid)
+					log.Println(userid, "Sit", "success")
 				} else {
-					log.Println(so.Id(), "Sit", "Fail")
+					log.Println(userid, "Sit", "Fail")
 				}
-				result <- handler.CreateResponse(so.Id(), channel)
+				result <- handler.CreateResponse(userid, channel)
 				return
 			}
 			return <-result
@@ -376,28 +322,23 @@ func main() {
 			result := make(chan string)
 			queue <- func() {
 				channel := ""
-				data, err := handler.ConvertStringToRequestStruct(msg)
-				// if cannot parse or client send nothing
-				if err != nil {
-					log.Println(so.Id(), "Stand", "Payload is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
+				data, _ := handler.ConvertStringToRequestStruct(msg)
+				userid := handler.GetUserIDFromToken(data.Header.Token)
+				if userid == "" {
+					log.Println(userid, "Stand", "Token is invalid")
+					result <- handler.CreateResponse(userid, channel)
 					return
 				}
-				if !handler.IsTableKeyValid(data.Header.Token) {
-					log.Println(so.Id(), "Stand", "Token is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
-					return
-				}
-				if handler.Stand(so.Id()) {
+				if handler.Stand(userid) {
 					channel = constant.Stand
 					state.GS.Gambit.Finish()
 					state.GS.IncreaseVersion()
-					handler.BroadcastGameState(so, channel, so.Id())
-					log.Println(so.Id(), "Stand", "success")
+					handler.BroadcastGameState(so, channel, userid)
+					log.Println(userid, "Stand", "success")
 				} else {
-					log.Println(so.Id(), "Stand", "Fail")
+					log.Println(userid, "Stand", "Fail")
 				}
-				result <- handler.CreateResponse(so.Id(), channel)
+				result <- handler.CreateResponse(userid, channel)
 				return
 			}
 			return <-result
@@ -409,17 +350,29 @@ func main() {
 		})
 		// When exit
 		so.On(constant.Leave, func(msg string) {
+			result := make(chan string)
 			queue <- func() {
-				handler.Leave(so.Id())
-				state.GS.Gambit.Finish()
-				// If no one in the room terminate itself
-				if util.CountSitting(state.GS.Players) <= 0 &&
-					len(state.GS.Visitors) <= 0 {
-					handler.TryTerminate()
+				channel := ""
+				data, _ := handler.ConvertStringToRequestStruct(msg)
+				userid := handler.GetUserIDFromToken(data.Header.Token)
+				if userid == "" {
+					log.Println(userid, "Stand", "Token is invalid")
+					result <- handler.CreateResponse(userid, channel)
+					return
 				}
-				state.GS.IncreaseVersion()
-				handler.BroadcastGameState(so, constant.Leave, so.Id())
-				log.Println(so.Id(), "Leave")
+				channel = constant.Leave
+				if handler.Leave(userid) {
+					state.GS.Gambit.Finish()
+					// If no one in the room terminate itself
+					if util.CountSitting(state.GS.Players) <= 0 &&
+						len(state.GS.Visitors) <= 0 {
+						handler.TryTerminate()
+					}
+					state.GS.IncreaseVersion()
+					handler.BroadcastGameState(so, channel, userid)
+				}
+				log.Println(userid, channel)
+				return
 			}
 		})
 		// When send sticker
@@ -427,9 +380,15 @@ func main() {
 			result := make(chan string)
 			queue <- func() {
 				channel := ""
-				data, err := handler.ConvertStringToRequestStruct(msg)
+				data, _ := handler.ConvertStringToRequestStruct(msg)
+				userid := handler.GetUserIDFromToken(data.Header.Token)
+				if userid == "" {
+					log.Println(userid, "Stand", "Token is invalid")
+					result <- handler.CreateResponse(userid, channel)
+					return
+				}
 				// if cannot parse or client send nothing
-				if err == nil && len(data.Payload.Parameters) == 2 {
+				if len(data.Payload.Parameters) == 2 {
 					param1 := data.Payload.Parameters[0]
 					param2 := data.Payload.Parameters[1]
 					stickerid, targetslot := "", -1
@@ -448,14 +407,14 @@ func main() {
 					if stickerid != "" && targetslot != -1 {
 						channel = constant.SendSticker
 						// set sticker state in player
-						handler.SendSticker(stickerid, so.Id(), targetslot)
+						handler.SendSticker(stickerid, userid, targetslot)
 						state.GS.IncreaseVersion()
 						// broadcast state to everyone
-						handler.BroadcastGameState(so, channel, so.Id())
-						log.Println(so.Id(), "Send Sticker", "success")
+						handler.BroadcastGameState(so, channel, userid)
+						log.Println(userid, "Send Sticker", "success")
 					}
 				}
-				result <- handler.CreateResponse(so.Id(), channel)
+				result <- handler.CreateResponse(userid, channel)
 				return
 			}
 			return <-result
@@ -466,24 +425,19 @@ func main() {
 			result := make(chan string)
 			queue <- func() {
 				channel := ""
-				data, err := handler.ConvertStringToRequestStruct(msg)
-				// if cannot parse or client send nothing
-				if err != nil {
-					log.Println(so.Id(), "Extend Decision Time", "Payload is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
+				data, _ := handler.ConvertStringToRequestStruct(msg)
+				userid := handler.GetUserIDFromToken(data.Header.Token)
+				if userid == "" {
+					log.Println(userid, "Extend Decision Time", "Token is invalid")
+					result <- handler.CreateResponse(userid, channel)
 					return
 				}
-				if !handler.IsTableKeyValid(data.Header.Token) {
-					log.Println(so.Id(), "Extend Decision Time", "Token is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
-					return
-				}
-				if handler.ExtendPlayerTimeline(so.Id()) {
+				if handler.ExtendPlayerTimeline(userid) {
 					channel = constant.ExtendDecisionTime
 					state.GS.IncreaseVersion()
-					handler.BroadcastGameState(so, channel, so.Id())
+					handler.BroadcastGameState(so, channel, userid)
 				}
-				result <- handler.CreateResponse(so.Id(), channel)
+				result <- handler.CreateResponse(userid, channel)
 				return
 			}
 			return <-result
@@ -493,16 +447,11 @@ func main() {
 			result := make(chan string)
 			queue <- func() {
 				channel := ""
-				data, err := handler.ConvertStringToRequestStruct(msg)
-				// if cannot parse or client send nothing
-				if err != nil {
-					log.Println(so.Id(), "Disband Table", "Payload is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
-					return
-				}
-				if !handler.IsTableKeyValid(data.Header.Token) {
-					log.Println(so.Id(), "Disband Table", "Token is invalid")
-					result <- handler.CreateResponse(so.Id(), channel)
+				data, _ := handler.ConvertStringToRequestStruct(msg)
+				userid := handler.GetUserIDFromToken(data.Header.Token)
+				if userid == "" {
+					log.Println(userid, "Disband Table", "Token is invalid")
+					result <- handler.CreateResponse(userid, channel)
 					return
 				}
 				// Set table expired equal 0 to make sure it actually expired
@@ -513,9 +462,9 @@ func main() {
 					handler.TryTerminate()
 				}
 				channel = constant.DisbandTable
-				handler.BroadcastGameState(so, channel, so.Id())
-				log.Println(so.Id(), "Disband", "success")
-				result <- handler.CreateResponse(so.Id(), channel)
+				handler.BroadcastGameState(so, channel, userid)
+				log.Println(userid, "Disband", "success")
+				result <- handler.CreateResponse(userid, channel)
 				return
 			}
 			return <-result
