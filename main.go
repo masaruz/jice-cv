@@ -475,14 +475,15 @@ func main() {
 				state.GS.PlayerTableKeys[ptk.UserID] = ptk.TableKey
 			}
 		}
-		log.Println(state.GS.PlayerTableKeys)
 		// Return success to hawkeye
 		resp, _ := json.Marshal(struct {
-			Code    int
-			Message string
+			Code      int               `json:"code"`
+			Message   string            `json:"message"`
+			Resources map[string]string `json:"resources"`
 		}{
-			Code:    200, // Success code
-			Message: "Update successfully",
+			Code:      200, // Success code
+			Message:   "Update successfully",
+			Resources: state.GS.PlayerTableKeys,
 		})
 		w.Write(resp)
 	}).Methods("POST") // Receive only post
