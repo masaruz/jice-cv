@@ -33,8 +33,9 @@ type Req struct {
 
 // Header is about token, non game logic
 type Header struct {
-	Token    string `json:"token"`
-	DeviceID string `json:"deviceid"`
+	Token       string `json:"token"`
+	DeviceID    string `json:"deviceid"`
+	DisplayName string `json:"display_name"`
 }
 
 // RespPayload is response payload

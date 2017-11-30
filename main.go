@@ -58,16 +58,15 @@ func main() {
 				userid := handler.GetUserIDFromToken(data.Header.Token)
 				if userid == "" {
 					log.Println("Enter", "Token is invalid")
-					result <- handler.CreateResponse("", channel)
+					result <- handler.CreateResponse(userid, channel)
 					return
 				}
 				channel = constant.Enter
 				// Join the room
 				so.Join(userid)
-				handler.Connect(userid)
 				handler.Enter(model.Player{
 					ID:      userid,
-					Name:    "name",
+					Name:    data.Header.DisplayName,
 					Picture: "picture",
 				})
 				handler.BroadcastGameState(so, constant.GetState, userid)
@@ -77,6 +76,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
+			defer close(result)
 			return <-result
 		})
 		// When player need server to check something
@@ -107,6 +107,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
+			defer close(result)
 			return <-result
 		})
 		// When player need to get game state
@@ -123,6 +124,7 @@ func main() {
 				}
 				result <- handler.CreateResponse(userid, constant.GetState)
 			}
+			defer close(result)
 			return <-result
 		})
 		// When player call check
@@ -146,6 +148,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
+			defer close(result)
 			return <-result
 		})
 		// When player need to bet chips
@@ -170,6 +173,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
+			defer close(result)
 			return <-result
 		})
 		// When player need to raise chips
@@ -194,6 +198,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
+			defer close(result)
 			return <-result
 		})
 		// When player need to call chips
@@ -217,6 +222,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
+			defer close(result)
 			return <-result
 		})
 		// When player need to all in
@@ -240,6 +246,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
+			defer close(result)
 			return <-result
 		})
 		// When player fold their cards
@@ -264,6 +271,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
+			defer close(result)
 			return <-result
 		})
 		// Start table and no ending until expire
@@ -289,6 +297,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
+			defer close(result)
 			return <-result
 		})
 		// When player sit down
@@ -315,6 +324,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
+			defer close(result)
 			return <-result
 		})
 		// When player stand up
@@ -341,6 +351,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
+			defer close(result)
 			return <-result
 		})
 		// When disconnected
@@ -417,6 +428,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
+			defer close(result)
 			return <-result
 		})
 		// Extend a player action time with effect to everyone's timeline
@@ -440,6 +452,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
+			defer close(result)
 			return <-result
 		})
 		// When admin disband table it should be set finish table time
@@ -467,6 +480,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
+			defer close(result)
 			return <-result
 		})
 	})
