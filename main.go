@@ -30,7 +30,7 @@ func main() {
 	handler.Initiate(gambit.Create(os.Getenv(constant.GambitType)))
 	state.GS.Gambit.Init()
 	// Create queue to receiving request
-	queue := make(chan func(), 1)
+	queue := make(chan func())
 	// Create a worker to standby
 	go func() {
 		for {
@@ -51,6 +51,7 @@ func main() {
 		// Because connect does not support message payload
 		// Or retrieve player info
 		so.On(constant.Enter, func(msg string) string {
+			log.Println("++++ Enter ++++")
 			result := make(chan string)
 			queue <- func() {
 				channel := ""
@@ -69,7 +70,7 @@ func main() {
 					Name:    data.Header.DisplayName,
 					Picture: "picture",
 				})
-				handler.BroadcastGameState(so, constant.GetState, userid)
+				handler.BroadcastGameState(so, channel, userid)
 				state.GS.IncreaseVersion()
 				log.Println(userid, "Enter", "success")
 				// If no seat then just return current state
@@ -360,14 +361,14 @@ func main() {
 			log.Println(so.Id(), "Disconnect")
 		})
 		// When exit
-		so.On(constant.Leave, func(msg string) {
+		so.On(constant.Leave, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
 				if userid == "" {
-					log.Println(userid, "Stand", "Token is invalid")
+					log.Println(userid, "Leave", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
@@ -383,8 +384,11 @@ func main() {
 					handler.BroadcastGameState(so, channel, userid)
 				}
 				log.Println(userid, channel)
+				result <- handler.CreateResponse(userid, channel)
 				return
 			}
+			defer close(result)
+			return <-result
 		})
 		// When send sticker
 		so.On(constant.SendSticker, func(msg string) string {

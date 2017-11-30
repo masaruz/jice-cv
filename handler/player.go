@@ -201,6 +201,8 @@ func GetUserIDFromToken(tablekey string) string {
 			return userid
 		}
 	}
-	log.Printf("Not found userid from tablekey [%s]", tablekey[:4])
+	if len(tablekey) >= 4 {
+		log.Printf("Not found userid from tablekey [%s]", tablekey[:4])
+	}
 	return ""
 }
