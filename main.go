@@ -412,6 +412,11 @@ func main() {
 			queue <- func() {
 				handler.Leave(so.Id())
 				state.GS.Gambit.Finish()
+				// If no one in the room terminate itself
+				if util.CountSitting(state.GS.Players) <= 0 &&
+					len(state.GS.Visitors) <= 0 {
+					handler.TryTerminate()
+				}
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, constant.Leave, so.Id())
 				log.Println(so.Id(), "Leave")

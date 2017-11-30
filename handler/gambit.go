@@ -392,7 +392,7 @@ func TryTerminate() {
 		if os.Getenv("env") != "dev" {
 			// Delay 5 second before send signal to hawkeye that please kill this container
 			go func() {
-				time.Sleep(time.Second * 5)
+				time.Sleep(time.Second * 3)
 				api.Terminate()
 				log.Println("Should be destroyed")
 			}()
