@@ -117,15 +117,15 @@ func Stand(id string) bool {
 			ShortenTimelineAfterTarget(id, diff)
 		}
 		OverwriteActionToBehindPlayers()
-	}
-	// If not in dev, call api
-	if os.Getenv("env") != "dev" {
-		// Update buy-in cash
-		body, err := api.SaveSettlement(id)
-		log.Println("Response from SaveSettlement", string(body), err)
-		// Save buy-in cash to real player pocket
-		body, err = api.CashBack(id)
-		log.Println("Response from CashBack", string(body), err)
+		// If not in dev, call api
+		if os.Getenv("env") != "dev" {
+			// Update buy-in cash
+			body, err := api.SaveSettlement(id)
+			log.Println("Response from SaveSettlement", string(body), err)
+			// Save buy-in cash to real player pocket
+			body, err = api.CashBack(id)
+			log.Println("Response from CashBack", string(body), err)
+		}
 	}
 	// Change state player to visitor
 	visitor := model.Player{
