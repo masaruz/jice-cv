@@ -373,17 +373,16 @@ func main() {
 					return
 				}
 				channel = constant.Leave
-				if handler.Leave(userid) {
-					state.GS.Gambit.Finish()
-					// If no one in the room terminate itself
-					if util.CountSitting(state.GS.Players) <= 0 &&
-						len(state.GS.Visitors) <= 0 {
-						handler.TryTerminate()
-					}
-					state.GS.IncreaseVersion()
-					handler.BroadcastGameState(so, channel, userid)
+				handler.Leave(userid)
+				state.GS.Gambit.Finish()
+				// If no one in the room terminate itself
+				if util.CountSitting(state.GS.Players) <= 0 &&
+					len(state.GS.Visitors) <= 0 {
+					handler.TryTerminate()
 				}
-				log.Println(userid, channel)
+				state.GS.IncreaseVersion()
+				handler.BroadcastGameState(so, channel, userid)
+				log.Println(userid, "Leave", "sucess")
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}

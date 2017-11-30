@@ -56,9 +56,7 @@ func Enter(player model.Player) bool {
 // Leave and Remove user from vistor or player list
 func Leave(id string) bool {
 	// force them to stand
-	if !Stand(id) {
-		return false
-	}
+	Stand(id)
 	// after they stand then remove from visitor
 	state.GS.Visitors = util.Remove(state.GS.Visitors, id)
 	if os.Getenv("env") != "dev" {
