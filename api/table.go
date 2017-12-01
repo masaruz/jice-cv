@@ -39,20 +39,6 @@ func getTableURL(id string) string {
 
 // UpdateRealtimeData save table state to realtime
 func UpdateRealtimeData() ([]byte, error) {
-	// Create scoreboard
-	scoreboards := []model.Scoreboard{}
-	for _, player := range state.GS.Players {
-		if player.ID == "" {
-			continue
-		}
-		scoreboards = append(scoreboards,
-			model.Scoreboard{
-				UserID:         player.ID,
-				DisplayName:    player.Name,
-				BuyInAmount:    player.Chips,
-				WinningsAmount: player.WinLossAmount,
-			})
-	}
 	type Visitor struct {
 		UserID      string `json:"userid"`
 		DisplayName string `json:"display_name"`
@@ -60,6 +46,9 @@ func UpdateRealtimeData() ([]byte, error) {
 	// Create visitor
 	visitors := []Visitor{}
 	for _, visitor := range state.GS.Visitors {
+		if visitor.ID == "" {
+			continue
+		}
 		visitors = append(visitors,
 			Visitor{
 				UserID:      visitor.ID,
@@ -79,7 +68,7 @@ func UpdateRealtimeData() ([]byte, error) {
 		GroupID:     state.GS.GroupID,
 		GameIndex:   state.GS.GameIndex,
 		PlayerCount: util.CountSitting(state.GS.Players),
-		Scoreboard:  &scoreboards,
+		Scoreboard:  &state.GS.Scoreboard,
 		Visitors:    &visitors,
 	}
 	// cast param to byte

@@ -68,12 +68,13 @@ func (game NineK) Start() bool {
 					resp := &api.Response{}
 					json.Unmarshal(body, resp)
 					// If this player request buy in success
-					if resp.Error.StatusCode == 0 {
+					if resp.Error.StatusCode == 0 || resp.Error.StatusCode == 409 {
 						log.Println("Buy-in success")
 						// Assign how much they buy-in
 						player.Chips = game.GetSettings().BuyInMin
-						player.IsCashBack = false
+						player.IsBuyIn = true
 					} else {
+						// Try cashback and let they try again
 						log.Println("BuyIn amount is insufficient")
 					}
 				} else {
@@ -81,11 +82,10 @@ func (game NineK) Start() bool {
 				}
 			}
 			// If player has minimum chip for able to play
-			if player.Chips >= game.GetSettings().BlindsSmall &&
-				state.GS.AFKCounts[index] < game.MaxAFKCount {
+			if state.GS.AFKCounts[index] < game.MaxAFKCount {
 				continue
 			}
-			handler.Stand(player.ID)
+			handler.Stand(player.ID, true)
 		}
 		// After pass through the critiria
 		// if there are more than 2 players are sitting
@@ -124,20 +124,6 @@ func (game NineK) Start() bool {
 			handler.SetPlayersRake(game.Rake, game.Cap*float64(game.BlindsBig))
 			log.Println("Start Success")
 			return true
-		}
-		// Cashback to everyone if cannot start the game
-		log.Println("Start CashBack to player when unable to start")
-		for index, player := range state.GS.Players {
-			if player.ID == "" || player.IsCashBack {
-				continue
-			}
-			body, err := api.CashBack(player.ID)
-			resp := &api.Response{}
-			json.Unmarshal(body, resp)
-			if resp.Error.StatusCode != 409 {
-				state.GS.Players[index].IsCashBack = true
-			}
-			log.Println("Response from CashBack", string(body), err)
 		}
 	}
 	log.Println("Start Failed")
@@ -259,6 +245,32 @@ func (game NineK) Finish() bool {
 				hscore = -1
 				hbonus = -1
 				pos = -1
+			}
+		}
+		for _, player := range state.GS.Players {
+			if player.ID == "" {
+				continue
+			}
+			updated := false
+			for index, sb := range state.GS.Scoreboard {
+				if sb.UserID == player.ID {
+					state.GS.Scoreboard[index] = model.Scoreboard{
+						UserID:         player.ID,
+						DisplayName:    player.Name,
+						BuyInAmount:    player.Chips,
+						WinningsAmount: player.WinLossAmount,
+					}
+					updated = true
+					break
+				}
+			}
+			if !updated {
+				state.GS.Scoreboard = append(state.GS.Scoreboard, model.Scoreboard{
+					UserID:         player.ID,
+					DisplayName:    player.Name,
+					BuyInAmount:    player.Chips,
+					WinningsAmount: player.WinLossAmount,
+				})
 			}
 		}
 		if os.Getenv("env") != "dev" {

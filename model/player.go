@@ -23,7 +23,7 @@ type Player struct {
 	StartLine     int64      `json:"startline"`
 	WinLossAmount int        `json:"win_loss_amount,omitempty"`
 	Stickers      *[]Sticker `json:"send_stickers,omitempty"`
-	IsCashBack    bool       `json:"is_cash_back"`
+	IsBuyIn       bool       `json:"is_buyin"`
 }
 
 // Print status of p only for development

@@ -56,7 +56,7 @@ func Enter(player model.Player) bool {
 // Leave and Remove user from vistor or player list
 func Leave(id string) bool {
 	// force them to stand
-	Stand(id)
+	Stand(id, false)
 	// after they stand then remove from visitor
 	state.GS.Visitors = util.Remove(state.GS.Visitors, id)
 	if os.Getenv("env") != "dev" {
@@ -102,7 +102,7 @@ func Sit(id string, slot int) bool {
 }
 
 // Stand when player need to quit
-func Stand(id string) bool {
+func Stand(id string, force bool) bool {
 	_, caller := util.Get(state.GS.Players, id)
 	if caller.ID == "" {
 		return false
@@ -117,15 +117,16 @@ func Stand(id string) bool {
 			ShortenTimelineAfterTarget(id, diff)
 		}
 		OverwriteActionToBehindPlayers()
-		// If not in dev, call api
-		if os.Getenv("env") != "dev" {
-			// Update buy-in cash
-			body, err := api.SaveSettlement(id)
-			log.Println("Response from SaveSettlement", string(body), err)
-			// Save buy-in cash to real player pocket
-			body, err = api.CashBack(id)
-			log.Println("Response from CashBack", string(body), err)
-		}
+	}
+	// If not in dev, call api
+	// If this player already buyin
+	if os.Getenv("env") != "dev" && (caller.IsPlaying || state.GS.IsGameStart || force) {
+		// Update buy-in cash
+		body, err := api.SaveSettlement(id)
+		log.Println("Response from SaveSettlement", string(body), err)
+		// Save buy-in cash to real player pocket
+		body, err = api.CashBack(id)
+		log.Println("Response from CashBack", string(body), err)
 	}
 	// Change state player to visitor
 	visitor := model.Player{

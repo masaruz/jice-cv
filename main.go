@@ -353,7 +353,7 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
-				if handler.Stand(userid) {
+				if handler.Stand(userid, false) {
 					channel = constant.Stand
 					state.GS.Gambit.Finish()
 					state.GS.IncreaseVersion()
