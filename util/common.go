@@ -31,7 +31,7 @@ func Log() {
 	for _, player := range state.GS.Players {
 		player.Print()
 	}
-	log.Println(time.Now().Unix())
+	log.Println("Now:", time.Now().Unix())
 	log.Println("Start round time:", state.GS.StartRoundTime)
 	log.Println("Finish round time:", state.GS.FinishRoundTime)
 	log.Println(">>>>>>>>>>>> Done return acknowledge <<<<<<<<<<<<<<<")

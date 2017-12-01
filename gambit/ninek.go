@@ -72,6 +72,7 @@ func (game NineK) Start() bool {
 						log.Println("Buy-in success")
 						// Assign how much they buy-in
 						player.Chips = game.GetSettings().BuyInMin
+						player.IsCashBack = false
 					} else {
 						log.Println("BuyIn amount is insufficient")
 					}
@@ -126,8 +127,16 @@ func (game NineK) Start() bool {
 		}
 		// Cashback to everyone if cannot start the game
 		log.Println("Start CashBack to player when unable to start")
-		for _, player := range state.GS.Players {
+		for index, player := range state.GS.Players {
+			if player.ID == "" || player.IsCashBack {
+				continue
+			}
 			body, err := api.CashBack(player.ID)
+			resp := &api.Response{}
+			json.Unmarshal(body, resp)
+			if resp.Error.StatusCode != 409 {
+				state.GS.Players[index].IsCashBack = true
+			}
 			log.Println("Response from CashBack", string(body), err)
 		}
 	}
