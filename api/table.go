@@ -42,6 +42,9 @@ func UpdateRealtimeData() ([]byte, error) {
 	// Create scoreboard
 	scoreboards := []model.Scoreboard{}
 	for _, player := range state.GS.Players {
+		if player.ID == "" {
+			continue
+		}
 		scoreboards = append(scoreboards,
 			model.Scoreboard{
 				UserID:         player.ID,
@@ -50,13 +53,17 @@ func UpdateRealtimeData() ([]byte, error) {
 				WinningsAmount: player.WinLossAmount,
 			})
 	}
+	type Visitor struct {
+		UserID      string `json:"userid"`
+		DisplayName string `json:"display_name"`
+	}
 	// Create visitor
-	visitors := model.Players{}
+	visitors := []Visitor{}
 	for _, visitor := range state.GS.Visitors {
 		visitors = append(visitors,
-			model.Player{
-				ID:   visitor.ID,
-				Name: visitor.Name,
+			Visitor{
+				UserID:      visitor.ID,
+				DisplayName: visitor.Name,
 			})
 	}
 	// gambit := state.GS.Gambit
@@ -66,7 +73,7 @@ func UpdateRealtimeData() ([]byte, error) {
 		GameIndex   int                 `json:"gameindex"`
 		PlayerCount int                 `json:"players_count"`
 		Scoreboard  *[]model.Scoreboard `json:"scoreboard"`
-		Visitors    *model.Players      `json:"visitors"`
+		Visitors    *[]Visitor          `json:"visitors"`
 	}{
 		TableID:     state.GS.TableID,
 		GroupID:     state.GS.GroupID,
