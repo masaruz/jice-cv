@@ -140,7 +140,6 @@ func createSharedState(players model.Players) model.Players {
 	}
 	// Decide that players should see the cards
 	for _, player := range players {
-		player.CardAmount = len(player.Cards)
 		// If during gameplay or everyone is fold their cards
 		if state.GS.IsGameStart || notFold <= 1 {
 			player.Cards = model.Cards{}

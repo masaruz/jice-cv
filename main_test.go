@@ -9,6 +9,7 @@ import (
 	"999k_engine/state"
 	"999k_engine/util"
 	"fmt"
+	"log"
 	"testing"
 	"time"
 )
@@ -3626,4 +3627,45 @@ func TestLoop42(t *testing.T) {
 	p2.Print()
 	fmt.Println("now:", time.Now().Unix())
 	fmt.Println("end:", state.GS.FinishRoundTime)
+}
+
+func TestLoop43(t *testing.T) {
+	decisionTime := int64(3)
+	minimumBet := 200
+	ninek := gambit.NineK{
+		BlindsSmall:  minimumBet,
+		BlindsBig:    minimumBet,
+		BuyInMin:     200,
+		BuyInMax:     1000,
+		MaxPlayers:   6,
+		MaxAFKCount:  5,
+		DecisionTime: decisionTime}
+	handler.Initiate(ninek)
+	handler.Connect("1")
+	handler.Connect("2")
+	state.GS.Gambit.Init() // create seats
+	// dumb player
+	handler.Sit("1", 2)
+	handler.Sit("2", 3)
+	p1 := &state.GS.Players[2]
+	p2 := &state.GS.Players[3]
+	p1.Chips = 200
+	p2.Chips = 1000
+	handler.StartTable()
+	if !state.GS.Gambit.Start() {
+		t.Error()
+	}
+	if state.GS.Gambit.Finish() {
+		t.Error()
+	}
+	if !state.GS.Gambit.NextRound() {
+		t.Error()
+	}
+	if !state.GS.Gambit.Finish() {
+		t.Error()
+	}
+	p1.Print()
+	p2.Print()
+	log.Println(time.Now().Unix())
+	log.Println(state.GS.FinishRoundTime)
 }

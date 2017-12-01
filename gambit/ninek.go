@@ -57,22 +57,39 @@ func (game NineK) Start() bool {
 			if player.ID == "" {
 				continue
 			}
-			// If player has no chip
-			// TODO if player has not enough chip then all-in their chips
+			// If player has no chip enough
 			if player.Chips < game.GetSettings().BlindsSmall {
 				// Validate with other server when is not in dev
 				if os.Getenv("env") != "dev" {
+					// Make sure this player ready to buyin
+					body, err := api.CashBack(player.ID)
+					log.Println("Response from CashBack", string(body), err)
 					// Need request to server for buyin
-					body, err := api.BuyIn(player.ID, game.GetSettings().BuyInMin)
+					body, err = api.BuyIn(player.ID, game.GetSettings().BuyInMin)
 					log.Println("Response from BuyIn", string(body), err)
 					resp := &api.Response{}
 					json.Unmarshal(body, resp)
-					// If this player request buy in success
+					// Allow player even already buy-in
 					if resp.Error.StatusCode == 0 || resp.Error.StatusCode == 409 {
 						log.Println("Buy-in success")
 						// Assign how much they buy-in
 						player.Chips = game.GetSettings().BuyInMin
+						player.WinLossAmount = 0
 						player.IsBuyIn = true
+						// Update scoreboard
+						// If actually buyin success
+						if resp.Error.StatusCode == 0 {
+							scoreboard, index := util.GetScoreboard(player.ID)
+							scoreboard.BuyInAmount += player.Chips
+							// If not found then add to scoreboard
+							if index == -1 {
+								state.GS.Scoreboard = append(state.GS.Scoreboard, model.Scoreboard{
+									UserID:      player.ID,
+									DisplayName: player.Name,
+									BuyInAmount: player.Chips,
+								})
+							}
+						}
 					} else {
 						// Try cashback and let they try again
 						log.Println("BuyIn amount is insufficient")
@@ -213,6 +230,7 @@ func (game NineK) Finish() bool {
 			}
 			// This mean we found some winners
 			if pos != -1 {
+				winner := &state.GS.Players[pos]
 				for poti, pot := range state.GS.Pots {
 					if pot == 0 {
 						continue
@@ -228,11 +246,12 @@ func (game NineK) Finish() bool {
 						earnedbet = winnerbet
 					}
 					if earnedbet != 0 {
-						state.GS.Players[pos].Chips += earnedbet
-						state.GS.Players[pos].WinLossAmount += earnedbet
+						winner.Chips += earnedbet
+						winner.WinLossAmount += earnedbet
+						util.AddScoreboardWinAmount(winner.ID, earnedbet)
 						earnedplayers := util.CountPlayerAlreadyEarned(state.GS.Players)
 						if util.CountPlayerNotFold(state.GS.Players)-earnedplayers > 1 || earnedplayers == 0 {
-							state.GS.Players[pos].IsWinner = true
+							winner.IsWinner = true
 						}
 					}
 					// If not caller
@@ -240,37 +259,11 @@ func (game NineK) Finish() bool {
 						handler.BurnBet(poti, earnedbet)
 					}
 				}
-				state.GS.Players[pos].IsEarned = true
-				handler.BurnBet(pos, util.SumBet(state.GS.Players[pos]))
+				winner.IsEarned = true
+				handler.BurnBet(pos, util.SumBet(*winner))
 				hscore = -1
 				hbonus = -1
 				pos = -1
-			}
-		}
-		for _, player := range state.GS.Players {
-			if player.ID == "" {
-				continue
-			}
-			updated := false
-			for index, sb := range state.GS.Scoreboard {
-				if sb.UserID == player.ID {
-					state.GS.Scoreboard[index] = model.Scoreboard{
-						UserID:         player.ID,
-						DisplayName:    player.Name,
-						BuyInAmount:    player.Chips,
-						WinningsAmount: player.WinLossAmount,
-					}
-					updated = true
-					break
-				}
-			}
-			if !updated {
-				state.GS.Scoreboard = append(state.GS.Scoreboard, model.Scoreboard{
-					UserID:         player.ID,
-					DisplayName:    player.Name,
-					BuyInAmount:    player.Chips,
-					WinningsAmount: player.WinLossAmount,
-				})
 			}
 		}
 		if os.Getenv("env") != "dev" {
@@ -335,6 +328,7 @@ func (game NineK) Bet(id string, chips int) bool {
 	if player.Chips < chips {
 		return false
 	}
+	util.AddScoreboardWinAmount(player.ID, -chips)
 	state.GS.DoActions[index] = true
 	// added value to the bet in this turn
 	player.Chips -= chips
@@ -390,6 +384,7 @@ func (game NineK) Call(id string) bool {
 	if player.Chips < chips || chips == 0 {
 		return false
 	}
+	util.AddScoreboardWinAmount(player.ID, -chips)
 	state.GS.DoActions[index] = true
 	player.Chips -= chips
 	player.WinLossAmount -= chips
@@ -422,6 +417,7 @@ func (game NineK) AllIn(id string) bool {
 	if player.Bets[state.GS.Turn]+chips > state.GS.MaximumBet {
 		return false
 	}
+	util.AddScoreboardWinAmount(player.ID, -chips)
 	state.GS.DoActions[index] = true
 	player.Bets[state.GS.Turn] += chips
 	player.WinLossAmount -= chips

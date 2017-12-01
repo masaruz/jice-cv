@@ -128,8 +128,9 @@ func Stand(id string, force bool) bool {
 	}
 	// If not in dev, call api
 	// If this player already buyin
-	if os.Getenv("env") != "dev" && (caller.IsPlaying || state.GS.IsGameStart || force) {
-		// Update buy-in cash
+	// if os.Getenv("env") != "dev" && (caller.IsPlaying || state.GS.IsGameStart || force) {
+	// Update buy-in cash
+	if os.Getenv("env") != "dev" {
 		body, err := api.SaveSettlement(id)
 		log.Println("Response from SaveSettlement", string(body), err)
 		// Save buy-in cash to real player pocket

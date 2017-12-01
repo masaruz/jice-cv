@@ -346,14 +346,15 @@ func ShiftPlayersToEndOfTimeline(id string, second int64) {
 func PlayersInvestToPots(chips int) {
 	// initiate bet value to players
 	for index := range state.GS.Players {
-		if util.IsPlayingAndNotFoldAndNotAllIn(state.GS.Players[index]) {
-			state.GS.Players[index].Chips -= chips
-			state.GS.Players[index].WinLossAmount -= chips
-			state.GS.Players[index].Bets = append(state.GS.Players[index].Bets, chips)
+		if player := &state.GS.Players[index]; util.IsPlayingAndNotFoldAndNotAllIn(*player) {
+			player.Chips -= chips
+			player.WinLossAmount -= chips
+			util.AddScoreboardWinAmount(player.ID, -chips)
+			player.Bets = append(player.Bets, chips)
 			IncreasePots(index, chips)
 			// start with first element in pots
-		} else if util.IsPlayingAndNotFold(state.GS.Players[index]) {
-			state.GS.Players[index].Bets = append(state.GS.Players[index].Bets, 0)
+		} else if util.IsPlayingAndNotFold(*player) {
+			player.Bets = append(player.Bets, 0)
 		}
 	}
 	SetMaximumBet(util.SumPots(state.GS.Pots))

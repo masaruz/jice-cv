@@ -36,9 +36,11 @@ func Log() {
 	for _, visitor := range state.GS.Visitors {
 		visitor.Print()
 	}
-	log.Println("Current Game Index", state.GS.GameIndex)
+	log.Println("Current gameindex:", state.GS.GameIndex)
 	log.Println("Now:", time.Now().Unix())
 	log.Println("Start round time:", state.GS.StartRoundTime)
 	log.Println("Finish round time:", state.GS.FinishRoundTime)
+	log.Println("Start table time:", state.GS.StartTableTime)
+	log.Println("Finish table time:", state.GS.FinishTableTime)
 	log.Println(">>>>>>>>>>>> Done Broadcasting <<<<<<<<<<<<<<<")
 }
