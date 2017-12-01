@@ -10,6 +10,12 @@ import (
 	"time"
 )
 
+// Visitor in realtime database
+type Visitor struct {
+	UserID      string `json:"userid"`
+	DisplayName string `json:"display_name"`
+}
+
 // Table response from api server
 type Table struct {
 	ID            string `json:"tableid" validate:"required"`
@@ -39,10 +45,6 @@ func getTableURL(id string) string {
 
 // UpdateRealtimeData save table state to realtime
 func UpdateRealtimeData() ([]byte, error) {
-	type Visitor struct {
-		UserID      string `json:"userid"`
-		DisplayName string `json:"display_name"`
-	}
 	// Create visitor
 	visitors := []Visitor{}
 	for _, visitor := range state.GS.Visitors {
@@ -166,11 +168,7 @@ func SaveSettlement(userid string) ([]byte, error) {
 
 // TableEnd set endtime
 func TableEnd() ([]byte, error) {
-	table := Table{}
-	table.ID = state.GS.TableID
-	table.GroupID = state.GS.GroupID
-	table.EndTime = time.Now().Unix()
-	table.GameIndex = state.GS.GameIndex
+	table := Table{EndTime: time.Now().Unix()}
 	// cast param to byte
 	data, err := json.Marshal(table)
 	if err != nil {

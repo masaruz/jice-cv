@@ -3,7 +3,6 @@ package gambit
 import (
 	"999k_engine/constant"
 	"999k_engine/engine"
-	"999k_engine/state"
 	"os"
 	"strconv"
 )
@@ -44,10 +43,6 @@ func Create(gambit string) engine.Gambit {
 	if err != nil {
 		maxbi = 1000
 	}
-	// Assign required parameters
-	state.GS.GameIndex, _ = strconv.Atoi(os.Getenv(constant.GameIndex))
-	state.GS.TableID = os.Getenv(constant.TableID)
-	state.GS.GroupID = os.Getenv(constant.GroupID)
 	switch gambit {
 	default:
 		return NineK{

@@ -28,7 +28,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	handler.ResumeState()
+	handler.RestoreStateData()
 	handler.Initiate(gambit.Create(os.Getenv(constant.GambitType)))
 	state.GS.Gambit.Init()
 	// Create queue to receiving request

@@ -62,6 +62,9 @@ func Leave(id string) bool {
 	if os.Getenv("env") != "dev" {
 		body, err := api.RemoveAuth(id)
 		log.Println("Response from RemoveAuth", string(body), err)
+		// Update realtime data ex. Visitors
+		body, err = api.UpdateRealtimeData()
+		log.Println("Response from UpdateRealtimeData", string(body), err)
 	}
 	return true
 }
@@ -98,6 +101,11 @@ func Sit(id string, slot int) bool {
 	state.GS.Players[caller.Slot] = caller
 	state.GS.AFKCounts[caller.Slot] = 0
 	SetOtherActionsWhoAreNotPlaying(constant.Sit)
+	// Update realtime data ex. Visitors
+	if os.Getenv("env") != "dev" {
+		body, err := api.UpdateRealtimeData()
+		log.Println("Response from UpdateRealtimeData", string(body), err)
+	}
 	return true
 }
 

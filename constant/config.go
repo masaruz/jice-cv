@@ -16,4 +16,6 @@ const (
 	MaximumBuyIn = "MaximumBuyIn"
 	Scoreboard   = "Scoreboard"
 	Visitors     = "Visitors"
+	Duration     = "Duration"
+	StartTime    = "StartTime"
 )

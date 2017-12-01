@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"999k_engine/api"
 	"999k_engine/constant"
 	"999k_engine/model"
 	"999k_engine/state"
@@ -13,23 +14,37 @@ import (
 	"github.com/googollee/go-socket.io"
 )
 
-// ResumeState from env
-func ResumeState() {
-	// Get gameindex from hawkeye who awake this container
-	gameindex, _ := strconv.Atoi(os.Getenv(constant.GameIndex))
-	// TODO preapre to add scoreboard and visitor
+// RestoreStateData from env
+func RestoreStateData() {
 	if s := os.Getenv(constant.Visitors); s != "" {
-		visitors := &model.Players{}
+		visitors := &[]api.Visitor{}
 		json.Unmarshal([]byte(s), visitors)
-		state.GS.Visitors = *visitors
+		// Convert to player visitor
+		for _, visitor := range *visitors {
+			state.GS.Visitors = append(state.GS.Visitors,
+				model.Player{
+					ID:   visitor.UserID,
+					Name: visitor.DisplayName,
+				})
+		}
 	}
 	if s := os.Getenv(constant.Scoreboard); s != "" {
 		scoreboard := &[]model.Scoreboard{}
 		json.Unmarshal([]byte(s), scoreboard)
 		state.GS.Scoreboard = *scoreboard
 	}
-	// Assign to GameIndex
-	state.GS.GameIndex = gameindex
+	// Assign required parameters
+	// Get gameindex from hawkeye who awake this container
+	state.GS.GameIndex, _ = strconv.Atoi(os.Getenv(constant.GameIndex))
+	state.GS.TableID = os.Getenv(constant.TableID)
+	state.GS.GroupID = os.Getenv(constant.GroupID)
+	state.GS.StartTableTime, _ = strconv.ParseInt(os.Getenv(constant.StartTime), 10, 64)
+	duration, _ := strconv.ParseInt(os.Getenv(constant.Duration), 10, 64)
+	// If manager send startime means this table already start
+	if state.GS.StartTableTime > 0 {
+		state.GS.FinishTableTime = state.GS.StartTableTime + duration
+		state.GS.IsTableStart = true
+	}
 }
 
 // ConvertStringToRequestStruct convert string to struct (state.Req)
