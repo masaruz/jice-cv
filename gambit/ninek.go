@@ -53,48 +53,53 @@ func (game NineK) Start() bool {
 			}
 			// If player has no chip enough
 			if player.Chips < game.GetSettings().BlindsSmall {
-				// Validate with other server when is not in dev
-				if os.Getenv("env") != "dev" {
-					// Make sure this player ready to buyin
-					// Cashback can be fail if they not buyin yet
-					body, err := api.CashBack(player.ID)
-					log.Println("Response from CashBack", string(body), err)
-					// Need request to server for buyin
-					body, err = api.BuyIn(player.ID, game.GetSettings().BuyInMin)
-					log.Println("Response from BuyIn", string(body), err)
-					resp := &api.Response{}
-					json.Unmarshal(body, resp)
-					// BuyIn must be successful
-					if resp.Error == (api.Error{}) {
-						log.Println("Buy-in success")
-						// Assign how much they buy-in
-						player.Chips = game.GetSettings().BuyInMin
-						// Update scoreboard
-						// If actually buyin success
-						scoreboard, index := util.GetScoreboard(player.ID)
-						scoreboard.BuyInAmount += player.Chips
-						// If not found player in scoreboard then add them
-						if index == -1 {
-							state.GS.Scoreboard = append(state.GS.Scoreboard, model.Scoreboard{
-								UserID:      player.ID,
-								DisplayName: player.Name,
-								BuyInAmount: player.Chips,
-							})
-						}
-					} else {
-						// Try cashback and let they try again
-						log.Println("BuyIn amount is insufficient or player's already brought in")
-					}
-				} else {
+				// If in development assign chips and continue
+				if os.Getenv("env") == "dev" {
 					player.Chips = game.GetSettings().BuyInMin
+					continue
+				}
+				// Make sure this player ready to buyin
+				// Cashback can be fail if they not buyin yet
+				body, err := api.CashBack(player.ID)
+				log.Println("Response from CashBack", string(body), err)
+				resp := &api.Response{}
+				json.Unmarshal(body, resp)
+				// If cashback error
+				if resp.Error != (api.Error{}) {
+					// Force to stand
+					handler.Stand(player.ID, true)
+				}
+				// Need request to server for buyin
+				body, err = api.BuyIn(player.ID, game.GetSettings().BuyInMin)
+				log.Println("Response from BuyIn", string(body), err)
+				resp = &api.Response{}
+				json.Unmarshal(body, resp)
+				// BuyIn must be successful
+				if resp.Error != (api.Error{}) {
+					// Force to stand
+					handler.Stand(player.ID, true)
+				}
+				log.Println("Buy-in success")
+				// Assign how much they buy-in
+				player.Chips = game.GetSettings().BuyInMin
+				// Update scoreboard
+				// If actually buyin success
+				scoreboard, sbindex := util.GetScoreboard(player.ID)
+				scoreboard.BuyInAmount += player.Chips
+				// If not found player in scoreboard then add them
+				if sbindex == -1 {
+					state.GS.Scoreboard = append(state.GS.Scoreboard, model.Scoreboard{
+						UserID:      player.ID,
+						DisplayName: player.Name,
+						BuyInAmount: player.Chips,
+					})
 				}
 			}
 			// If player has minimum chip for able to play
-			if state.GS.AFKCounts[index] < game.MaxAFKCount {
-				continue
+			if state.GS.AFKCounts[index] >= game.MaxAFKCount {
+				// Force to stand
+				handler.Stand(player.ID, true)
 			}
-			// Force to stand
-			handler.Stand(player.ID, true)
 		}
 		// After filtered with the critiria
 		// if there are more than 2 players are sitting

@@ -6,6 +6,7 @@ import (
 	"999k_engine/model"
 	"999k_engine/state"
 	"999k_engine/util"
+	"encoding/json"
 	"log"
 	"os"
 	"time"
@@ -65,6 +66,12 @@ func Leave(id string) bool {
 		// Update realtime data ex. Visitors
 		body, err = api.UpdateRealtimeData()
 		log.Println("Response from UpdateRealtimeData", string(body), err)
+		resp := &api.Response{}
+		json.Unmarshal(body, resp)
+		// Is there any error when start game
+		if resp.Error != (api.Error{}) {
+			return false
+		}
 	}
 	return true
 }
@@ -115,6 +122,26 @@ func Stand(id string, force bool) bool {
 	if caller.ID == "" {
 		return false
 	}
+	// If not in dev, call api
+	// If this player already buyin
+	// Update buy-in cash
+	if os.Getenv("env") != "dev" {
+		body, err := api.SaveSettlement(id)
+		log.Println("Response from SaveSettlement", string(body), err)
+		resp := &api.Response{}
+		json.Unmarshal(body, resp)
+		if resp.Error != (api.Error{}) && resp.Error.StatusCode != 409 {
+			return false
+		}
+		// Save buy-in cash to real player pocket
+		body, err = api.CashBack(id)
+		log.Println("Response from CashBack", string(body), err)
+		resp = &api.Response{}
+		json.Unmarshal(body, resp)
+		if resp.Error != (api.Error{}) {
+			return false
+		}
+	}
 	// if playing need to shift timeline
 	if caller.IsPlaying {
 		if IsPlayerTurn(id) {
@@ -125,16 +152,6 @@ func Stand(id string, force bool) bool {
 			ShortenTimelineAfterTarget(id, diff)
 		}
 		OverwriteActionToBehindPlayers()
-	}
-	// If not in dev, call api
-	// If this player already buyin
-	// Update buy-in cash
-	if os.Getenv("env") != "dev" {
-		body, err := api.SaveSettlement(id)
-		log.Println("Response from SaveSettlement", string(body), err)
-		// Save buy-in cash to real player pocket
-		body, err = api.CashBack(id)
-		log.Println("Response from CashBack", string(body), err)
 	}
 	// Change state player to visitor
 	visitor := model.Player{
