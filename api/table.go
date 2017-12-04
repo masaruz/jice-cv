@@ -59,19 +59,19 @@ func UpdateRealtimeData() ([]byte, error) {
 	}
 	// gambit := state.GS.Gambit
 	realtimedata := struct {
-		TableID     string              `json:"tableid"`
-		GroupID     string              `json:"groupid"`
-		GameIndex   int                 `json:"gameindex"`
-		PlayerCount int                 `json:"players_count"`
-		Scoreboard  *[]model.Scoreboard `json:"scoreboard"`
-		Visitors    *[]Visitor          `json:"visitors"`
+		TableID     string             `json:"tableid"`
+		GroupID     string             `json:"groupid"`
+		GameIndex   int                `json:"gameindex"`
+		PlayerCount int                `json:"players_count"`
+		Scoreboard  []model.Scoreboard `json:"scoreboard"`
+		Visitors    []Visitor          `json:"visitors"`
 	}{
 		TableID:     state.GS.TableID,
 		GroupID:     state.GS.GroupID,
 		GameIndex:   state.GS.GameIndex,
 		PlayerCount: util.CountSitting(state.GS.Players),
-		Scoreboard:  &state.GS.Scoreboard,
-		Visitors:    &visitors,
+		Scoreboard:  state.GS.Scoreboard,
+		Visitors:    visitors,
 	}
 	// cast param to byte
 	data, err := json.Marshal(realtimedata)

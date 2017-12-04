@@ -65,7 +65,7 @@ func (game NineK) Start() bool {
 				resp := &api.Response{}
 				json.Unmarshal(body, resp)
 				// If cashback error
-				if resp.Error != (api.Error{}) {
+				if resp.Error != (api.Error{}) && resp.Error.StatusCode != 409 && resp.Error.StatusCode != 500 {
 					// Force to stand
 					handler.Stand(player.ID, true)
 				}
