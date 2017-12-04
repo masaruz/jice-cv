@@ -133,6 +133,7 @@ func SaveSettlements() ([]byte, error) {
 			UserID:        player.ID,
 			WinLossAmount: player.WinLossAmount,
 			PaidRake:      state.GS.Rakes[player.ID]})
+		player.WinLossAmount = 0
 	}
 	// cast param to byte
 	data, err := json.Marshal(summary)

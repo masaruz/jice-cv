@@ -69,11 +69,6 @@ func IncreaseTurn() {
 	state.GS.Turn++
 }
 
-// IncreaseGameIndex every game start
-func IncreaseGameIndex() {
-	state.GS.GameIndex++
-}
-
 // IncreasePots when players pay chips
 func IncreasePots(index int, chips int) {
 	state.GS.Pots[index] += chips
@@ -140,6 +135,7 @@ func MakePlayersReady() {
 		player.IsWinner = false
 		player.Default = model.Action{Name: constant.Check}
 		player.Action = model.Action{}
+		player.WinLossAmount = 0
 	}
 }
 
@@ -147,39 +143,41 @@ func MakePlayersReady() {
 func SetOtherDefaultAction(id string, action string) {
 	daction := model.Action{Name: action}
 	for index := range state.GS.Players {
-		if !util.IsPlayingAndNotFoldAndNotAllIn(state.GS.Players[index]) {
+		player := &state.GS.Players[index]
+		if !util.IsPlayingAndNotFoldAndNotAllIn(*player) {
 			continue
 		}
 		// if chips equal 0 then must be allin
-		if state.GS.Players[index].Chips == 0 {
-			state.GS.Players[index].Default = model.Action{Name: constant.AllIn}
-			state.GS.Players[index].Action = model.Action{Name: constant.AllIn}
+		if player.Chips == 0 {
+			player.Default = model.Action{Name: constant.AllIn}
+			player.Action = model.Action{Name: constant.AllIn}
 			continue
 		}
-		if id != "" && id != state.GS.Players[index].ID {
+		if id != "" && id != player.ID {
 			_, caller := util.Get(state.GS.Players, id)
 			// if caller's bet more than others then overwrite their action
-			if caller.Bets[state.GS.Turn] > state.GS.Players[index].Bets[state.GS.Turn] {
-				state.GS.Players[index].Default = daction
-				state.GS.Players[index].Action = model.Action{}
+			if caller.Bets[state.GS.Turn] > player.Bets[state.GS.Turn] {
+				player.Default = daction
+				player.Action = model.Action{}
 			}
 		} else if id == "" {
-			state.GS.Players[index].Default = daction
-			state.GS.Players[index].Action = model.Action{}
+			player.Default = daction
+			player.Action = model.Action{}
 		}
 	}
 }
 
 // SetOtherActions make every has default action
 func SetOtherActions(id string, action string) {
-	for index, player := range state.GS.Players {
-		if !util.IsPlayingAndNotFoldAndNotAllIn(player) {
+	for index := range state.GS.Players {
+		player := &state.GS.Players[index]
+		if !util.IsPlayingAndNotFoldAndNotAllIn(*player) {
 			continue
 		}
 		if id != "" && id != player.ID {
-			state.GS.Players[index].Actions = state.GS.Gambit.Reducer(action, player.ID)
+			player.Actions = state.GS.Gambit.Reducer(action, player.ID)
 		} else if id == "" {
-			state.GS.Players[index].Actions = state.GS.Gambit.Reducer(action, player.ID)
+			player.Actions = state.GS.Gambit.Reducer(action, player.ID)
 		}
 	}
 }
@@ -187,10 +185,11 @@ func SetOtherActions(id string, action string) {
 // SetOtherActionsWhoAreNotPlaying set everyone action who are not playing
 func SetOtherActionsWhoAreNotPlaying(action string) {
 	// if others who are not playing then able to starttable or only stand
-	for index, player := range state.GS.Players {
+	for index := range state.GS.Players {
+		player := &state.GS.Players[index]
 		// not a seat and not playing
 		if player.ID != "" && !player.IsPlaying {
-			state.GS.Players[index].Actions = Reducer(action, player.ID)
+			player.Actions = Reducer(action, player.ID)
 		}
 	}
 }
@@ -270,10 +269,11 @@ func FlushPlayers() {
 // ShortenTimeline shift timeline of everyone because someone take action
 func ShortenTimeline(diff int64) {
 	diff = util.Absolute(diff)
-	for index, player := range state.GS.Players {
+	for index := range state.GS.Players {
+		player := &state.GS.Players[index]
 		if player.IsPlaying {
-			state.GS.Players[index].StartLine -= diff
-			state.GS.Players[index].DeadLine -= diff
+			player.StartLine -= diff
+			player.DeadLine -= diff
 		}
 	}
 	state.GS.FinishRoundTime = state.GS.FinishRoundTime - diff
@@ -282,12 +282,15 @@ func ShortenTimeline(diff int64) {
 // ShortenTimelineAfterTarget shift timeline of everyone behind target player
 func ShortenTimelineAfterTarget(id string, second int64) {
 	second = util.Absolute(second)
-	_, caller := util.Get(state.GS.Players, id)
-	for index, player := range state.GS.Players {
+	index, _ := util.Get(state.GS.Players, id)
+	caller := &state.GS.Players[index]
+	for index := range state.GS.Players {
+		player := &state.GS.Players[index]
 		// who start behind caller will be shifted
-		if util.IsPlayingAndNotFoldAndNotAllIn(player) && player.StartLine >= caller.DeadLine {
-			state.GS.Players[index].StartLine -= second
-			state.GS.Players[index].DeadLine -= second
+		if util.IsPlayingAndNotFoldAndNotAllIn(*player) &&
+			player.StartLine >= caller.DeadLine {
+			player.StartLine -= second
+			player.DeadLine -= second
 		}
 	}
 	state.GS.FinishRoundTime = state.GS.FinishRoundTime - second
@@ -300,16 +303,19 @@ func ExtendPlayerTimeline(id string) bool {
 		return false
 	}
 	second := state.GS.Gambit.GetSettings().DecisionTime
-	current, caller := util.Get(state.GS.Players, id)
+	current, _ := util.Get(state.GS.Players, id)
+	caller := &state.GS.Players[current]
 	start := time.Now().Unix()
-	diff := (start + second) - state.GS.Players[current].DeadLine
-	state.GS.Players[current].StartLine = start
-	state.GS.Players[current].DeadLine = start + second
-	for index, player := range state.GS.Players {
+	diff := (start + second) - caller.DeadLine
+	caller.StartLine = start
+	caller.DeadLine = start + second
+	for index := range state.GS.Players {
+		player := &state.GS.Players[index]
 		// who start behind caller will be shifted
-		if util.IsPlayingAndNotFoldAndNotAllIn(player) && player.StartLine >= caller.DeadLine {
-			state.GS.Players[index].StartLine += diff
-			state.GS.Players[index].DeadLine += diff
+		if util.IsPlayingAndNotFoldAndNotAllIn(*player) &&
+			player.StartLine >= caller.DeadLine {
+			player.StartLine += diff
+			player.DeadLine += diff
 		}
 	}
 	state.GS.FinishRoundTime += diff
@@ -331,12 +337,13 @@ func ShiftPlayersToEndOfTimeline(id string, second int64) {
 		start++
 		round++
 		next := start % amount
+		player := &state.GS.Players[next]
 		// force shift to players who is in game not allin and behine the timeline
-		if util.IsPlayingAndNotFoldAndNotAllIn(state.GS.Players[next]) &&
-			util.IsPlayerBehindTheTimeline(state.GS.Players[next]) {
+		if util.IsPlayingAndNotFoldAndNotAllIn(*player) &&
+			util.IsPlayerBehindTheTimeline(*player) {
 			finishRoundTime := state.GS.FinishRoundTime
-			state.GS.Players[next].StartLine = finishRoundTime
-			state.GS.Players[next].DeadLine = finishRoundTime + second
+			player.StartLine = finishRoundTime
+			player.DeadLine = finishRoundTime + second
 			state.GS.FinishRoundTime = finishRoundTime + second
 		}
 	}
@@ -363,9 +370,9 @@ func PlayersInvestToPots(chips int) {
 // OverwriteActionToBehindPlayers overwritten action with default
 func OverwriteActionToBehindPlayers() {
 	for index := range state.GS.Players {
-		if util.IsPlayingAndNotFoldAndNotAllIn(state.GS.Players[index]) &&
-			util.IsPlayerBehindTheTimeline(state.GS.Players[index]) {
-			state.GS.Players[index].Action = state.GS.Players[index].Default
+		if player := &state.GS.Players[index]; util.IsPlayingAndNotFoldAndNotAllIn(*player) &&
+			util.IsPlayerBehindTheTimeline(*player) {
+			player.Action = player.Default
 		}
 	}
 }

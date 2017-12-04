@@ -28,12 +28,6 @@ type NineK struct {
 	Cap          float64 // cap of rake
 }
 
-// Payload data accessed by continue
-type Payload struct {
-	ID    string
-	Chips int
-}
-
 // Init deck and environment variables
 func (game NineK) Init() {
 	// create counting afk
@@ -62,6 +56,7 @@ func (game NineK) Start() bool {
 				// Validate with other server when is not in dev
 				if os.Getenv("env") != "dev" {
 					// Make sure this player ready to buyin
+					// Cashback can be fail if they not buyin yet
 					body, err := api.CashBack(player.ID)
 					log.Println("Response from CashBack", string(body), err)
 					// Need request to server for buyin
@@ -69,30 +64,26 @@ func (game NineK) Start() bool {
 					log.Println("Response from BuyIn", string(body), err)
 					resp := &api.Response{}
 					json.Unmarshal(body, resp)
-					// Allow player even already buy-in
-					if resp.Error.StatusCode == 0 || resp.Error.StatusCode == 409 {
+					// BuyIn must be successful
+					if resp.Error == (api.Error{}) {
 						log.Println("Buy-in success")
 						// Assign how much they buy-in
 						player.Chips = game.GetSettings().BuyInMin
-						player.WinLossAmount = 0
-						player.IsBuyIn = true
 						// Update scoreboard
 						// If actually buyin success
-						if resp.Error.StatusCode == 0 {
-							scoreboard, index := util.GetScoreboard(player.ID)
-							scoreboard.BuyInAmount += player.Chips
-							// If not found then add to scoreboard
-							if index == -1 {
-								state.GS.Scoreboard = append(state.GS.Scoreboard, model.Scoreboard{
-									UserID:      player.ID,
-									DisplayName: player.Name,
-									BuyInAmount: player.Chips,
-								})
-							}
+						scoreboard, index := util.GetScoreboard(player.ID)
+						scoreboard.BuyInAmount += player.Chips
+						// If not found player in scoreboard then add them
+						if index == -1 {
+							state.GS.Scoreboard = append(state.GS.Scoreboard, model.Scoreboard{
+								UserID:      player.ID,
+								DisplayName: player.Name,
+								BuyInAmount: player.Chips,
+							})
 						}
 					} else {
 						// Try cashback and let they try again
-						log.Println("BuyIn amount is insufficient")
+						log.Println("BuyIn amount is insufficient or player's already brought in")
 					}
 				} else {
 					player.Chips = game.GetSettings().BuyInMin
@@ -102,24 +93,32 @@ func (game NineK) Start() bool {
 			if state.GS.AFKCounts[index] < game.MaxAFKCount {
 				continue
 			}
+			// Force to stand
 			handler.Stand(player.ID, true)
 		}
-		// After pass through the critiria
+		// After filtered with the critiria
 		// if there are more than 2 players are sitting
 		if util.CountSitting(state.GS.Players) >= 2 {
 			// Increase gameindex for backend process ex. realtime-data, analytic
-			handler.IncreaseGameIndex()
+			state.GS.GameIndex++
 			log.Println("Gameindex increased")
 			log.Println("Prepare to start game")
+			if os.Getenv("env") != "dev" {
+				// Request to start game
+				body, err := api.StartGame()
+				log.Println("Response from StartGame", string(body), err)
+				resp := &api.Response{}
+				json.Unmarshal(body, resp)
+				// Is there any error when start game
+				if resp.Error != (api.Error{}) {
+					state.GS.GameIndex--
+					return false
+				}
+			}
 			// everyone is assumed afk
 			state.GS.DoActions = make([]bool, game.MaxPlayers)
 			state.GS.Rakes = make(map[string]float64)
 			state.GS.Pots = make([]int, game.MaxPlayers)
-			if os.Getenv("env") != "dev" {
-				// request to start game
-				body, err := api.StartGame()
-				log.Println("Response from StartGame", string(body), err)
-			}
 			// set players to be ready
 			handler.MakePlayersReady()
 			handler.StartGame()
