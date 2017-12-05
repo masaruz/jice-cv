@@ -53,9 +53,9 @@ func main() {
 		// Because connect does not support message payload
 		// Or retrieve player info
 		so.On(constant.Enter, func(msg string) string {
-			log.Println("++++ Enter ++++")
 			result := make(chan string)
 			queue <- func() {
+				state.Snapshot = state.GS
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -72,8 +72,9 @@ func main() {
 					Name:    data.Header.DisplayName,
 					Picture: "picture",
 				})
-				handler.BroadcastGameState(so, channel, userid)
+				state.GS = state.Snapshot
 				state.GS.IncreaseVersion()
+				handler.BroadcastGameState(so, channel, userid)
 				log.Println(userid, "Enter", "success")
 				// If no seat then just return current state
 				result <- handler.CreateResponse(userid, channel)
@@ -87,6 +88,7 @@ func main() {
 		so.On(constant.Stimulate, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
+				state.Snapshot = state.GS
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -103,6 +105,7 @@ func main() {
 					// log.Println(userid, "Stimulate", "nothing")
 				} else {
 					channel = constant.PushState
+					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 					// log.Println(userid, "Stimulate", "success")
@@ -137,6 +140,7 @@ func main() {
 		so.On(constant.Check, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
+				state.Snapshot = state.GS
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -147,6 +151,7 @@ func main() {
 				}
 				if state.GS.Gambit.Check(userid) {
 					channel = constant.Check
+					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 					log.Println(userid, "Check", "success")
@@ -162,6 +167,7 @@ func main() {
 		so.On(constant.Bet, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
+				state.Snapshot = state.GS
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -173,6 +179,7 @@ func main() {
 				// client send amount of bet
 				if state.GS.Gambit.Bet(userid, data.Payload.Parameters[0].IntegerValue) {
 					channel = constant.Bet
+					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 					log.Println(userid, "Bet", "success")
@@ -188,6 +195,7 @@ func main() {
 		so.On(constant.Raise, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
+				state.Snapshot = state.GS
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -199,6 +207,7 @@ func main() {
 				// client send amount of raise
 				if state.GS.Gambit.Raise(userid, data.Payload.Parameters[0].IntegerValue) {
 					channel = constant.Raise
+					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 					log.Println(userid, "Raise", "success")
@@ -214,6 +223,7 @@ func main() {
 		so.On(constant.Call, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
+				state.Snapshot = state.GS
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -224,6 +234,7 @@ func main() {
 				}
 				if state.GS.Gambit.Call(userid) {
 					channel = constant.Call
+					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 					log.Println(userid, "Call", "success")
@@ -239,6 +250,7 @@ func main() {
 		so.On(constant.AllIn, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
+				state.Snapshot = state.GS
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -249,6 +261,7 @@ func main() {
 				}
 				if state.GS.Gambit.AllIn(userid) {
 					channel = constant.Raise
+					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, constant.Raise, userid)
 					log.Println(userid, "AllIn", "success")
@@ -264,6 +277,7 @@ func main() {
 		so.On(constant.Fold, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
+				state.Snapshot = state.GS
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -275,6 +289,7 @@ func main() {
 				if state.GS.Gambit.Fold(userid) {
 					channel = constant.Fold
 					state.GS.Gambit.Finish()
+					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 					log.Println(userid, "Fold", "success")
@@ -290,6 +305,7 @@ func main() {
 		so.On(constant.StartTable, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
+				state.Snapshot = state.GS
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -302,6 +318,7 @@ func main() {
 					channel = constant.StartTable
 					handler.StartTable()
 					state.GS.Gambit.Start()
+					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 					log.Println(userid, "StartTable", "success")
@@ -317,6 +334,7 @@ func main() {
 		so.On(constant.Sit, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
+				state.Snapshot = state.GS
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -328,6 +346,7 @@ func main() {
 				if handler.Sit(userid, data.Payload.Parameters[0].IntegerValue) {
 					channel = constant.Sit
 					state.GS.Gambit.Start()
+					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 					log.Println(userid, "Sit", "success")
@@ -345,6 +364,7 @@ func main() {
 		so.On(constant.Stand, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
+				state.Snapshot = state.GS
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -356,6 +376,7 @@ func main() {
 				if handler.Stand(userid, false) {
 					channel = constant.Stand
 					state.GS.Gambit.Finish()
+					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 					log.Println(userid, "Stand", "success")
@@ -378,6 +399,7 @@ func main() {
 		so.On(constant.Leave, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
+				state.Snapshot = state.GS
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -388,13 +410,13 @@ func main() {
 				}
 				channel = constant.Leave
 				handler.Leave(userid)
-				state.GS.Gambit.Finish()
-				log.Printf("Sitting: %d", util.CountSitting(state.GS.Players))
-				log.Printf("Visitors: %d", len(state.GS.Visitors))
+				state.Snapshot.Gambit.Finish()
+				log.Printf("Sitting: %d", util.CountSitting(state.Snapshot.Players))
+				log.Printf("Visitors: %d", len(state.Snapshot.Visitors))
 				// If no one in the room terminate itself
 				log.Println("Try terminate ...")
-				if util.CountSitting(state.GS.Players) <= 0 &&
-					len(state.GS.Visitors) <= 0 {
+				if util.CountSitting(state.Snapshot.Players) <= 0 &&
+					len(state.Snapshot.Visitors) <= 0 {
 					log.Println("No players then terminate")
 					if os.Getenv("env") != "dev" {
 						// Delay 5 second before send signal to hawkeye that please kill this container
@@ -405,6 +427,7 @@ func main() {
 						}()
 					}
 				}
+				state.GS = state.Snapshot
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, userid)
 				log.Println(userid, "Leave", "sucess")
@@ -419,6 +442,7 @@ func main() {
 		so.On(constant.SendSticker, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
+				state.Snapshot = state.GS
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -448,6 +472,7 @@ func main() {
 						channel = constant.SendSticker
 						// set sticker state in player
 						handler.SendSticker(stickerid, userid, targetslot)
+						state.GS = state.Snapshot
 						state.GS.IncreaseVersion()
 						// broadcast state to everyone
 						handler.BroadcastGameState(so, channel, userid)
@@ -466,6 +491,7 @@ func main() {
 		so.On(constant.ExtendDecisionTime, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
+				state.Snapshot = state.GS
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -476,6 +502,7 @@ func main() {
 				}
 				if handler.ExtendPlayerTimeline(userid) {
 					channel = constant.ExtendDecisionTime
+					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 				}
@@ -490,6 +517,7 @@ func main() {
 		so.On(constant.DisbandTable, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
+				state.Snapshot = state.GS
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -502,10 +530,11 @@ func main() {
 				handler.FinishTable()
 				// Never let player force close this table when game is started
 				if !handler.IsGameStart() {
-					state.GS.IsTableExpired = true
+					state.Snapshot.IsTableExpired = true
 					handler.TryTerminate()
 				}
 				channel = constant.DisbandTable
+				state.GS = state.Snapshot
 				handler.BroadcastGameState(so, channel, userid)
 				log.Println(userid, "Disband", "success")
 				result <- handler.CreateResponse(userid, channel)
@@ -527,40 +556,46 @@ func main() {
 	router.Handle("/socket.io", server)
 	router.HandleFunc("/updateAuth", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		var playerTableKeys []struct {
-			TableKey string `json:"tablekey"`
-			UserID   string `json:"userid"`
-		}
-		b, _ := ioutil.ReadAll(r.Body)
-		json.Unmarshal(b, &playerTableKeys)
-		for suid, sptk := range state.GS.PlayerTableKeys {
-			for index, ptk := range playerTableKeys {
-				// Same table key but not same user
-				if suid != ptk.UserID && sptk == ptk.TableKey {
-					playerTableKeys[index].TableKey = ""
+		result := make(chan []byte)
+		queue <- func() {
+			state.Snapshot = state.GS
+			var playerTableKeys []struct {
+				TableKey string `json:"tablekey"`
+				UserID   string `json:"userid"`
+			}
+			b, _ := ioutil.ReadAll(r.Body)
+			json.Unmarshal(b, &playerTableKeys)
+			for suid, sptk := range state.Snapshot.PlayerTableKeys {
+				for index, ptk := range playerTableKeys {
+					// Same table key but not same user
+					if suid != ptk.UserID && sptk == ptk.TableKey {
+						playerTableKeys[index].TableKey = ""
+					}
 				}
 			}
-		}
-		// Forloop and save key into state
-		for _, ptk := range playerTableKeys {
-			// Hawkeye hint should delete the tablekey from this player
-			if ptk.TableKey == "" {
-				delete(state.GS.PlayerTableKeys, ptk.UserID)
-			} else {
-				state.GS.PlayerTableKeys[ptk.UserID] = ptk.TableKey
+			// Forloop and save key into state
+			for _, ptk := range playerTableKeys {
+				// Hawkeye hint should delete the tablekey from this player
+				if ptk.TableKey == "" {
+					delete(state.Snapshot.PlayerTableKeys, ptk.UserID)
+				} else {
+					state.Snapshot.PlayerTableKeys[ptk.UserID] = ptk.TableKey
+				}
 			}
+			// Return success to hawkeye
+			resp, _ := json.Marshal(struct {
+				Code      int               `json:"code"`
+				Message   string            `json:"message"`
+				Resources map[string]string `json:"resources"`
+			}{
+				Code:      200, // Success code
+				Message:   "Update successfully",
+				Resources: state.Snapshot.PlayerTableKeys,
+			})
+			state.GS = state.Snapshot
+			result <- resp
 		}
-		// Return success to hawkeye
-		resp, _ := json.Marshal(struct {
-			Code      int               `json:"code"`
-			Message   string            `json:"message"`
-			Resources map[string]string `json:"resources"`
-		}{
-			Code:      200, // Success code
-			Message:   "Update successfully",
-			Resources: state.GS.PlayerTableKeys,
-		})
-		w.Write(resp)
+		w.Write(<-result)
 	}).Methods("POST") // Receive only post
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		str := ""

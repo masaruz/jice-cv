@@ -45,8 +45,8 @@ func (game NineK) Start() bool {
 		!handler.IsGameStart() &&
 		!handler.IsInExtendFinishRoundTime() {
 		// filter players who are not ready to play
-		for index := range state.GS.Players {
-			player := &state.GS.Players[index]
+		for index := range state.Snapshot.Players {
+			player := &state.Snapshot.Players[index]
 			// If this position is empty seat continue
 			if player.ID == "" {
 				continue
@@ -65,9 +65,10 @@ func (game NineK) Start() bool {
 				resp := &api.Response{}
 				json.Unmarshal(body, resp)
 				// If cashback error
-				if resp.Error != (api.Error{}) && resp.Error.StatusCode != 409 && resp.Error.StatusCode != 500 {
+				if resp.Error != (api.Error{}) && resp.Error.StatusCode != 409 {
 					// Force to stand
 					handler.Stand(player.ID, true)
+					continue
 				}
 				// Need request to server for buyin
 				body, err = api.BuyIn(player.ID, game.GetSettings().BuyInMin)
@@ -78,6 +79,7 @@ func (game NineK) Start() bool {
 				if resp.Error != (api.Error{}) {
 					// Force to stand
 					handler.Stand(player.ID, true)
+					continue
 				}
 				log.Println("Buy-in success")
 				// Assign how much they buy-in
@@ -88,7 +90,7 @@ func (game NineK) Start() bool {
 				scoreboard.BuyInAmount += player.Chips
 				// If not found player in scoreboard then add them
 				if sbindex == -1 {
-					state.GS.Scoreboard = append(state.GS.Scoreboard, model.Scoreboard{
+					state.Snapshot.Scoreboard = append(state.Snapshot.Scoreboard, model.Scoreboard{
 						UserID:      player.ID,
 						DisplayName: player.Name,
 						BuyInAmount: player.Chips,
@@ -96,16 +98,17 @@ func (game NineK) Start() bool {
 				}
 			}
 			// If player has minimum chip for able to play
-			if state.GS.AFKCounts[index] >= game.MaxAFKCount {
+			if state.Snapshot.AFKCounts[index] >= game.MaxAFKCount {
 				// Force to stand
 				handler.Stand(player.ID, true)
+				continue
 			}
 		}
 		// After filtered with the critiria
 		// if there are more than 2 players are sitting
-		if util.CountSitting(state.GS.Players) >= 2 {
+		if util.CountSitting(state.Snapshot.Players) >= 2 {
 			// Increase gameindex for backend process ex. realtime-data, analytic
-			state.GS.GameIndex++
+			state.Snapshot.GameIndex++
 			log.Println("Gameindex increased")
 			log.Println("Prepare to start game")
 			if os.Getenv("env") != "dev" {
@@ -116,14 +119,14 @@ func (game NineK) Start() bool {
 				json.Unmarshal(body, resp)
 				// Is there any error when start game
 				if resp.Error != (api.Error{}) {
-					state.GS.GameIndex--
+					state.Snapshot.GameIndex--
 					return false
 				}
 			}
 			// everyone is assumed afk
-			state.GS.DoActions = make([]bool, game.MaxPlayers)
-			state.GS.Rakes = make(map[string]float64)
-			state.GS.Pots = make([]int, game.MaxPlayers)
+			state.Snapshot.DoActions = make([]bool, game.MaxPlayers)
+			state.Snapshot.Rakes = make(map[string]float64)
+			state.Snapshot.Pots = make([]int, game.MaxPlayers)
 			// set players to be ready
 			handler.MakePlayersReady()
 			handler.StartGame()
@@ -162,7 +165,7 @@ func (game NineK) NextRound() bool {
 	// Now must be more than finish round time
 	if handler.IsGameStart() && !handler.IsFullHand(3) &&
 		handler.BetsEqual() && handler.IsEndRound() &&
-		util.CountPlayerNotFold(state.GS.Players) > 1 {
+		util.CountPlayerNotFold(state.Snapshot.Players) > 1 {
 		// Initialize values
 		handler.Deal(1, game.MaxPlayers)
 		handler.SetMinimumBet(game.BlindsBig)
@@ -173,7 +176,7 @@ func (game NineK) NextRound() bool {
 		log.Println("1 cards dealed")
 		handler.IncreaseTurn()
 		// no one is assumed afk
-		state.GS.DoActions = make([]bool, game.MaxPlayers)
+		state.Snapshot.DoActions = make([]bool, game.MaxPlayers)
 		log.Println("Next round Success")
 		return true
 	}
@@ -186,22 +189,22 @@ func (game NineK) Finish() bool {
 	log.Println("Try to finish")
 	handler.OverwriteActionToBehindPlayers()
 	// no others to play with or all players have 3 cards but bet is not equal
-	if handler.IsGameStart() && ((util.CountPlayerNotFold(state.GS.Players) <= 1) ||
+	if handler.IsGameStart() && ((util.CountPlayerNotFold(state.Snapshot.Players) <= 1) ||
 		// if has 3 cards bet equal
 		(handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound())) {
 		log.Println("Prepare to finish game")
 		// calculate afk players
-		for index, doaction := range state.GS.DoActions {
+		for index, doaction := range state.Snapshot.DoActions {
 			// Skip empty players
-			if !util.IsPlayingAndNotFoldAndNotAllIn(state.GS.Players[index]) {
+			if !util.IsPlayingAndNotFoldAndNotAllIn(state.Snapshot.Players[index]) {
 				continue
 			}
 			// If this player done something in this round
 			if doaction {
-				state.GS.AFKCounts[index] = 0
+				state.Snapshot.AFKCounts[index] = 0
 			} else {
 				// If this player never done action in this game
-				state.GS.AFKCounts[index]++
+				state.Snapshot.AFKCounts[index]++
 			}
 		}
 		// Extend more time for client to play animation after game finished
@@ -212,8 +215,8 @@ func (game NineK) Finish() bool {
 		pos := -1
 		log.Println("Find the winner(s)")
 		// Evaluate score from everyone's hand
-		for i := 0; i < len(state.GS.Players); i++ {
-			for index, player := range state.GS.Players {
+		for i := 0; i < len(state.Snapshot.Players); i++ {
+			for index, player := range state.Snapshot.Players {
 				if !util.IsPlayingAndNotFold(player) ||
 					len(player.Cards) == 0 ||
 					player.IsEarned {
@@ -234,13 +237,13 @@ func (game NineK) Finish() bool {
 			}
 			// This mean we found some winners
 			if pos != -1 {
-				winner := &state.GS.Players[pos]
-				for poti, pot := range state.GS.Pots {
+				winner := &state.Snapshot.Players[pos]
+				for poti, pot := range state.Snapshot.Pots {
 					if pot == 0 {
 						continue
 					}
 					playerbet := pot
-					winnerbet := state.GS.Pots[pos]
+					winnerbet := state.Snapshot.Pots[pos]
 					earnedbet := 0
 					if winnerbet > playerbet {
 						// If winner has higher bet
@@ -253,8 +256,8 @@ func (game NineK) Finish() bool {
 						winner.Chips += earnedbet
 						winner.WinLossAmount += earnedbet
 						util.AddScoreboardWinAmount(winner.ID, earnedbet)
-						earnedplayers := util.CountPlayerAlreadyEarned(state.GS.Players)
-						if util.CountPlayerNotFold(state.GS.Players)-earnedplayers > 1 || earnedplayers == 0 {
+						earnedplayers := util.CountPlayerAlreadyEarned(state.Snapshot.Players)
+						if util.CountPlayerNotFold(state.Snapshot.Players)-earnedplayers > 1 || earnedplayers == 0 {
 							winner.IsWinner = true
 						}
 					}
@@ -273,16 +276,28 @@ func (game NineK) Finish() bool {
 		if os.Getenv("env") != "dev" {
 			body, err := api.SaveSettlements()
 			log.Println("Response from SaveSettlements", string(body), err)
+			resp := &api.Response{}
+			json.Unmarshal(body, resp)
+			// Is there any error when start game
+			if resp.Error != (api.Error{}) {
+				return false
+			}
 			body, err = api.UpdateRealtimeData()
 			log.Println("Response from UpdateRealtimeData", string(body), err)
+			resp = &api.Response{}
+			json.Unmarshal(body, resp)
+			// Is there any error when start game
+			if resp.Error != (api.Error{}) {
+				return false
+			}
 		}
 		// Revert minimum bet
 		handler.SetMinimumBet(game.BlindsBig)
 		handler.FlushPlayers()
 		// Check if table expired then terminate
 		handler.TryTerminate()
-		state.GS.Turn = 0
-		state.GS.IsGameStart = false
+		state.Snapshot.Turn = 0
+		state.Snapshot.IsGameStart = false
 		log.Println("Finish Success")
 		return true
 	}
@@ -297,14 +312,14 @@ func (game NineK) Check(id string) bool {
 	if !handler.IsPlayerTurn(id) {
 		return false
 	}
-	index, _ := util.Get(state.GS.Players, id)
-	player := &state.GS.Players[index]
+	index, _ := util.Get(state.Snapshot.Players, id)
+	player := &state.Snapshot.Players[index]
 	// Cannot check if player has less bet than highest
-	if player.Bets[state.GS.Turn] <
-		util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players) {
+	if player.Bets[state.Snapshot.Turn] <
+		util.GetHighestBetInTurn(state.Snapshot.Turn, state.Snapshot.Players) {
 		return false
 	}
-	state.GS.DoActions[index] = true
+	state.Snapshot.DoActions[index] = true
 	player.Default = model.Action{Name: constant.Check}
 	player.Action = model.Action{Name: constant.Check}
 	diff := time.Now().Unix() - player.DeadLine
@@ -318,14 +333,14 @@ func (game NineK) Bet(id string, chips int) bool {
 	if !handler.IsPlayerTurn(id) {
 		return false
 	}
-	index, _ := util.Get(state.GS.Players, id)
-	player := &state.GS.Players[index]
+	index, _ := util.Get(state.Snapshot.Players, id)
+	player := &state.Snapshot.Players[index]
 	// not less than minimum
-	if player.Bets[state.GS.Turn]+chips < state.GS.MinimumBet {
+	if player.Bets[state.Snapshot.Turn]+chips < state.Snapshot.MinimumBet {
 		return false
 	}
 	// not more than maximum
-	if player.Bets[state.GS.Turn]+chips > state.GS.MaximumBet {
+	if player.Bets[state.Snapshot.Turn]+chips > state.Snapshot.MaximumBet {
 		return false
 	}
 	// cannot bet more than player's chips
@@ -333,20 +348,20 @@ func (game NineK) Bet(id string, chips int) bool {
 		return false
 	}
 	util.AddScoreboardWinAmount(player.ID, -chips)
-	state.GS.DoActions[index] = true
+	state.Snapshot.DoActions[index] = true
 	// added value to the bet in this turn
 	player.Chips -= chips
 	player.WinLossAmount -= chips
-	player.Bets[state.GS.Turn] += chips
+	player.Bets[state.Snapshot.Turn] += chips
 	// broadcast to everyone that I bet
 	player.Default = model.Action{Name: constant.Bet}
 	player.Action = model.Action{Name: constant.Bet}
 	player.Actions = game.Reducer(constant.Check, id)
 	handler.IncreasePots(index, chips)
 	// assign minimum bet
-	handler.SetMinimumBet(player.Bets[state.GS.Turn])
+	handler.SetMinimumBet(player.Bets[state.Snapshot.Turn])
 	// assign maximum bet
-	handler.SetMaximumBet(util.SumPots(state.GS.Pots))
+	handler.SetMaximumBet(util.SumPots(state.Snapshot.Pots))
 	// set action of everyone
 	handler.OverwriteActionToBehindPlayers()
 	// others automatic set to fold as default
@@ -367,9 +382,9 @@ func (game NineK) Raise(id string, chips int) bool {
 	if !handler.IsPlayerTurn(id) {
 		return false
 	}
-	index, _ := util.Get(state.GS.Players, id)
+	index, _ := util.Get(state.Snapshot.Players, id)
 	// not less than minimum
-	if state.GS.Players[index].Bets[state.GS.Turn]+chips <= state.GS.MinimumBet {
+	if state.Snapshot.Players[index].Bets[state.Snapshot.Turn]+chips <= state.Snapshot.MinimumBet {
 		return false
 	}
 	return game.Bet(id, chips)
@@ -380,26 +395,26 @@ func (game NineK) Call(id string) bool {
 	if !handler.IsPlayerTurn(id) {
 		return false
 	}
-	index, _ := util.Get(state.GS.Players, id)
-	player := &state.GS.Players[index]
-	chips := util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players) -
-		player.Bets[state.GS.Turn]
+	index, _ := util.Get(state.Snapshot.Players, id)
+	player := &state.Snapshot.Players[index]
+	chips := util.GetHighestBetInTurn(state.Snapshot.Turn, state.Snapshot.Players) -
+		player.Bets[state.Snapshot.Turn]
 	// cannot call more than player's chips
 	if player.Chips < chips || chips == 0 {
 		return false
 	}
 	util.AddScoreboardWinAmount(player.ID, -chips)
-	state.GS.DoActions[index] = true
+	state.Snapshot.DoActions[index] = true
 	player.Chips -= chips
 	player.WinLossAmount -= chips
-	player.Bets[state.GS.Turn] += chips
+	player.Bets[state.Snapshot.Turn] += chips
 	player.Default = model.Action{Name: constant.Call}
 	player.Action = model.Action{Name: constant.Call}
 	player.Actions = game.Reducer(constant.Check, id)
 	handler.IncreasePots(index, chips)
 	// set action of everyone
 	handler.OverwriteActionToBehindPlayers()
-	handler.SetMaximumBet(util.SumPots(state.GS.Pots))
+	handler.SetMaximumBet(util.SumPots(state.Snapshot.Pots))
 	// others need to know what to do next
 	handler.SetOtherActions(id, constant.Bet)
 	diff := time.Now().Unix() - player.DeadLine
@@ -414,23 +429,23 @@ func (game NineK) AllIn(id string) bool {
 	if !handler.IsPlayerTurn(id) {
 		return false
 	}
-	index, _ := util.Get(state.GS.Players, id)
-	player := &state.GS.Players[index]
+	index, _ := util.Get(state.Snapshot.Players, id)
+	player := &state.Snapshot.Players[index]
 	chips := player.Chips
 	// not more than maximum
-	if player.Bets[state.GS.Turn]+chips > state.GS.MaximumBet {
+	if player.Bets[state.Snapshot.Turn]+chips > state.Snapshot.MaximumBet {
 		return false
 	}
 	util.AddScoreboardWinAmount(player.ID, -chips)
-	state.GS.DoActions[index] = true
-	player.Bets[state.GS.Turn] += chips
+	state.Snapshot.DoActions[index] = true
+	player.Bets[state.Snapshot.Turn] += chips
 	player.WinLossAmount -= chips
 	player.Chips = 0
 	player.Default = model.Action{Name: constant.AllIn}
 	player.Action = model.Action{Name: constant.AllIn}
 	player.Actions = game.Reducer(constant.Check, id)
 	handler.IncreasePots(index, chips)
-	handler.SetMaximumBet(util.SumPots(state.GS.Pots))
+	handler.SetMaximumBet(util.SumPots(state.Snapshot.Pots))
 	// set action of everyone
 	handler.OverwriteActionToBehindPlayers()
 	// others automatic set to fold as default
@@ -440,8 +455,8 @@ func (game NineK) AllIn(id string) bool {
 	diff := time.Now().Unix() - player.DeadLine
 	handler.ShortenTimeline(diff)
 	// duration extend the timeline
-	if player.Bets[state.GS.Turn] >= util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players) {
-		handler.SetMinimumBet(player.Bets[state.GS.Turn])
+	if player.Bets[state.Snapshot.Turn] >= util.GetHighestBetInTurn(state.Snapshot.Turn, state.Snapshot.Players) {
+		handler.SetMinimumBet(player.Bets[state.Snapshot.Turn])
 		handler.ShiftPlayersToEndOfTimeline(id, game.DecisionTime)
 	}
 	// set players rake
@@ -454,9 +469,9 @@ func (game NineK) Fold(id string) bool {
 	if !handler.IsPlayerTurn(id) {
 		return false
 	}
-	index, _ := util.Get(state.GS.Players, id)
-	player := &state.GS.Players[index]
-	state.GS.DoActions[index] = true
+	index, _ := util.Get(state.Snapshot.Players, id)
+	player := &state.Snapshot.Players[index]
+	state.Snapshot.DoActions[index] = true
 	player.Default = model.Action{Name: constant.Fold}
 	player.Action = model.Action{Name: constant.Fold}
 	player.Actions = game.Reducer(constant.Fold, id)
@@ -478,7 +493,7 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 		}}
 	switch event {
 	case constant.Check:
-		_, player := util.Get(state.GS.Players, id)
+		_, player := util.Get(state.Snapshot.Players, id)
 		if player.Chips == 0 {
 			return model.Actions{
 				model.Action{Name: constant.Fold},
@@ -487,10 +502,10 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 		}
 		// maximum will be player's chips if not enough
 		maximum := 0
-		if state.GS.MaximumBet > player.Chips {
+		if state.Snapshot.MaximumBet > player.Chips {
 			maximum = player.Chips
 		} else {
-			maximum = state.GS.MaximumBet
+			maximum = state.Snapshot.MaximumBet
 		}
 		return model.Actions{
 			model.Action{Name: constant.Fold},
@@ -501,20 +516,20 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 						Name: "amount", Type: "integer"}},
 				Hints: model.Hints{
 					model.Hint{
-						Name: "amount", Type: "integer", Value: state.GS.MinimumBet},
+						Name: "amount", Type: "integer", Value: state.Snapshot.MinimumBet},
 					model.Hint{
 						Name: "amount_max", Type: "integer", Value: maximum}}},
 			extendAction}
 	case constant.Bet:
-		_, player := util.Get(state.GS.Players, id)
-		playerchips := player.Chips + player.Bets[state.GS.Turn]
+		_, player := util.Get(state.Snapshot.Players, id)
+		playerchips := player.Chips + player.Bets[state.Snapshot.Turn]
 		// highest bet in that turn
-		highestbet := util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players)
-		playerbet := player.Bets[state.GS.Turn]
+		highestbet := util.GetHighestBetInTurn(state.Snapshot.Turn, state.Snapshot.Players)
+		playerbet := player.Bets[state.Snapshot.Turn]
 		// raise must be highest * 2
 		raise := highestbet * 2
 		// all sum bets
-		pots := util.SumPots(state.GS.Pots)
+		pots := util.SumPots(state.Snapshot.Pots)
 		if highestbet <= playerbet {
 			return game.Reducer(constant.Check, id)
 		}
@@ -543,10 +558,10 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 		}
 		// maximum will be player's chips if not enough
 		maximum := 0
-		if state.GS.MaximumBet > playerchips {
+		if state.Snapshot.MaximumBet > playerchips {
 			maximum = playerchips
 		} else {
-			maximum = state.GS.MaximumBet
+			maximum = state.Snapshot.MaximumBet
 		}
 		return model.Actions{
 			model.Action{Name: constant.Fold},

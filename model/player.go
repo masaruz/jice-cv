@@ -27,7 +27,7 @@ type Player struct {
 
 // Print status of p only for development
 func (p Player) Print() {
-	log.Println(p.ID, p.Name, p.Cards, p.Default, p.Action,
+	log.Println(p.ID, p.Name, p.Cards, p.Default, p.Action, p.Actions,
 		p.StartLine, p.DeadLine, p.Chips, p.Bets, p.Type,
 		p.IsWinner, p.WinLossAmount, p.IsPlaying, p.Stickers)
 }

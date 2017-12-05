@@ -16,7 +16,7 @@ import (
 func Reducer(event string, id string) model.Actions {
 	switch event {
 	case constant.Sit:
-		if util.CountSitting(state.GS.Players) >= 2 && !state.GS.IsTableStart {
+		if util.CountSitting(state.Snapshot.Players) >= 2 && !state.Snapshot.IsTableStart {
 			return model.Actions{
 				model.Action{Name: constant.Stand},
 				model.Action{Name: constant.StartTable}}
@@ -38,19 +38,19 @@ func Connect(id string) {
 		ID:      id,
 		Action:  model.Action{Name: constant.Stand},
 		Actions: Reducer(constant.Connection, id)}
-	state.GS.Visitors = util.Add(state.GS.Visitors, caller)
+	state.Snapshot.Visitors = util.Add(state.Snapshot.Visitors, caller)
 }
 
 // Enter when player actually call to enter to the room
 func Enter(player model.Player) bool {
-	if player.ID == "" ||
-		player.Name == "" ||
-		player.Picture == "" {
-		return false
-	}
+	// if player.ID == "" ||
+	// 	player.Name == "" ||
+	// 	player.Picture == "" {
+	// 	return false
+	// }
 	player.Action = model.Action{Name: constant.Stand}
 	player.Actions = Reducer(constant.Connection, player.ID)
-	state.GS.Visitors = util.Add(state.GS.Visitors, player)
+	state.Snapshot.Visitors = util.Add(state.Snapshot.Visitors, player)
 	return true
 }
 
@@ -59,7 +59,7 @@ func Leave(id string) bool {
 	// force them to stand
 	Stand(id, false)
 	// after they stand then remove from visitor
-	state.GS.Visitors = util.Remove(state.GS.Visitors, id)
+	state.Snapshot.Visitors = util.Remove(state.Snapshot.Visitors, id)
 	if os.Getenv("env") != "dev" {
 		body, err := api.RemoveAuth(id)
 		log.Println("Response from RemoveAuth", string(body), err)
@@ -78,7 +78,7 @@ func Leave(id string) bool {
 
 // AutoSit auto find a seat
 func AutoSit(id string) bool {
-	for _, player := range state.GS.Players {
+	for _, player := range state.Snapshot.Players {
 		if player.ID == "" {
 			return Sit(id, player.Slot)
 		}
@@ -88,10 +88,10 @@ func AutoSit(id string) bool {
 
 // Sit for playing the game
 func Sit(id string, slot int) bool {
-	_, caller := util.Get(state.GS.Visitors, id)
+	_, caller := util.Get(state.Snapshot.Visitors, id)
 	caller.Slot = -1
 	// find slot for them
-	for _, player := range state.GS.Players {
+	for _, player := range state.Snapshot.Players {
 		if slot == player.Slot && player.ID == "" {
 			caller.Slot = player.Slot
 			caller.Type = player.Type
@@ -102,11 +102,11 @@ func Sit(id string, slot int) bool {
 		return false
 	}
 	// remove from visitor
-	state.GS.Visitors = util.Remove(state.GS.Visitors, id)
+	state.Snapshot.Visitors = util.Remove(state.Snapshot.Visitors, id)
 	caller.Action = model.Action{Name: constant.Sit}
 	// add to players
-	state.GS.Players[caller.Slot] = caller
-	state.GS.AFKCounts[caller.Slot] = 0
+	state.Snapshot.Players[caller.Slot] = caller
+	state.Snapshot.AFKCounts[caller.Slot] = 0
 	SetOtherActionsWhoAreNotPlaying(constant.Sit)
 	// Update realtime data ex. Visitors
 	if os.Getenv("env") != "dev" {
@@ -118,7 +118,7 @@ func Sit(id string, slot int) bool {
 
 // Stand when player need to quit
 func Stand(id string, force bool) bool {
-	_, caller := util.Get(state.GS.Players, id)
+	_, caller := util.Get(state.Snapshot.Players, id)
 	if caller.ID == "" {
 		return false
 	}
@@ -161,44 +161,44 @@ func Stand(id string, force bool) bool {
 		Name:    caller.Name,
 		Picture: caller.Picture,
 	}
-	state.GS.Players = util.Kick(state.GS.Players, caller.ID)
-	state.GS.Visitors = util.Add(state.GS.Visitors, visitor)
+	state.Snapshot.Players = util.Kick(state.Snapshot.Players, caller.ID)
+	state.Snapshot.Visitors = util.Add(state.Snapshot.Visitors, visitor)
 	SetOtherActionsWhoAreNotPlaying(constant.Sit)
 	return true
 }
 
 // SetPlayersRake calculate and set rake for players
 func SetPlayersRake(rate float64, cap float64) {
-	pots := float64(util.SumPots(state.GS.Pots))
+	pots := float64(util.SumPots(state.Snapshot.Pots))
 	rake := (rate * pots) / 100
 	if rake > cap {
 		rake = cap
 	}
-	for _, player := range state.GS.Players {
+	for _, player := range state.Snapshot.Players {
 		percent := float64(util.SumBet(player)) / pots
-		state.GS.Rakes[player.ID] = rake * percent
+		state.Snapshot.Rakes[player.ID] = rake * percent
 	}
 }
 
 // SendSticker added sticker action to gamestate
 func SendSticker(stickerid string, senderid string, targetslot int) {
-	index, _ := util.Get(state.GS.Players, senderid)
+	index, _ := util.Get(state.Snapshot.Players, senderid)
 	// create sticker object
 	now := time.Now().Unix()
 	// clear expire stickers
-	for pi := range state.GS.Players {
+	for pi := range state.Snapshot.Players {
 		// if no stickers continue
-		if state.GS.Players[pi].Stickers == nil {
+		if state.Snapshot.Players[pi].Stickers == nil {
 			continue
 		}
 		// Clear all stickers which expired
-		for si := 0; si < len(*state.GS.Players[pi].Stickers); si++ {
-			stickers := *state.GS.Players[pi].Stickers
+		for si := 0; si < len(*state.Snapshot.Players[pi].Stickers); si++ {
+			stickers := *state.Snapshot.Players[pi].Stickers
 			// delay for sticker after expired for 2 sec
 			if now-stickers[si].FinishTime >= 2 {
 				// update sticker
 				stickers = append(stickers[:si], stickers[si+1:]...)
-				state.GS.Players[pi].Stickers = &stickers
+				state.Snapshot.Players[pi].Stickers = &stickers
 				si-- // reduce index to prevent out of bound
 			}
 		}
@@ -210,12 +210,12 @@ func SendSticker(stickerid string, senderid string, targetslot int) {
 		sticker.FinishTime = now + 2
 		sticker.ID = stickerid
 		sticker.ToTarget = targetslot
-		if state.GS.Players[index].Stickers == nil {
-			state.GS.Players[index].Stickers = &[]model.Sticker{}
+		if state.Snapshot.Players[index].Stickers == nil {
+			state.Snapshot.Players[index].Stickers = &[]model.Sticker{}
 		}
-		stickers := *state.GS.Players[index].Stickers
+		stickers := *state.Snapshot.Players[index].Stickers
 		stickers = append(stickers, sticker)
-		state.GS.Players[index].Stickers = &stickers
+		state.Snapshot.Players[index].Stickers = &stickers
 	}
 }
 

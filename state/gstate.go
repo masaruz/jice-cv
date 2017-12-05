@@ -46,6 +46,14 @@ var GS = GameState{
 	PlayerTableKeys: make(map[string]string),
 }
 
+// Snapshot is temporary gamestate used for handle state before end the script
+var Snapshot = GameState{
+	TableID:         "from_manager",
+	GroupID:         "from_manager",
+	GameIndex:       0,
+	PlayerTableKeys: make(map[string]string),
+}
+
 // IncreaseVersion validate with client
 func (gstate GameState) IncreaseVersion() {
 	// gameStates = append(gameStates, gstate)

@@ -47,7 +47,7 @@ func getTableURL(id string) string {
 func UpdateRealtimeData() ([]byte, error) {
 	// Create visitor
 	visitors := []Visitor{}
-	for _, visitor := range state.GS.Visitors {
+	for _, visitor := range state.Snapshot.Visitors {
 		if visitor.ID == "" {
 			continue
 		}
@@ -57,7 +57,11 @@ func UpdateRealtimeData() ([]byte, error) {
 				DisplayName: visitor.Name,
 			})
 	}
-	// gambit := state.GS.Gambit
+	scoreboard := []model.Scoreboard{}
+	if state.Snapshot.Scoreboard != nil {
+		scoreboard = state.Snapshot.Scoreboard
+	}
+	// gambit := state.Snapshot.Gambit
 	realtimedata := struct {
 		TableID     string             `json:"tableid"`
 		GroupID     string             `json:"groupid"`
@@ -66,28 +70,28 @@ func UpdateRealtimeData() ([]byte, error) {
 		Scoreboard  []model.Scoreboard `json:"scoreboard"`
 		Visitors    []Visitor          `json:"visitors"`
 	}{
-		TableID:     state.GS.TableID,
-		GroupID:     state.GS.GroupID,
-		GameIndex:   state.GS.GameIndex,
-		PlayerCount: util.CountSitting(state.GS.Players),
-		Scoreboard:  state.GS.Scoreboard,
+		TableID:     state.Snapshot.TableID,
+		GroupID:     state.Snapshot.GroupID,
+		GameIndex:   state.Snapshot.GameIndex,
+		PlayerCount: util.CountSitting(state.Snapshot.Players),
+		Scoreboard:  scoreboard,
 		Visitors:    visitors,
 	}
-	// cast param to byte
 	data, err := json.Marshal(realtimedata)
+	// cast param to byte
 	if err != nil {
 		return nil, err
 	}
 	log.Println("Realtime post data", string(data))
 	// create url
-	url := fmt.Sprintf("%s/realtime", getTableURL(state.GS.TableID))
+	url := fmt.Sprintf("%s/realtime", getTableURL(state.Snapshot.TableID))
 	return post(url, data)
 }
 
 // DeleteFromRealtime when delete table
 func DeleteFromRealtime() ([]byte, error) {
 	// create url
-	url := fmt.Sprintf("%s/realtime", getTableURL(state.GS.TableID))
+	url := fmt.Sprintf("%s/realtime", getTableURL(state.Snapshot.TableID))
 	// create request
 	return delete(url)
 }
@@ -95,8 +99,8 @@ func DeleteFromRealtime() ([]byte, error) {
 // StartGame set start_time only 1st game and send game index
 func StartGame() ([]byte, error) {
 	table := Table{}
-	table.GroupID = state.GS.GroupID
-	table.GameIndex = state.GS.GameIndex
+	table.GroupID = state.Snapshot.GroupID
+	table.GameIndex = state.Snapshot.GameIndex
 	if table.GameIndex == 0 {
 		table.StartTime = time.Now().Unix()
 	}
@@ -106,14 +110,14 @@ func StartGame() ([]byte, error) {
 		return nil, err
 	}
 	// create url
-	url := fmt.Sprintf("%s/gamestart", getTableURL(state.GS.TableID))
+	url := fmt.Sprintf("%s/gamestart", getTableURL(state.Snapshot.TableID))
 	return post(url, data)
 }
 
 // Terminate caller will terminate itself
 func Terminate() ([]byte, error) {
 	// create url
-	url := fmt.Sprintf("%s/terminate", getTableURL(state.GS.TableID))
+	url := fmt.Sprintf("%s/terminate", getTableURL(state.Snapshot.TableID))
 	// create request
 	return post(url, nil)
 }
@@ -122,17 +126,17 @@ func Terminate() ([]byte, error) {
 func SaveSettlements() ([]byte, error) {
 	summary := Summary{
 		CreateTime: time.Now().Unix(),
-		GameIndex:  state.GS.GameIndex,
-		GroupID:    state.GS.GroupID,
+		GameIndex:  state.Snapshot.GameIndex,
+		GroupID:    state.Snapshot.GroupID,
 	}
-	for _, player := range state.GS.Players {
+	for _, player := range state.Snapshot.Players {
 		if player.ID == "" {
 			continue
 		}
 		summary.Settlements = append(summary.Settlements, model.Settlement{
 			UserID:        player.ID,
 			WinLossAmount: player.WinLossAmount,
-			PaidRake:      state.GS.Rakes[player.ID]})
+			PaidRake:      state.Snapshot.Rakes[player.ID]})
 		player.WinLossAmount = 0
 	}
 	// cast param to byte
@@ -141,29 +145,29 @@ func SaveSettlements() ([]byte, error) {
 		return nil, err
 	}
 	// create url
-	url := fmt.Sprintf("%s/settlements", getTableURL(state.GS.TableID))
+	url := fmt.Sprintf("%s/settlements", getTableURL(state.Snapshot.TableID))
 	return post(url, data)
 }
 
 // SaveSettlement support a player
 func SaveSettlement(userid string) ([]byte, error) {
-	_, player := util.Get(state.GS.Players, userid)
+	_, player := util.Get(state.Snapshot.Players, userid)
 	summary := Summary{
 		CreateTime: time.Now().Unix(),
-		GameIndex:  state.GS.GameIndex,
-		GroupID:    state.GS.GroupID,
+		GameIndex:  state.Snapshot.GameIndex,
+		GroupID:    state.Snapshot.GroupID,
 	}
 	summary.Settlements = append(summary.Settlements, model.Settlement{
 		UserID:        player.ID,
 		WinLossAmount: player.WinLossAmount,
-		PaidRake:      state.GS.Rakes[player.ID]})
+		PaidRake:      state.Snapshot.Rakes[player.ID]})
 	// cast param to byte
 	data, err := json.Marshal(summary)
 	if err != nil {
 		return nil, err
 	}
 	// create url
-	url := fmt.Sprintf("%s/settlements", getTableURL(state.GS.TableID))
+	url := fmt.Sprintf("%s/settlements", getTableURL(state.Snapshot.TableID))
 	return post(url, data)
 }
 
@@ -176,6 +180,6 @@ func TableEnd() ([]byte, error) {
 		return nil, err
 	}
 	// create url
-	url := fmt.Sprintf("%s/tableend", getTableURL(state.GS.TableID))
+	url := fmt.Sprintf("%s/tableend", getTableURL(state.Snapshot.TableID))
 	return post(url, data)
 }
