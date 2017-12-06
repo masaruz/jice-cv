@@ -374,7 +374,7 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
-				if handler.Stand(userid, false) {
+				if handler.Stand(userid) {
 					channel = constant.Stand
 					state.GS.Gambit.Finish()
 					state.GS = state.Snapshot

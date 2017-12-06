@@ -56,7 +56,7 @@ func Enter(player model.Player) bool {
 // Leave and Remove user from vistor or player list
 func Leave(id string) bool {
 	// force them to stand
-	Stand(id, false)
+	Stand(id)
 	// after they stand then remove from visitor
 	state.Snapshot.Visitors = util.Remove(state.Snapshot.Visitors, id)
 	if state.GS.Env != "dev" {
@@ -116,7 +116,7 @@ func Sit(id string, slot int) bool {
 }
 
 // Stand when player need to quit
-func Stand(id string, force bool) bool {
+func Stand(id string) bool {
 	_, caller := util.Get(state.Snapshot.Players, id)
 	if caller.ID == "" {
 		return false

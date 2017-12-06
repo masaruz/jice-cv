@@ -624,8 +624,8 @@ func TestLoop06(t *testing.T) {
 		util.CountPlayerNotFoldAndNotAllIn(state.Snapshot.Players) != 0 {
 		t.Error()
 	}
-	handler.Stand(id4, false)
-	handler.Stand(id3, false)
+	handler.Stand(id4)
+	handler.Stand(id3)
 	if len(state.Snapshot.Visitors) != 2 ||
 		util.CountSitting(state.Snapshot.Players) != 2 ||
 		util.CountPlayerNotFoldAndNotAllIn(state.Snapshot.Players) != 0 {
@@ -666,7 +666,7 @@ func TestLoop06(t *testing.T) {
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
-	if !handler.Stand(id3, false) || len(state.Snapshot.Visitors) != 1 ||
+	if !handler.Stand(id3) || len(state.Snapshot.Visitors) != 1 ||
 		util.CountSitting(state.Snapshot.Players) != 3 ||
 		util.CountPlayerNotFoldAndNotAllIn(state.Snapshot.Players) != 3 {
 		t.Error()
@@ -780,7 +780,7 @@ func TestLoop06(t *testing.T) {
 		t.Error("unable to go the next round")
 	}
 	if !state.Snapshot.Gambit.Check(id2) || !state.Snapshot.Gambit.Bet(id4, 20) ||
-		!handler.Stand(id2, false) {
+		!handler.Stand(id2) {
 		t.Error()
 	}
 	if state.Snapshot.Gambit.NextRound() || !state.Snapshot.Gambit.Finish() {
@@ -1001,7 +1001,7 @@ func TestLoop09(t *testing.T) {
 	if !state.Snapshot.Gambit.Start() {
 		t.Error("has 3 players game should be start")
 	}
-	if !handler.Stand(id2, false) {
+	if !handler.Stand(id2) {
 		t.Error("player2 cannot stand")
 	}
 	if !state.Snapshot.Gambit.Check(id1) {
@@ -1010,7 +1010,7 @@ func TestLoop09(t *testing.T) {
 	if !state.Snapshot.Gambit.Check(id3) {
 		t.Error("player3 cannot check")
 	}
-	if !handler.Stand(id1, false) {
+	if !handler.Stand(id1) {
 		t.Error("player1 cannot check")
 	}
 	if !state.Snapshot.Gambit.Check(id4) {
@@ -2454,7 +2454,7 @@ func TestLoop28(t *testing.T) {
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
-	if !handler.Stand(id3, false) || util.SumPots(state.Snapshot.Pots) != 30 ||
+	if !handler.Stand(id3) || util.SumPots(state.Snapshot.Pots) != 30 ||
 		util.CountPlayerNotFoldAndNotAllIn(state.Snapshot.Players) != 2 {
 		t.Error()
 	}
@@ -2531,7 +2531,7 @@ func TestLoop29(t *testing.T) {
 	if p2.Type != constant.Dealer || p1.Type != constant.Normal {
 		t.Error()
 	}
-	if !handler.Stand(id1, false) {
+	if !handler.Stand(id1) {
 		t.Error()
 	}
 	if state.Snapshot.Gambit.NextRound() || !state.Snapshot.Gambit.Finish() {
@@ -2554,7 +2554,7 @@ func TestLoop29(t *testing.T) {
 	if p1.Type != constant.Dealer || p2.Type != constant.Normal {
 		t.Error()
 	}
-	if !handler.Stand(id1, false) {
+	if !handler.Stand(id1) {
 		t.Error()
 	}
 	if state.Snapshot.Gambit.NextRound() || !state.Snapshot.Gambit.Finish() {
@@ -2761,7 +2761,7 @@ func TestLoop32(t *testing.T) {
 	if p2.Actions[0].Name != constant.Stand || p2.Actions[1].Name != constant.StartTable {
 		t.Error()
 	}
-	handler.Stand(id2, false)
+	handler.Stand(id2)
 	if p1.Actions[0].Name != constant.Stand || len(p1.Actions) > 1 {
 		t.Error()
 	}
@@ -3448,7 +3448,7 @@ func TestLoop41(t *testing.T) {
 			t.Error()
 		}
 	}
-	if !handler.Stand(p4.ID, false) {
+	if !handler.Stand(p4.ID) {
 		t.Error()
 	}
 	if p4.Type != constant.Dealer {
@@ -3477,7 +3477,7 @@ func TestLoop41(t *testing.T) {
 	if p1.Type != constant.Dealer {
 		t.Error()
 	}
-	if !handler.Stand(p1.ID, false) {
+	if !handler.Stand(p1.ID) {
 		t.Error()
 	}
 	if !state.Snapshot.Gambit.Check(p2.ID) ||

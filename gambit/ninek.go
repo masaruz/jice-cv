@@ -65,7 +65,9 @@ func (game NineK) Start() bool {
 				// If cashback error
 				if resp.Error != (api.Error{}) && resp.Error.StatusCode != 404 {
 					// Force to stand
-					handler.Stand(player.ID, true)
+					if !handler.Stand(player.ID) {
+						return false
+					}
 					continue
 				}
 				// After cashback success set chips to be 0
@@ -78,7 +80,9 @@ func (game NineK) Start() bool {
 				// BuyIn must be successful
 				if resp.Error != (api.Error{}) {
 					// Force to stand
-					handler.Stand(player.ID, true)
+					if !handler.Stand(player.ID) {
+						return false
+					}
 					continue
 				}
 				util.Print("Buy-in success")
@@ -101,7 +105,9 @@ func (game NineK) Start() bool {
 			// If player has minimum chip for able to play
 			if state.Snapshot.AFKCounts[index] >= game.MaxAFKCount {
 				// Force to stand
-				handler.Stand(player.ID, true)
+				if !handler.Stand(player.ID) {
+					return false
+				}
 				continue
 			}
 		}
