@@ -39,16 +39,16 @@ func main() {
 			// When queue arrived
 			select {
 			case function := <-queue:
-				log.Println("================ Start a task ================")
+				util.Print("================ Start a task ================")
 				// Execute task one by one
 				function()
-				log.Println("================ Finish a task ================")
+				util.Print("================ Finish a task ================")
 			}
 		}
 	}()
 	// When connection happend
 	server.On(constant.Connection, func(so socketio.Socket) {
-		log.Println(so.Id(), "Connect")
+		util.Print(so.Id(), "Connect")
 		// Create real enter work as connect
 		// Because connect does not support message payload
 		// Or retrieve player info
@@ -60,25 +60,26 @@ func main() {
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
 				if userid == "" {
-					log.Println(userid, "Enter", "Token is invalid")
+					util.Print(userid, "Enter", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
 				channel = constant.Enter
 				// Join the room
 				so.Join(userid)
-				handler.Enter(model.Player{
+				if handler.Enter(model.Player{
 					ID:      userid,
 					Name:    data.Header.DisplayName,
 					Picture: "picture",
-				})
-				state.GS = state.Snapshot
-				state.GS.IncreaseVersion()
-				handler.BroadcastGameState(so, channel, userid)
-				log.Println(userid, "Enter", "success")
-				// If no seat then just return current state
-				result <- handler.CreateResponse(userid, channel)
-				return
+				}) {
+					state.GS = state.Snapshot
+					state.GS.IncreaseVersion()
+					handler.BroadcastGameState(so, channel, userid)
+					util.Print(userid, "Enter", "success")
+					// If no seat then just return current state
+					result <- handler.CreateResponse(userid, channel)
+					return
+				}
 			}
 			defer util.Log()
 			defer close(result)
@@ -93,22 +94,22 @@ func main() {
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
 				if userid == "" {
-					log.Println(userid, "Stimulate", "Token is invalid")
+					util.Print(userid, "Stimulate", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
-				log.Println("Prepare to check Start(), NextRound(), Finish()")
+				util.Print("Prepare to check Start(), NextRound(), Finish()")
 				// If cannot start, next and finish then it is during gameplay
 				if !state.GS.Gambit.Start() &&
 					!state.GS.Gambit.NextRound() &&
 					!state.GS.Gambit.Finish() {
-					// log.Println(userid, "Stimulate", "nothing")
+					// util.Print(userid, "Stimulate", "nothing")
 				} else {
 					channel = constant.PushState
 					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
-					// log.Println(userid, "Stimulate", "success")
+					// util.Print(userid, "Stimulate", "success")
 				}
 				// If no seat then just result current state
 				result <- handler.CreateResponse(userid, channel)
@@ -126,7 +127,7 @@ func main() {
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
 				if userid == "" {
-					log.Println(userid, "GetState", "Token is invalid")
+					util.Print(userid, "GetState", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
@@ -145,7 +146,7 @@ func main() {
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
 				if userid == "" {
-					log.Println(userid, "Check", "Token is invalid")
+					util.Print(userid, "Check", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
@@ -154,7 +155,7 @@ func main() {
 					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
-					log.Println(userid, "Check", "success")
+					util.Print(userid, "Check", "success")
 				}
 				result <- handler.CreateResponse(userid, channel)
 				return
@@ -172,7 +173,7 @@ func main() {
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
 				if userid == "" {
-					log.Println(userid, "Bet", "Token is invalid")
+					util.Print(userid, "Bet", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
@@ -182,7 +183,7 @@ func main() {
 					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
-					log.Println(userid, "Bet", "success")
+					util.Print(userid, "Bet", "success")
 				}
 				result <- handler.CreateResponse(userid, channel)
 				return
@@ -200,7 +201,7 @@ func main() {
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
 				if userid == "" {
-					log.Println(userid, "Raise", "Token is invalid")
+					util.Print(userid, "Raise", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
@@ -210,7 +211,7 @@ func main() {
 					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
-					log.Println(userid, "Raise", "success")
+					util.Print(userid, "Raise", "success")
 				}
 				result <- handler.CreateResponse(userid, channel)
 				return
@@ -228,7 +229,7 @@ func main() {
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
 				if userid == "" {
-					log.Println(userid, "Call", "Token is invalid")
+					util.Print(userid, "Call", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
@@ -237,7 +238,7 @@ func main() {
 					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
-					log.Println(userid, "Call", "success")
+					util.Print(userid, "Call", "success")
 				}
 				result <- handler.CreateResponse(userid, channel)
 				return
@@ -255,7 +256,7 @@ func main() {
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
 				if userid == "" {
-					log.Println(userid, "AllIn", "Token is invalid")
+					util.Print(userid, "AllIn", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
@@ -264,7 +265,7 @@ func main() {
 					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, constant.Raise, userid)
-					log.Println(userid, "AllIn", "success")
+					util.Print(userid, "AllIn", "success")
 				}
 				result <- handler.CreateResponse(userid, channel)
 				return
@@ -282,7 +283,7 @@ func main() {
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
 				if userid == "" {
-					log.Println(userid, "Fold", "Token is invalid")
+					util.Print(userid, "Fold", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
@@ -292,7 +293,7 @@ func main() {
 					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
-					log.Println(userid, "Fold", "success")
+					util.Print(userid, "Fold", "success")
 				}
 				result <- handler.CreateResponse(userid, channel)
 				return
@@ -310,7 +311,7 @@ func main() {
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
 				if userid == "" {
-					log.Println(userid, "StartTable", "Token is invalid")
+					util.Print(userid, "StartTable", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
@@ -321,7 +322,7 @@ func main() {
 					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
-					log.Println(userid, "StartTable", "success")
+					util.Print(userid, "StartTable", "success")
 				}
 				result <- handler.CreateResponse(userid, channel)
 				return
@@ -339,7 +340,7 @@ func main() {
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
 				if userid == "" {
-					log.Println(userid, "Sit", "Token is invalid")
+					util.Print(userid, "Sit", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
@@ -349,9 +350,9 @@ func main() {
 					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
-					log.Println(userid, "Sit", "success")
+					util.Print(userid, "Sit", "success")
 				} else {
-					log.Println(userid, "Sit", "Fail")
+					util.Print(userid, "Sit", "Fail")
 				}
 				result <- handler.CreateResponse(userid, channel)
 				return
@@ -369,7 +370,7 @@ func main() {
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
 				if userid == "" {
-					log.Println(userid, "Stand", "Token is invalid")
+					util.Print(userid, "Stand", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
@@ -379,9 +380,9 @@ func main() {
 					state.GS = state.Snapshot
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
-					log.Println(userid, "Stand", "success")
+					util.Print(userid, "Stand", "success")
 				} else {
-					log.Println(userid, "Stand", "Fail")
+					util.Print(userid, "Stand", "Fail")
 				}
 				result <- handler.CreateResponse(userid, channel)
 				return
@@ -393,7 +394,7 @@ func main() {
 		// When disconnected
 		so.On(constant.Disconnection, func() {
 			so.Disconnect()
-			log.Println(so.Id(), "Disconnect")
+			util.Print(so.Id(), "Disconnect")
 		})
 		// When exit
 		so.On(constant.Leave, func(msg string) string {
@@ -404,7 +405,7 @@ func main() {
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
 				if userid == "" {
-					log.Println(userid, "Leave", "Token is invalid")
+					util.Print(userid, "Leave", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
@@ -414,23 +415,23 @@ func main() {
 				log.Printf("Sitting: %d", util.CountSitting(state.Snapshot.Players))
 				log.Printf("Visitors: %d", len(state.Snapshot.Visitors))
 				// If no one in the room terminate itself
-				log.Println("Try terminate ...")
+				util.Print("Try terminate ...")
 				if util.CountSitting(state.Snapshot.Players) <= 0 &&
 					len(state.Snapshot.Visitors) <= 0 {
-					log.Println("No players then terminate")
-					if os.Getenv("env") != "dev" {
+					util.Print("No players then terminate")
+					if state.GS.Env != "dev" {
 						// Delay 5 second before send signal to hawkeye that please kill this container
 						go func() {
 							time.Sleep(time.Second * 3)
 							body, err := api.Terminate()
-							log.Println("Response from Terminate", string(body), err)
+							util.Print("Response from Terminate", string(body), err)
 						}()
 					}
 				}
 				state.GS = state.Snapshot
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, userid)
-				log.Println(userid, "Leave", "sucess")
+				util.Print(userid, "Leave", "sucess")
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
@@ -447,7 +448,7 @@ func main() {
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
 				if userid == "" {
-					log.Println(userid, "Stand", "Token is invalid")
+					util.Print(userid, "Stand", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
@@ -476,7 +477,7 @@ func main() {
 						state.GS.IncreaseVersion()
 						// broadcast state to everyone
 						handler.BroadcastGameState(so, channel, userid)
-						log.Println(userid, "Send Sticker", "success")
+						util.Print(userid, "Send Sticker", "success")
 					}
 				}
 				result <- handler.CreateResponse(userid, channel)
@@ -496,7 +497,7 @@ func main() {
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
 				if userid == "" {
-					log.Println(userid, "Extend Decision Time", "Token is invalid")
+					util.Print(userid, "Extend Decision Time", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
@@ -522,7 +523,7 @@ func main() {
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
 				if userid == "" {
-					log.Println(userid, "Disband Table", "Token is invalid")
+					util.Print(userid, "Disband Table", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
@@ -536,7 +537,7 @@ func main() {
 				channel = constant.DisbandTable
 				state.GS = state.Snapshot
 				handler.BroadcastGameState(so, channel, userid)
-				log.Println(userid, "Disband", "success")
+				util.Print(userid, "Disband", "success")
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
@@ -547,7 +548,7 @@ func main() {
 	})
 	// listening for error
 	server.On(constant.Error, func(so socketio.Socket, err error) {
-		log.Println("error:", err)
+		util.Print("error:", err)
 	})
 	// Create router to support wildcard
 	router := mux.NewRouter()
@@ -599,7 +600,7 @@ func main() {
 	}).Methods("POST") // Receive only post
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		str := ""
-		if os.Getenv("env") == "dev" {
+		if state.GS.Env == "dev" {
 			for _, pair := range os.Environ() {
 				str += fmt.Sprintf("%s ", pair)
 			}
@@ -607,7 +608,7 @@ func main() {
 		fmt.Fprintf(w, "All envs are here: %s", str)
 	})
 	http.Handle("/", router)
-	log.Println(fmt.Sprintf("Serving at localhost%s", port))
+	util.Print(fmt.Sprintf("Serving at localhost%s", port))
 
 	log.Fatal(http.ListenAndServe(port, nil))
 }

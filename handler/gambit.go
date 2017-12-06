@@ -6,8 +6,6 @@ import (
 	"999k_engine/model"
 	"999k_engine/state"
 	"999k_engine/util"
-	"log"
-	"os"
 	"time"
 )
 
@@ -306,8 +304,6 @@ func ExtendPlayerTimeline(id string) bool {
 	caller := &state.Snapshot.Players[current]
 	start := time.Now().Unix()
 	diff := (start + second) - caller.DeadLine
-	caller.StartLine = start
-	caller.DeadLine = start + second
 	for index := range state.Snapshot.Players {
 		player := &state.Snapshot.Players[index]
 		// who start behind caller will be shifted
@@ -317,6 +313,8 @@ func ExtendPlayerTimeline(id string) bool {
 			player.DeadLine += diff
 		}
 	}
+	caller.StartLine = start
+	caller.DeadLine = start + second
 	state.Snapshot.FinishRoundTime += diff
 	OverwriteActionToBehindPlayers()
 	return true
@@ -391,19 +389,19 @@ func TryTerminate() {
 	// Check if current time is more than finish table time
 	if time.Now().Unix() >= state.Snapshot.FinishTableTime &&
 		state.Snapshot.FinishTableTime != 0 {
-		log.Println("Table is timeout then terminate")
+		util.Print("Table is timeout then terminate")
 		// For force client to leave
 		state.Snapshot.IsTableExpired = true
 		state.Snapshot.IsTableStart = false
 		// TODO call terminate api
-		if os.Getenv("env") != "dev" {
+		if state.GS.Env != "dev" {
 			// Delay 5 second before send signal to hawkeye that please kill this container
 			go func() {
 				// body, err := api.TableEnd()
-				// log.Println("Response from TableEnd", string(body), err)
+				// util.Print("Response from TableEnd", string(body), err)
 				// time.Sleep(time.Second * 3)
 				// body, err = api.Terminate()
-				// log.Println("Response from Terminate", string(body), err)
+				// util.Print("Response from Terminate", string(body), err)
 			}()
 		}
 	}

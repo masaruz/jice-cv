@@ -24,7 +24,11 @@ func Remove(slice model.Players, id string) model.Players {
 func Kick(slice model.Players, id string) model.Players {
 	for index, player := range slice {
 		if id == player.ID {
-			slice[index] = model.Player{Slot: player.Slot, Type: player.Type}
+			if player.Type == constant.Normal {
+				slice[index] = model.Player{Slot: player.Slot}
+			} else {
+				slice[index] = model.Player{Slot: player.Slot, Type: player.Type}
+			}
 		}
 	}
 	return slice

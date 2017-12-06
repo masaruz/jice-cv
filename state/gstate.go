@@ -1,8 +1,10 @@
 package state
 
 import (
+	"999k_engine/constant"
 	"999k_engine/engine"
 	"999k_engine/model"
+	"os"
 )
 
 // GameState to record current game
@@ -33,6 +35,7 @@ type GameState struct {
 	Rakes            map[string]float64
 	PlayerTableKeys  map[string]string // Map of each player_table_key and player_id
 	Scoreboard       []model.Scoreboard
+	Env              string
 }
 
 // gameStates to record all gamestates
@@ -44,6 +47,7 @@ var GS = GameState{
 	GroupID:         "from_manager",
 	GameIndex:       0,
 	PlayerTableKeys: make(map[string]string),
+	Env:             os.Getenv(constant.Env),
 }
 
 // Snapshot is temporary gamestate used for handle state before end the script
@@ -52,6 +56,7 @@ var Snapshot = GameState{
 	GroupID:         "from_manager",
 	GameIndex:       0,
 	PlayerTableKeys: make(map[string]string),
+	Env:             os.Getenv(constant.Env),
 }
 
 // IncreaseVersion validate with client

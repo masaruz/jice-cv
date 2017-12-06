@@ -6,7 +6,6 @@ import (
 	"999k_engine/util"
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -82,7 +81,6 @@ func UpdateRealtimeData() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println("Realtime post data", string(data))
 	// create url
 	url := fmt.Sprintf("%s/realtime", getTableURL(state.Snapshot.TableID))
 	return post(url, data)

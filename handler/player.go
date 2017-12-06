@@ -8,7 +8,6 @@ import (
 	"999k_engine/util"
 	"encoding/json"
 	"log"
-	"os"
 	"time"
 )
 
@@ -60,12 +59,12 @@ func Leave(id string) bool {
 	Stand(id, false)
 	// after they stand then remove from visitor
 	state.Snapshot.Visitors = util.Remove(state.Snapshot.Visitors, id)
-	if os.Getenv("env") != "dev" {
+	if state.GS.Env != "dev" {
 		body, err := api.RemoveAuth(id)
-		log.Println("Response from RemoveAuth", string(body), err)
+		util.Print("Response from RemoveAuth", string(body), err)
 		// Update realtime data ex. Visitors
 		body, err = api.UpdateRealtimeData()
-		log.Println("Response from UpdateRealtimeData", string(body), err)
+		util.Print("Response from UpdateRealtimeData", string(body), err)
 		resp := &api.Response{}
 		json.Unmarshal(body, resp)
 		// Is there any error when start game
@@ -109,9 +108,9 @@ func Sit(id string, slot int) bool {
 	state.Snapshot.AFKCounts[caller.Slot] = 0
 	SetOtherActionsWhoAreNotPlaying(constant.Sit)
 	// Update realtime data ex. Visitors
-	if os.Getenv("env") != "dev" {
+	if state.GS.Env != "dev" {
 		body, err := api.UpdateRealtimeData()
-		log.Println("Response from UpdateRealtimeData", string(body), err)
+		util.Print("Response from UpdateRealtimeData", string(body), err)
 	}
 	return true
 }
@@ -125,9 +124,9 @@ func Stand(id string, force bool) bool {
 	// If not in dev, call api
 	// If this player already buyin
 	// Update buy-in cash
-	if os.Getenv("env") != "dev" {
+	if state.GS.Env != "dev" {
 		body, err := api.SaveSettlement(id)
-		log.Println("Response from SaveSettlement", string(body), err)
+		util.Print("Response from SaveSettlement", string(body), err)
 		resp := &api.Response{}
 		json.Unmarshal(body, resp)
 		if resp.Error != (api.Error{}) && resp.Error.StatusCode != 404 {
@@ -135,7 +134,7 @@ func Stand(id string, force bool) bool {
 		}
 		// Save buy-in cash to real player pocket
 		body, err = api.CashBack(id)
-		log.Println("Response from CashBack", string(body), err)
+		util.Print("Response from CashBack", string(body), err)
 		resp = &api.Response{}
 		json.Unmarshal(body, resp)
 		if resp.Error != (api.Error{}) && resp.Error.StatusCode != 404 {
@@ -222,7 +221,7 @@ func SendSticker(stickerid string, senderid string, targetslot int) {
 // GetUserIDFromToken make sure this player has valid table key
 // Validate this player has been allowed to access this table
 func GetUserIDFromToken(tablekey string) string {
-	if os.Getenv("env") == "dev" {
+	if state.GS.Env == "dev" {
 		return "default"
 	}
 	for userid, key := range state.GS.PlayerTableKeys {

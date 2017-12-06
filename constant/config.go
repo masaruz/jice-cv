@@ -18,4 +18,5 @@ const (
 	Visitors     = "Visitors"
 	Duration     = "Duration"
 	StartTime    = "StartTime"
+	Env          = "env"
 )

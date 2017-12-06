@@ -9,8 +9,6 @@ import (
 	"999k_engine/state"
 	"999k_engine/util"
 	"encoding/json"
-	"log"
-	"os"
 	"sort"
 	"time"
 )
@@ -40,7 +38,7 @@ func (game NineK) Init() {
 
 // Start game
 func (game NineK) Start() bool {
-	log.Println("Try to start")
+	util.Print("Try to start")
 	if handler.IsTableStart() &&
 		!handler.IsGameStart() &&
 		!handler.IsInExtendFinishRoundTime() {
@@ -54,14 +52,14 @@ func (game NineK) Start() bool {
 			// If player has no chip enough
 			if player.Chips < game.GetSettings().BlindsSmall {
 				// If in development assign chips and continue
-				if os.Getenv("env") == "dev" {
+				if state.GS.Env == "dev" {
 					player.Chips = game.GetSettings().BuyInMin
 					continue
 				}
 				// Make sure this player ready to buyin
 				// Cashback can be fail if they not buyin yet
 				body, err := api.CashBack(player.ID)
-				log.Println("Response from CashBack", string(body), err)
+				util.Print("Response from CashBack", string(body), err)
 				resp := &api.Response{}
 				json.Unmarshal(body, resp)
 				// If cashback error
@@ -74,7 +72,7 @@ func (game NineK) Start() bool {
 				player.Chips = 0
 				// Need request to server for buyin
 				body, err = api.BuyIn(player.ID, game.GetSettings().BuyInMin)
-				log.Println("Response from BuyIn", string(body), err)
+				util.Print("Response from BuyIn", string(body), err)
 				resp = &api.Response{}
 				json.Unmarshal(body, resp)
 				// BuyIn must be successful
@@ -83,7 +81,7 @@ func (game NineK) Start() bool {
 					handler.Stand(player.ID, true)
 					continue
 				}
-				log.Println("Buy-in success")
+				util.Print("Buy-in success")
 				// Assign how much they buy-in
 				player.Chips = game.GetSettings().BuyInMin
 				// Update scoreboard
@@ -112,12 +110,12 @@ func (game NineK) Start() bool {
 		if util.CountSitting(state.Snapshot.Players) >= 2 {
 			// Increase gameindex for backend process ex. realtime-data, analytic
 			state.Snapshot.GameIndex++
-			log.Println("Gameindex increased")
-			log.Println("Prepare to start game")
-			if os.Getenv("env") != "dev" {
+			util.Print("Gameindex increased")
+			util.Print("Prepare to start game")
+			if state.GS.Env != "dev" {
 				// Request to start game
 				body, err := api.StartGame()
-				log.Println("Response from StartGame", string(body), err)
+				util.Print("Response from StartGame", string(body), err)
 				resp := &api.Response{}
 				json.Unmarshal(body, resp)
 				// Is there any error when start game
@@ -147,19 +145,19 @@ func (game NineK) Start() bool {
 			handler.Shuffle()
 			handler.CreateTimeLine(game.DecisionTime)
 			handler.Deal(2, game.MaxPlayers)
-			log.Println("2 cards dealed")
+			util.Print("2 cards dealed")
 			handler.SetPlayersRake(game.Rake, game.Cap*float64(game.BlindsBig))
-			log.Println("Start Success")
+			util.Print("Start Success")
 			return true
 		}
 	}
-	log.Println("Start Failed")
+	util.Print("Start Failed")
 	return false
 }
 
 // NextRound game after round by round
 func (game NineK) NextRound() bool {
-	log.Println("Try to next round")
+	util.Print("Try to next round")
 	// Assume every player must be default
 	handler.OverwriteActionToBehindPlayers()
 	// Game must be start
@@ -176,26 +174,26 @@ func (game NineK) NextRound() bool {
 		handler.SetOtherDefaultAction("", constant.Check)
 		handler.CreateTimeLine(game.DecisionTime)
 		handler.PlayersInvestToPots(0)
-		log.Println("1 cards dealed")
+		util.Print("1 cards dealed")
 		handler.IncreaseTurn()
 		// no one is assumed afk
 		state.Snapshot.DoActions = make([]bool, game.MaxPlayers)
-		log.Println("Next round Success")
+		util.Print("Next round Success")
 		return true
 	}
-	log.Println("Next round Failed")
+	util.Print("Next round Failed")
 	return false
 }
 
 // Finish game
 func (game NineK) Finish() bool {
-	log.Println("Try to finish")
+	util.Print("Try to finish")
 	handler.OverwriteActionToBehindPlayers()
 	// no others to play with or all players have 3 cards but bet is not equal
 	if handler.IsGameStart() && ((util.CountPlayerNotFold(state.Snapshot.Players) <= 1) ||
 		// if has 3 cards bet equal
 		(handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound())) {
-		log.Println("Prepare to finish game")
+		util.Print("Prepare to finish game")
 		// calculate afk players
 		for index, doaction := range state.Snapshot.DoActions {
 			// Skip empty players
@@ -216,7 +214,7 @@ func (game NineK) Finish() bool {
 		hscore := -1
 		hbonus := -1
 		pos := -1
-		log.Println("Find the winner(s)")
+		util.Print("Find the winner(s)")
 		// Evaluate score from everyone's hand
 		for i := 0; i < len(state.Snapshot.Players); i++ {
 			for index, player := range state.Snapshot.Players {
@@ -276,9 +274,9 @@ func (game NineK) Finish() bool {
 				pos = -1
 			}
 		}
-		if os.Getenv("env") != "dev" {
+		if state.GS.Env != "dev" {
 			body, err := api.SaveSettlements()
-			log.Println("Response from SaveSettlements", string(body), err)
+			util.Print("Response from SaveSettlements", string(body), err)
 			resp := &api.Response{}
 			json.Unmarshal(body, resp)
 			// Is there any error when start game
@@ -286,7 +284,7 @@ func (game NineK) Finish() bool {
 				return false
 			}
 			body, err = api.UpdateRealtimeData()
-			log.Println("Response from UpdateRealtimeData", string(body), err)
+			util.Print("Response from UpdateRealtimeData", string(body), err)
 			resp = &api.Response{}
 			json.Unmarshal(body, resp)
 			// Is there any error when start game
@@ -301,12 +299,12 @@ func (game NineK) Finish() bool {
 		handler.TryTerminate()
 		state.Snapshot.Turn = 0
 		state.Snapshot.IsGameStart = false
-		log.Println("Finish Success")
+		util.Print("Finish Success")
 		return true
 	}
 	// Check if table expired then terminate
 	handler.TryTerminate()
-	log.Println("Finish Failed")
+	util.Print("Finish Failed")
 	return false
 }
 

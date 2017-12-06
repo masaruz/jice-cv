@@ -25,22 +25,29 @@ func FloatEquals(a, b float64) bool {
 	return false
 }
 
+// Print log will be diabled in production
+func Print(msg ...interface{}) {
+	if state.GS.Env != "dev" {
+		log.Println(msg)
+	}
+}
+
 // Log state
 func Log() {
-	log.Println(">>>>>>>>>>>> Start Broadcasting <<<<<<<<<<<<<<<")
-	log.Println("<<< Players >>>")
+	Print(">>>>>>>>>>>> Start Broadcasting <<<<<<<<<<<<<<<")
+	Print("<<< Players >>>")
 	for _, player := range state.GS.Players {
 		player.Print()
 	}
-	log.Println("<<< Visitors >>>")
+	Print("<<< Visitors >>>")
 	for _, visitor := range state.GS.Visitors {
 		visitor.Print()
 	}
-	log.Println("Current gameindex:", state.GS.GameIndex)
-	log.Println("Now:", time.Now().Unix())
-	log.Println("Start round time:", state.GS.StartRoundTime)
-	log.Println("Finish round time:", state.GS.FinishRoundTime)
-	log.Println("Start table time:", state.GS.StartTableTime)
-	log.Println("Finish table time:", state.GS.FinishTableTime)
-	log.Println(">>>>>>>>>>>> Done Broadcasting <<<<<<<<<<<<<<<")
+	Print("Current gameindex:", state.GS.GameIndex)
+	Print("Now:", time.Now().Unix())
+	Print("Start round time:", state.GS.StartRoundTime)
+	Print("Finish round time:", state.GS.FinishRoundTime)
+	Print("Start table time:", state.GS.StartTableTime)
+	Print("Finish table time:", state.GS.FinishTableTime)
+	Print(">>>>>>>>>>>> Done Broadcasting <<<<<<<<<<<<<<<")
 }

@@ -1,7 +1,6 @@
 package main_test
 
 import (
-	"999k_engine/api"
 	"999k_engine/constant"
 	"999k_engine/gambit"
 	"999k_engine/handler"
@@ -9,7 +8,6 @@ import (
 	"999k_engine/state"
 	"999k_engine/util"
 	"fmt"
-	"log"
 	"testing"
 	"time"
 )
@@ -384,13 +382,13 @@ func TestLoop04(t *testing.T) {
 		MaxPlayers:   6,
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
+	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot = state.GS
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
 	handler.Connect("player4")
-	handler.Initiate(ninek)
-	state.GS.Gambit.Init() // create seats
-	state.Snapshot = state.GS
 	// dumb player
 	handler.Sit("player1", 2) // dealer
 	handler.Sit("player2", 4)
@@ -587,8 +585,8 @@ func TestLoop06(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	// dumb player
 	id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
 	handler.Connect(id1)
@@ -815,15 +813,15 @@ func TestLoop07(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	// dumb player
+	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot = state.GS
 	id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
 	handler.Connect(id1)
 	handler.Connect(id2)
 	handler.Connect(id3)
 	handler.Connect(id4)
-	handler.Initiate(ninek)
-	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
-	handler.Sit(id1, 2)          // first
+	handler.Sit(id1, 2) // first
 	handler.Sit(id2, 3)
 	handler.Sit(id3, 4)
 	handler.Sit(id4, 1) // dealer
@@ -888,8 +886,8 @@ func TestLoop08(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -984,8 +982,8 @@ func TestLoop09(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1060,8 +1058,8 @@ func TestLoop10(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1124,8 +1122,8 @@ func TestLoop11(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1199,8 +1197,8 @@ func TestLoop12(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1233,8 +1231,8 @@ func TestLoop13(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2 := "player1", "player2"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1302,8 +1300,8 @@ func TestLoop14(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1419,8 +1417,8 @@ func TestLoop15(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1557,8 +1555,8 @@ func TestLoop16(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1673,8 +1671,8 @@ func TestLoop17(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1729,8 +1727,8 @@ func TestLoop18(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1917,8 +1915,8 @@ func TestLoop19(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -2223,8 +2221,8 @@ func TestLoop26(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -2399,8 +2397,8 @@ func TestLoop27(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -2442,8 +2440,8 @@ func TestLoop28(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -2515,8 +2513,8 @@ func TestLoop29(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -2614,8 +2612,8 @@ func TestLoop30(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -2704,8 +2702,8 @@ func TestLoop31(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -2747,8 +2745,8 @@ func TestLoop32(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2 := "player1", "player2"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -2798,8 +2796,8 @@ func TestLoop33(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	id1, id2 := "player1", "player2"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -2833,13 +2831,13 @@ func TestLoop34(t *testing.T) {
 		BlindsSmall:  10,
 		BlindsBig:    10,
 		DecisionTime: decisionTime}
+	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot = state.GS
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
 	handler.Connect("player4")
-	handler.Initiate(ninek)
-	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	if len(state.Snapshot.Players) != 6 {
 		t.Error()
 	}
@@ -2956,8 +2954,8 @@ func TestLoop35(t *testing.T) {
 		Rake:         5.00,
 		Cap:          cap}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init()
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
@@ -3133,82 +3131,6 @@ func TestLoop35(t *testing.T) {
 }
 
 func TestLoop36(t *testing.T) {
-	decisionTime := int64(3)
-	minimumBet := 10
-	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
-	handler.Initiate(ninek)
-	state.Snapshot.TableID = "test"
-	body, err := api.StartGame()
-	if err != nil {
-		t.Error()
-	}
-	if data := string(body); data != `{"message":"Successfully start game"}` {
-		t.Error(data)
-	}
-	body, err = api.UpdateRealtimeData()
-	if err != nil {
-		t.Error()
-	}
-	if data := string(body); data != `{"message":"Successfully update table realtime"}` {
-		t.Error(data)
-	}
-	handler.Connect("player1")
-	handler.Connect("player2")
-	handler.Connect("player3")
-	handler.Connect("player4")
-	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
-	// dumb player
-	handler.Sit("player1", 2)
-	handler.Sit("player2", 3)
-	handler.Sit("player3", 5)
-	handler.Sit("player4", 1)
-	p1 := &state.Snapshot.Players[2]
-	p2 := &state.Snapshot.Players[3]
-	p3 := &state.Snapshot.Players[5]
-	p4 := &state.Snapshot.Players[1]
-	handler.StartTable()
-	if !state.Snapshot.Gambit.Start() {
-		t.Error()
-	}
-	if !state.Snapshot.Gambit.Check(p1.ID) ||
-		!state.Snapshot.Gambit.Check(p2.ID) ||
-		!state.Snapshot.Gambit.Check(p3.ID) ||
-		!state.Snapshot.Gambit.Check(p4.ID) {
-		t.Error()
-	}
-	if !state.Snapshot.Gambit.NextRound() {
-		t.Error()
-	}
-	body, err = api.SendSticker(p1.ID)
-	if err != nil {
-		t.Error()
-	}
-	if data := string(body); data != `{"message":"Successfully send sticker"}` {
-		t.Error(data)
-	}
-	if !state.Snapshot.Gambit.Check(p1.ID) ||
-		!state.Snapshot.Gambit.Check(p2.ID) ||
-		!state.Snapshot.Gambit.Check(p3.ID) ||
-		!state.Snapshot.Gambit.Check(p4.ID) {
-		t.Error()
-	}
-	if !state.Snapshot.Gambit.Finish() {
-		t.Error()
-	}
-	// p1.Print()
-	// p2.Print()
-	// p3.Print()
-	// p4.Print()
-	// fmt.Println("now:", time.Now().Unix())
-	// fmt.Println("end:", state.Snapshot.FinishRoundTime)
 }
 
 func TestLoop37(t *testing.T) {
@@ -3223,12 +3145,12 @@ func TestLoop37(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot = state.GS
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
 	handler.Connect("player4")
-	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	// dumb player
 	handler.Sit("player1", 2)
 	handler.Sit("player2", 3)
@@ -3332,12 +3254,12 @@ func TestLoop38(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot = state.GS
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
 	handler.Connect("player4")
-	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	// dumb player
 	handler.Sit("player1", 2)
 	handler.Sit("player2", 3)
@@ -3379,7 +3301,7 @@ func TestLoop38(t *testing.T) {
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
-	if state.Snapshot.GameIndex != 1 {
+	if state.Snapshot.GameIndex != 2 {
 		t.Error()
 	}
 	if !state.Snapshot.Gambit.Check(p2.ID) ||
@@ -3433,43 +3355,6 @@ func TestLoop38(t *testing.T) {
 }
 
 func TestLoop39(t *testing.T) {
-	decisionTime := int64(3)
-	minimumBet := 10
-	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
-	handler.Initiate(ninek)
-	handler.Connect("us3xq4zomamja85xwx1")
-	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
-	// dumb player
-	handler.Sit("us3xq4zomamja85xwx1", 2)
-	p1 := &state.Snapshot.Players[2]
-	state.Snapshot.TableID = "ta3xq4zomamja86053q"
-	state.Snapshot.GroupID = "cl3xq4zomamja85yp3t"
-	// Request hawkeye to request buyin (move chip from player's pocket to the table)
-	if body, err := api.BuyIn(p1.ID, ninek.GetSettings().BlindsSmall); err != nil ||
-		string(body) != `{"body":{"message":"Successfully buyin"}}` {
-		t.Error(string(body), err)
-	}
-	p1.Chips = ninek.GetSettings().BlindsSmall
-	p1.WinLossAmount = 20
-	state.Snapshot.Rakes[p1.ID] = 0.05
-	// Request hawkeye to update buy-in cash amount
-	if body, err := api.SaveSettlement(p1.ID); err != nil ||
-		string(body) != `{"body":{"message":"Successfully settlement"}}` {
-		t.Error(string(body), err)
-	}
-	// Request hawkeye to request cashback (move chip from table to player's pocket)
-	if body, err := api.CashBack(p1.ID); err != nil ||
-		string(body) != `{"body":{"message":"Successfully cashback"}}` {
-		t.Error(string(body), err)
-	}
 }
 
 func TestLoop40(t *testing.T) {
@@ -3484,12 +3369,12 @@ func TestLoop40(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot = state.GS
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
 	handler.Connect("player4")
-	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	// dumb player
 	handler.Sit("player1", 2)
 	handler.Sit("player2", 3)
@@ -3535,12 +3420,12 @@ func TestLoop41(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot = state.GS
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
 	handler.Connect("player4")
-	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	// dumb player
 	handler.Sit("player1", 2)
 	handler.Sit("player2", 3)
@@ -3628,97 +3513,4 @@ func TestLoop41(t *testing.T) {
 	// p4.Print()
 	// fmt.Println("now:", time.Now().Unix())
 	// fmt.Println("end:", state.Snapshot.FinishRoundTime)
-}
-
-func TestLoop42(t *testing.T) {
-	decisionTime := int64(3)
-	minimumBet := 10
-	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
-	handler.Initiate(ninek)
-	handler.Connect("us3xq4zomamja85xwx1")
-	handler.Connect("ustel9kvy19hajahvzo3r")
-	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
-	// dumb player
-	handler.Sit("us3xq4zomamja85xwx1", 2)
-	handler.Sit("ustel9kvy19hajahvzo3r", 3)
-	p1 := &state.Snapshot.Players[2]
-	p2 := &state.Snapshot.Players[3]
-	handler.StartTable()
-	state.Snapshot.GroupID = "cl3xq4zo7zojac32ay3"
-	if !state.Snapshot.Gambit.Start() {
-		t.Error()
-	}
-	if !state.Snapshot.Gambit.Check(p1.ID) {
-		t.Error()
-	}
-	p1.Print()
-	p2.Print()
-	fmt.Println("now:", time.Now().Unix())
-	fmt.Println("end:", state.Snapshot.FinishRoundTime)
-}
-
-func TestLoop43(t *testing.T) {
-	decisionTime := int64(3)
-	minimumBet := 200
-	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
-	handler.Initiate(ninek)
-	state.GS.Gambit.Init() // create seats
-	state.Snapshot = state.GS
-	// Create queue to receiving request
-	queue := make(chan func())
-	// Create a worker to standby
-	go func() {
-		for {
-			// When queue arrived
-			select {
-			case function := <-queue:
-				log.Println("================ Start a task ================")
-				// Execute task one by one
-				function()
-				log.Println("================ Finish a task ================")
-			}
-		}
-	}()
-	result := make(chan string)
-	queue <- func() {
-		state.Snapshot = state.GS
-		channel := ""
-		userid := "playerid"
-		displayname := "displayname"
-		if userid == "" {
-			log.Println(userid, "Enter", "Token is invalid")
-			result <- handler.CreateResponse(userid, channel)
-			return
-		}
-		channel = constant.Enter
-		handler.Enter(model.Player{
-			ID:      userid,
-			Name:    displayname,
-			Picture: "picture",
-		})
-		state.GS = state.Snapshot
-		state.GS.IncreaseVersion()
-		log.Println(userid, "Enter", "success")
-		// If no seat then just return current state
-		result <- handler.CreateResponse(userid, channel)
-		return
-	}
-	defer util.Log()
-	log.Println(<-result)
-	return
 }
