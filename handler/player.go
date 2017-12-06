@@ -59,7 +59,7 @@ func Leave(id string) bool {
 	Stand(id)
 	// after they stand then remove from visitor
 	state.Snapshot.Visitors = util.Remove(state.Snapshot.Visitors, id)
-	if state.GS.Env != "dev" {
+	if state.Snapshot.Env != "dev" {
 		body, err := api.RemoveAuth(id)
 		util.Print("Response from RemoveAuth", string(body), err)
 		// Update realtime data ex. Visitors
@@ -108,7 +108,7 @@ func Sit(id string, slot int) bool {
 	state.Snapshot.AFKCounts[caller.Slot] = 0
 	SetOtherActionsWhoAreNotPlaying(constant.Sit)
 	// Update realtime data ex. Visitors
-	if state.GS.Env != "dev" {
+	if state.Snapshot.Env != "dev" {
 		body, err := api.UpdateRealtimeData()
 		util.Print("Response from UpdateRealtimeData", string(body), err)
 	}
@@ -124,7 +124,7 @@ func Stand(id string) bool {
 	// If not in dev, call api
 	// If this player already buyin
 	// Update buy-in cash
-	if state.GS.Env != "dev" {
+	if state.Snapshot.Env != "dev" {
 		body, err := api.SaveSettlement(id)
 		util.Print("Response from SaveSettlement", string(body), err)
 		resp := &api.Response{}
@@ -221,7 +221,7 @@ func SendSticker(stickerid string, senderid string, targetslot int) {
 // GetUserIDFromToken make sure this player has valid table key
 // Validate this player has been allowed to access this table
 func GetUserIDFromToken(tablekey string) string {
-	if state.GS.Env == "dev" {
+	if state.Snapshot.Env == "dev" {
 		return "default"
 	}
 	for userid, key := range state.GS.PlayerTableKeys {

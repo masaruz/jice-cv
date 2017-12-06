@@ -52,7 +52,7 @@ func (game NineK) Start() bool {
 			// If player has no chip enough
 			if player.Chips < game.GetSettings().BlindsSmall {
 				// If in development assign chips and continue
-				if state.GS.Env == "dev" {
+				if state.Snapshot.Env == "dev" {
 					player.Chips = game.GetSettings().BuyInMin
 					continue
 				}
@@ -118,7 +118,7 @@ func (game NineK) Start() bool {
 			state.Snapshot.GameIndex++
 			util.Print("Gameindex increased")
 			util.Print("Prepare to start game")
-			if state.GS.Env != "dev" {
+			if state.Snapshot.Env != "dev" {
 				// Request to start game
 				body, err := api.StartGame()
 				util.Print("Response from StartGame", string(body), err)
@@ -280,7 +280,7 @@ func (game NineK) Finish() bool {
 				pos = -1
 			}
 		}
-		if state.GS.Env != "dev" {
+		if state.Snapshot.Env != "dev" {
 			body, err := api.SaveSettlements()
 			util.Print("Response from SaveSettlements", string(body), err)
 			resp := &api.Response{}

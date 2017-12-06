@@ -414,20 +414,6 @@ func main() {
 				state.Snapshot.Gambit.Finish()
 				log.Printf("Sitting: %d", util.CountSitting(state.Snapshot.Players))
 				log.Printf("Visitors: %d", len(state.Snapshot.Visitors))
-				// If no one in the room terminate itself
-				util.Print("Try terminate ...")
-				if util.CountSitting(state.Snapshot.Players) <= 0 &&
-					len(state.Snapshot.Visitors) <= 0 {
-					util.Print("No players then terminate")
-					if state.GS.Env != "dev" {
-						// Delay 5 second before send signal to hawkeye that please kill this container
-						go func() {
-							time.Sleep(time.Second * 3)
-							body, err := api.Terminate()
-							util.Print("Response from Terminate", string(body), err)
-						}()
-					}
-				}
 				state.GS = util.CloneState(state.Snapshot)
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, userid)
@@ -435,6 +421,23 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
+			defer func() {
+				// If no one in the room terminate itself
+				util.Print("Try terminate ...")
+				state.Snapshot = util.CloneState(state.GS)
+				if util.CountSitting(state.Snapshot.Players) <= 0 &&
+					len(state.Snapshot.Visitors) <= 0 {
+					util.Print("No players then terminate")
+					if state.Snapshot.Env != "dev" {
+						// Delay before send signal to hawkeye that please kill this container
+						go func() {
+							time.Sleep(time.Millisecond * 100)
+							body, err := api.Terminate()
+							util.Print("Response from Terminate", string(body), err)
+						}()
+					}
+				}
+			}()
 			defer util.Log()
 			defer close(result)
 			return <-result
@@ -600,7 +603,7 @@ func main() {
 	}).Methods("POST") // Receive only post
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		str := ""
-		if state.GS.Env == "dev" {
+		if state.Snapshot.Env == "dev" {
 			for _, pair := range os.Environ() {
 				str += fmt.Sprintf("%s ", pair)
 			}

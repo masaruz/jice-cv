@@ -394,7 +394,7 @@ func TryTerminate() {
 		state.Snapshot.IsTableExpired = true
 		state.Snapshot.IsTableStart = false
 		// TODO call terminate api
-		if state.GS.Env != "dev" {
+		if state.Snapshot.Env != "dev" {
 			// Delay 5 second before send signal to hawkeye that please kill this container
 			go func() {
 				// body, err := api.TableEnd()

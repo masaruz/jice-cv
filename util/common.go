@@ -48,7 +48,7 @@ func CloneState(oldState state.GameState) state.GameState {
 
 // Print log will be diabled in production
 func Print(msg ...interface{}) {
-	if state.GS.Env != "dev" {
+	if state.Snapshot.Env != "dev" {
 		log.Println(msg)
 	}
 }
