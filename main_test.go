@@ -8,6 +8,7 @@ import (
 	"999k_engine/state"
 	"999k_engine/util"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 )
@@ -3131,6 +3132,61 @@ func TestLoop35(t *testing.T) {
 }
 
 func TestLoop36(t *testing.T) {
+	state.GS = state.GameState{
+		TableID:   "default",
+		GameIndex: 0,
+		Deck:      model.Deck{Cards: model.Cards{0, 1, 2, 3, 4, 5}},
+		Players: model.Players{
+			model.Player{ID: "player1"},
+			model.Player{ID: "player2"},
+			model.Player{ID: "player3"},
+		},
+		Visitors: model.Players{
+			model.Player{ID: "player4"},
+		},
+	}
+	if state.Snapshot.TableID != "" {
+		t.Error(state.Snapshot)
+	}
+	state.Snapshot = state.GS
+	if state.Snapshot.TableID != "default" {
+		t.Error()
+	}
+	state.Snapshot.Players[0].ID = "changed"
+	if state.GS.Players[0].ID != "changed" {
+		t.Error()
+	}
+	state.Snapshot.Deck.Cards[2] = 6
+	if state.GS.Deck.Cards[2] != 6 {
+		t.Error()
+	}
+	state.Snapshot.Players[0].ID = "player1"
+	state.Snapshot.Deck.Cards[2] = 2
+	state.Snapshot = state.GameState{
+		PlayerTableKeys: make(map[string]string),
+		Env:             os.Getenv(constant.Env),
+	}
+	if state.GS.Players[0].ID != "player1" || state.Snapshot.Players != nil {
+		t.Error()
+	}
+	if state.GS.Deck.Cards[2] != 2 || state.Snapshot.Deck.Cards != nil {
+		t.Error()
+	}
+	state.Snapshot = util.CloneState(state.GS)
+	if state.Snapshot.TableID != "default" {
+		t.Error()
+	}
+	state.Snapshot.Players[0].ID = "changed"
+	if state.GS.Players[0].ID == "changed" || state.Snapshot.Players[0].ID != "changed" {
+		t.Error()
+	}
+	if state.GS.Deck.Cards[2] != 2 || state.Snapshot.Deck.Cards[2] != 2 {
+		t.Error(state.GS.Deck.Cards, state.Snapshot.Deck.Cards)
+	}
+	state.Snapshot.Deck.Cards[2] = 6
+	if state.GS.Deck.Cards[2] == 6 || state.Snapshot.Deck.Cards[2] != 6 {
+		t.Error()
+	}
 }
 
 func TestLoop37(t *testing.T) {

@@ -55,7 +55,7 @@ func main() {
 		so.On(constant.Enter, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
-				state.Snapshot = state.GS
+				state.Snapshot = util.CloneState(state.GS)
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -72,7 +72,7 @@ func main() {
 					Name:    data.Header.DisplayName,
 					Picture: "picture",
 				}) {
-					state.GS = state.Snapshot
+					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 					util.Print(userid, "Enter", "success")
@@ -89,7 +89,7 @@ func main() {
 		so.On(constant.Stimulate, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
-				state.Snapshot = state.GS
+				state.Snapshot = util.CloneState(state.GS)
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -106,7 +106,7 @@ func main() {
 					// util.Print(userid, "Stimulate", "nothing")
 				} else {
 					channel = constant.PushState
-					state.GS = state.Snapshot
+					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 					// util.Print(userid, "Stimulate", "success")
@@ -141,7 +141,7 @@ func main() {
 		so.On(constant.Check, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
-				state.Snapshot = state.GS
+				state.Snapshot = util.CloneState(state.GS)
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -152,7 +152,7 @@ func main() {
 				}
 				if state.GS.Gambit.Check(userid) {
 					channel = constant.Check
-					state.GS = state.Snapshot
+					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 					util.Print(userid, "Check", "success")
@@ -168,7 +168,7 @@ func main() {
 		so.On(constant.Bet, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
-				state.Snapshot = state.GS
+				state.Snapshot = util.CloneState(state.GS)
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -180,7 +180,7 @@ func main() {
 				// client send amount of bet
 				if state.GS.Gambit.Bet(userid, data.Payload.Parameters[0].IntegerValue) {
 					channel = constant.Bet
-					state.GS = state.Snapshot
+					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 					util.Print(userid, "Bet", "success")
@@ -196,7 +196,7 @@ func main() {
 		so.On(constant.Raise, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
-				state.Snapshot = state.GS
+				state.Snapshot = util.CloneState(state.GS)
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -208,7 +208,7 @@ func main() {
 				// client send amount of raise
 				if state.GS.Gambit.Raise(userid, data.Payload.Parameters[0].IntegerValue) {
 					channel = constant.Raise
-					state.GS = state.Snapshot
+					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 					util.Print(userid, "Raise", "success")
@@ -224,7 +224,7 @@ func main() {
 		so.On(constant.Call, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
-				state.Snapshot = state.GS
+				state.Snapshot = util.CloneState(state.GS)
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -235,7 +235,7 @@ func main() {
 				}
 				if state.GS.Gambit.Call(userid) {
 					channel = constant.Call
-					state.GS = state.Snapshot
+					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 					util.Print(userid, "Call", "success")
@@ -251,7 +251,7 @@ func main() {
 		so.On(constant.AllIn, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
-				state.Snapshot = state.GS
+				state.Snapshot = util.CloneState(state.GS)
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -262,7 +262,7 @@ func main() {
 				}
 				if state.GS.Gambit.AllIn(userid) {
 					channel = constant.Raise
-					state.GS = state.Snapshot
+					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, constant.Raise, userid)
 					util.Print(userid, "AllIn", "success")
@@ -278,7 +278,7 @@ func main() {
 		so.On(constant.Fold, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
-				state.Snapshot = state.GS
+				state.Snapshot = util.CloneState(state.GS)
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -290,7 +290,7 @@ func main() {
 				if state.GS.Gambit.Fold(userid) {
 					channel = constant.Fold
 					state.GS.Gambit.Finish()
-					state.GS = state.Snapshot
+					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 					util.Print(userid, "Fold", "success")
@@ -306,7 +306,7 @@ func main() {
 		so.On(constant.StartTable, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
-				state.Snapshot = state.GS
+				state.Snapshot = util.CloneState(state.GS)
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -319,7 +319,7 @@ func main() {
 					channel = constant.StartTable
 					handler.StartTable()
 					state.GS.Gambit.Start()
-					state.GS = state.Snapshot
+					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 					util.Print(userid, "StartTable", "success")
@@ -335,7 +335,7 @@ func main() {
 		so.On(constant.Sit, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
-				state.Snapshot = state.GS
+				state.Snapshot = util.CloneState(state.GS)
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -347,7 +347,7 @@ func main() {
 				if handler.Sit(userid, data.Payload.Parameters[0].IntegerValue) {
 					channel = constant.Sit
 					state.GS.Gambit.Start()
-					state.GS = state.Snapshot
+					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 					util.Print(userid, "Sit", "success")
@@ -365,7 +365,7 @@ func main() {
 		so.On(constant.Stand, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
-				state.Snapshot = state.GS
+				state.Snapshot = util.CloneState(state.GS)
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -377,7 +377,7 @@ func main() {
 				if handler.Stand(userid) {
 					channel = constant.Stand
 					state.GS.Gambit.Finish()
-					state.GS = state.Snapshot
+					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 					util.Print(userid, "Stand", "success")
@@ -400,7 +400,7 @@ func main() {
 		so.On(constant.Leave, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
-				state.Snapshot = state.GS
+				state.Snapshot = util.CloneState(state.GS)
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -428,7 +428,7 @@ func main() {
 						}()
 					}
 				}
-				state.GS = state.Snapshot
+				state.GS = util.CloneState(state.Snapshot)
 				state.GS.IncreaseVersion()
 				handler.BroadcastGameState(so, channel, userid)
 				util.Print(userid, "Leave", "sucess")
@@ -443,7 +443,7 @@ func main() {
 		so.On(constant.SendSticker, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
-				state.Snapshot = state.GS
+				state.Snapshot = util.CloneState(state.GS)
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -473,7 +473,7 @@ func main() {
 						channel = constant.SendSticker
 						// set sticker state in player
 						handler.SendSticker(stickerid, userid, targetslot)
-						state.GS = state.Snapshot
+						state.GS = util.CloneState(state.Snapshot)
 						state.GS.IncreaseVersion()
 						// broadcast state to everyone
 						handler.BroadcastGameState(so, channel, userid)
@@ -492,7 +492,7 @@ func main() {
 		so.On(constant.ExtendDecisionTime, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
-				state.Snapshot = state.GS
+				state.Snapshot = util.CloneState(state.GS)
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -503,7 +503,7 @@ func main() {
 				}
 				if handler.ExtendPlayerTimeline(userid) {
 					channel = constant.ExtendDecisionTime
-					state.GS = state.Snapshot
+					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
 				}
@@ -518,7 +518,7 @@ func main() {
 		so.On(constant.DisbandTable, func(msg string) string {
 			result := make(chan string)
 			queue <- func() {
-				state.Snapshot = state.GS
+				state.Snapshot = util.CloneState(state.GS)
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
@@ -535,7 +535,7 @@ func main() {
 					handler.TryTerminate()
 				}
 				channel = constant.DisbandTable
-				state.GS = state.Snapshot
+				state.GS = util.CloneState(state.Snapshot)
 				handler.BroadcastGameState(so, channel, userid)
 				util.Print(userid, "Disband", "success")
 				result <- handler.CreateResponse(userid, channel)
@@ -559,7 +559,7 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		result := make(chan []byte)
 		queue <- func() {
-			state.Snapshot = state.GS
+			state.Snapshot = util.CloneState(state.GS)
 			var playerTableKeys []struct {
 				TableKey string `json:"tablekey"`
 				UserID   string `json:"userid"`
@@ -593,7 +593,7 @@ func main() {
 				Message:   "Update successfully",
 				Resources: state.Snapshot.PlayerTableKeys,
 			})
-			state.GS = state.Snapshot
+			state.GS = util.CloneState(state.Snapshot)
 			result <- resp
 		}
 		w.Write(<-result)

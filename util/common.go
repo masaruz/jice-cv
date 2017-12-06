@@ -1,6 +1,7 @@
 package util
 
 import (
+	"999k_engine/model"
 	"999k_engine/state"
 	"log"
 	"time"
@@ -23,6 +24,26 @@ func FloatEquals(a, b float64) bool {
 		return true
 	}
 	return false
+}
+
+// CloneState to make sure no mutable damage
+func CloneState(oldState state.GameState) state.GameState {
+	newState := oldState
+	newState.Players = make(model.Players, len(oldState.Players))
+	newState.Visitors = make(model.Players, len(oldState.Visitors))
+	newState.AFKCounts = make([]int, len(oldState.AFKCounts))
+	newState.DoActions = make([]bool, len(oldState.Players))
+	newState.Deck.Cards = make(model.Cards, len(newState.Deck.Cards))
+	newState.Pots = make([]int, len(oldState.Pots))
+	newState.Scoreboard = make([]model.Scoreboard, len(oldState.Scoreboard))
+	copy(newState.Players, oldState.Players)
+	copy(newState.Visitors, oldState.Visitors)
+	copy(newState.AFKCounts, oldState.AFKCounts)
+	copy(newState.DoActions, oldState.DoActions)
+	copy(newState.Deck.Cards, oldState.Deck.Cards)
+	copy(newState.Pots, oldState.Pots)
+	copy(newState.Scoreboard, oldState.Scoreboard)
+	return newState
 }
 
 // Print log will be diabled in production

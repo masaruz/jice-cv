@@ -52,9 +52,6 @@ var GS = GameState{
 
 // Snapshot is temporary gamestate used for handle state before end the script
 var Snapshot = GameState{
-	TableID:         "from_manager",
-	GroupID:         "from_manager",
-	GameIndex:       0,
 	PlayerTableKeys: make(map[string]string),
 	Env:             os.Getenv(constant.Env),
 }
