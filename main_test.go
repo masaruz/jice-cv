@@ -24,13 +24,13 @@ func TestLoop01(t *testing.T) {
 		BlindsSmall:  10,
 		BlindsBig:    10,
 		DecisionTime: decisionTime}
+	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot = state.GS
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
 	handler.Connect("player4")
-	handler.Initiate(ninek)
-	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	if len(state.Snapshot.Players) != 6 {
 		t.Error()
 	}
@@ -137,8 +137,8 @@ func TestLoop02(t *testing.T) {
 		BlindsBig:    10,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
@@ -280,8 +280,8 @@ func TestLoop03(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
@@ -389,8 +389,8 @@ func TestLoop04(t *testing.T) {
 	handler.Connect("player3")
 	handler.Connect("player4")
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	// dumb player
 	handler.Sit("player1", 2) // dealer
 	handler.Sit("player2", 4)
@@ -488,8 +488,8 @@ func TestLoop05(t *testing.T) {
 		MaxAFKCount:  5,
 		DecisionTime: decisionTime}
 	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
-	state.Snapshot.Gambit.Init() // create seats
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")

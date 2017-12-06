@@ -87,7 +87,6 @@ func (game NineK) Start() bool {
 				// Update scoreboard
 				// If actually buyin success
 				scoreboard, sbindex := util.GetScoreboard(player.ID)
-				scoreboard.BuyInAmount += player.Chips
 				// If not found player in scoreboard then add them
 				if sbindex == -1 {
 					state.Snapshot.Scoreboard = append(state.Snapshot.Scoreboard, model.Scoreboard{
@@ -95,6 +94,8 @@ func (game NineK) Start() bool {
 						DisplayName: player.Name,
 						BuyInAmount: player.Chips,
 					})
+				} else {
+					scoreboard.BuyInAmount += player.Chips
 				}
 			}
 			// If player has minimum chip for able to play
