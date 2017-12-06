@@ -122,28 +122,28 @@ func Stand(id string, force bool) bool {
 	if caller.ID == "" {
 		return false
 	}
+	// If not in dev, call api
+	// If this player already buyin
+	// Update buy-in cash
+	if os.Getenv("env") != "dev" {
+		body, err := api.SaveSettlement(id)
+		log.Println("Response from SaveSettlement", string(body), err)
+		resp := &api.Response{}
+		json.Unmarshal(body, resp)
+		if resp.Error != (api.Error{}) && resp.Error.StatusCode != 404 {
+			return false
+		}
+		// Save buy-in cash to real player pocket
+		body, err = api.CashBack(id)
+		log.Println("Response from CashBack", string(body), err)
+		resp = &api.Response{}
+		json.Unmarshal(body, resp)
+		if resp.Error != (api.Error{}) && resp.Error.StatusCode != 404 {
+			return false
+		}
+	}
 	// if playing need to shift timeline
 	if caller.IsPlaying {
-		// If not in dev, call api
-		// If this player already buyin
-		// Update buy-in cash
-		if os.Getenv("env") != "dev" {
-			body, err := api.SaveSettlement(id)
-			log.Println("Response from SaveSettlement", string(body), err)
-			resp := &api.Response{}
-			json.Unmarshal(body, resp)
-			if resp.Error != (api.Error{}) && resp.Error.StatusCode != 409 {
-				return false
-			}
-			// Save buy-in cash to real player pocket
-			body, err = api.CashBack(id)
-			log.Println("Response from CashBack", string(body), err)
-			resp = &api.Response{}
-			json.Unmarshal(body, resp)
-			if resp.Error != (api.Error{}) {
-				return false
-			}
-		}
 		if IsPlayerTurn(id) {
 			diff := time.Now().Unix() - caller.DeadLine
 			ShortenTimeline(diff)

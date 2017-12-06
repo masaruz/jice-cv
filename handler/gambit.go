@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"999k_engine/api"
 	"999k_engine/constant"
 	"999k_engine/engine"
 	"999k_engine/model"
@@ -400,11 +399,11 @@ func TryTerminate() {
 		if os.Getenv("env") != "dev" {
 			// Delay 5 second before send signal to hawkeye that please kill this container
 			go func() {
-				body, err := api.TableEnd()
-				log.Println("Response from TableEnd", string(body), err)
-				time.Sleep(time.Second * 3)
-				body, err = api.Terminate()
-				log.Println("Response from Terminate", string(body), err)
+				// body, err := api.TableEnd()
+				// log.Println("Response from TableEnd", string(body), err)
+				// time.Sleep(time.Second * 3)
+				// body, err = api.Terminate()
+				// log.Println("Response from Terminate", string(body), err)
 			}()
 		}
 	}

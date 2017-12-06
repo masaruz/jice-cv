@@ -65,11 +65,13 @@ func (game NineK) Start() bool {
 				resp := &api.Response{}
 				json.Unmarshal(body, resp)
 				// If cashback error
-				if resp.Error != (api.Error{}) && resp.Error.StatusCode != 409 {
+				if resp.Error != (api.Error{}) && resp.Error.StatusCode != 404 {
 					// Force to stand
 					handler.Stand(player.ID, true)
 					continue
 				}
+				// After cashback success set chips to be 0
+				player.Chips = 0
 				// Need request to server for buyin
 				body, err = api.BuyIn(player.ID, game.GetSettings().BuyInMin)
 				log.Println("Response from BuyIn", string(body), err)
