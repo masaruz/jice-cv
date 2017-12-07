@@ -344,48 +344,7 @@ func (game NineK) Bet(id string, chips int) bool {
 	if !handler.IsPlayerTurn(id) {
 		return false
 	}
-	index, _ := util.Get(state.Snapshot.Players, id)
-	player := &state.Snapshot.Players[index]
-	// not less than minimum
-	if player.Bets[state.Snapshot.Turn]+chips < state.Snapshot.MinimumBet {
-		return false
-	}
-	// not more than maximum
-	if player.Bets[state.Snapshot.Turn]+chips > state.Snapshot.MaximumBet {
-		return false
-	}
-	// cannot bet more than player's chips
-	if player.Chips < chips {
-		return false
-	}
-	util.AddScoreboardWinAmount(player.ID, -chips)
-	state.Snapshot.DoActions[index] = true
-	// added value to the bet in this turn
-	player.Chips -= chips
-	player.WinLossAmount -= chips
-	player.Bets[state.Snapshot.Turn] += chips
-	// broadcast to everyone that I bet
-	player.Default = model.Action{Name: constant.Bet}
-	player.Action = model.Action{Name: constant.Bet}
-	player.Actions = game.Reducer(constant.Check, id)
-	handler.IncreasePots(index, chips)
-	// assign minimum bet
-	handler.SetMinimumBet(player.Bets[state.Snapshot.Turn])
-	// assign maximum bet
-	handler.SetMaximumBet(util.SumPots(state.Snapshot.Pots))
-	// set action of everyone
-	handler.OverwriteActionToBehindPlayers()
-	// others automatic set to fold as default
-	handler.SetOtherDefaultAction(id, constant.Fold)
-	// others need to know what to do next
-	handler.SetOtherActions(id, constant.Bet)
-	diff := time.Now().Unix() - player.DeadLine
-	handler.ShortenTimeline(diff)
-	// duration extend the timeline
-	handler.ShiftPlayersToEndOfTimeline(id, game.DecisionTime)
-	// set players rake
-	handler.SetPlayersRake(game.Rake, game.Cap*float64(game.BlindsBig))
-	return true
+	return game.pay(id, chips, constant.Bet)
 }
 
 // Raise is raising bet to the target
@@ -398,7 +357,7 @@ func (game NineK) Raise(id string, chips int) bool {
 	if state.Snapshot.Players[index].Bets[state.Snapshot.Turn]+chips <= state.Snapshot.MinimumBet {
 		return false
 	}
-	return game.Bet(id, chips)
+	return game.pay(id, chips, constant.Raise)
 }
 
 // Call is raising bet to the highest bet
@@ -640,4 +599,49 @@ func (game NineK) GetSettings() engine.Settings {
 		Rake:         game.Rake,
 		Cap:          game.Cap,
 	}
+}
+
+func (game NineK) pay(id string, chips int, action string) bool {
+	index, _ := util.Get(state.Snapshot.Players, id)
+	player := &state.Snapshot.Players[index]
+	// not less than minimum
+	if player.Bets[state.Snapshot.Turn]+chips < state.Snapshot.MinimumBet {
+		return false
+	}
+	// not more than maximum
+	if player.Bets[state.Snapshot.Turn]+chips > state.Snapshot.MaximumBet {
+		return false
+	}
+	// cannot bet more than player's chips
+	if player.Chips < chips {
+		return false
+	}
+	util.AddScoreboardWinAmount(player.ID, -chips)
+	state.Snapshot.DoActions[index] = true
+	// added value to the bet in this turn
+	player.Chips -= chips
+	player.WinLossAmount -= chips
+	player.Bets[state.Snapshot.Turn] += chips
+	// broadcast to everyone that I bet
+	player.Default = model.Action{Name: action}
+	player.Action = model.Action{Name: action}
+	player.Actions = game.Reducer(constant.Check, id)
+	handler.IncreasePots(index, chips)
+	// assign minimum bet
+	handler.SetMinimumBet(player.Bets[state.Snapshot.Turn])
+	// assign maximum bet
+	handler.SetMaximumBet(util.SumPots(state.Snapshot.Pots))
+	// set action of everyone
+	handler.OverwriteActionToBehindPlayers()
+	// others automatic set to fold as default
+	handler.SetOtherDefaultAction(id, constant.Fold)
+	// others need to know what to do next
+	handler.SetOtherActions(id, constant.Bet)
+	diff := time.Now().Unix() - player.DeadLine
+	handler.ShortenTimeline(diff)
+	// duration extend the timeline
+	handler.ShiftPlayersToEndOfTimeline(id, game.DecisionTime)
+	// set players rake
+	handler.SetPlayersRake(game.Rake, game.Cap*float64(game.BlindsBig))
+	return true
 }
