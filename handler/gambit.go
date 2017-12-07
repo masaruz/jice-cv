@@ -118,8 +118,8 @@ func CreateTimeLine(decisionTime int64) {
 	state.Snapshot.FinishRoundTime = start
 }
 
-// MakePlayersReady make everyone
-func MakePlayersReady() {
+// PreparePlayers make everyone
+func PreparePlayers(isPlaying bool) {
 	for index := range state.Snapshot.Players {
 		player := &state.Snapshot.Players[index]
 		if player.ID == "" {
@@ -127,7 +127,7 @@ func MakePlayersReady() {
 		}
 		player.Cards = model.Cards{}
 		player.Bets = []int{}
-		player.IsPlaying = true
+		player.IsPlaying = isPlaying
 		player.IsEarned = false
 		player.IsWinner = false
 		player.Default = model.Action{Name: constant.Check}

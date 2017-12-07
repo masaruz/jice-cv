@@ -136,7 +136,7 @@ func (game NineK) Start() bool {
 			state.Snapshot.Rakes = make(map[string]float64)
 			state.Snapshot.Pots = make([]int, game.MaxPlayers)
 			// set players to be ready
-			handler.MakePlayersReady()
+			handler.PreparePlayers(true)
 			handler.StartGame()
 			handler.SetMinimumBet(game.BlindsBig)
 			// let all players bets to the pots
@@ -157,6 +157,7 @@ func (game NineK) Start() bool {
 			util.Print("Start Success")
 			return true
 		}
+		handler.PreparePlayers(false)
 		// Need to update state because number of players might be changed
 		state.GS = util.CloneState(state.Snapshot)
 	}
