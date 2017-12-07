@@ -104,6 +104,7 @@ func (game NineK) Start() bool {
 			}
 			// If player has minimum chip for able to play
 			if state.Snapshot.AFKCounts[index] >= game.MaxAFKCount {
+				util.Print(player.ID, "Is AFK")
 				// Force to stand
 				if !handler.Stand(player.ID) {
 					return false
@@ -156,6 +157,8 @@ func (game NineK) Start() bool {
 			util.Print("Start Success")
 			return true
 		}
+		// Need to update state because number of players might be changed
+		state.GS = util.CloneState(state.Snapshot)
 	}
 	util.Print("Start Failed")
 	return false

@@ -59,6 +59,7 @@ func main() {
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
+				util.Print(userid, "++++++++++++++ Enter ++++++++++++++")
 				if userid == "" {
 					util.Print(userid, "Enter", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
@@ -93,6 +94,7 @@ func main() {
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
+				util.Print(userid, "++++++++++++++ Stimulate ++++++++++++++")
 				if userid == "" {
 					util.Print(userid, "Stimulate", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
@@ -126,6 +128,7 @@ func main() {
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
+				util.Print(userid, "++++++++++++++ GetState ++++++++++++++")
 				if userid == "" {
 					util.Print(userid, "GetState", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
@@ -145,6 +148,7 @@ func main() {
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
+				util.Print(userid, "++++++++++++++ Check ++++++++++++++")
 				if userid == "" {
 					util.Print(userid, "Check", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
@@ -172,6 +176,7 @@ func main() {
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
+				util.Print(userid, "++++++++++++++ Bet ++++++++++++++")
 				if userid == "" {
 					util.Print(userid, "Bet", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
@@ -200,6 +205,7 @@ func main() {
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
+				util.Print(userid, "++++++++++++++ Raise ++++++++++++++")
 				if userid == "" {
 					util.Print(userid, "Raise", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
@@ -228,6 +234,7 @@ func main() {
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
+				util.Print(userid, "++++++++++++++ Call ++++++++++++++")
 				if userid == "" {
 					util.Print(userid, "Call", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
@@ -255,6 +262,7 @@ func main() {
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
+				util.Print(userid, "++++++++++++++ AllIn ++++++++++++++")
 				if userid == "" {
 					util.Print(userid, "AllIn", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
@@ -282,6 +290,7 @@ func main() {
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
+				util.Print(userid, "++++++++++++++ Fold ++++++++++++++")
 				if userid == "" {
 					util.Print(userid, "Fold", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
@@ -310,6 +319,7 @@ func main() {
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
+				util.Print(userid, "++++++++++++++ Start Table ++++++++++++++")
 				if userid == "" {
 					util.Print(userid, "StartTable", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
@@ -339,6 +349,7 @@ func main() {
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
+				util.Print(userid, "++++++++++++++ Sit ++++++++++++++")
 				if userid == "" {
 					util.Print(userid, "Sit", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
@@ -369,6 +380,7 @@ func main() {
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
+				util.Print(userid, "++++++++++++++ Stand ++++++++++++++")
 				if userid == "" {
 					util.Print(userid, "Stand", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
@@ -404,6 +416,7 @@ func main() {
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
+				util.Print(userid, "++++++++++++++ Leave ++++++++++++++")
 				if userid == "" {
 					util.Print(userid, "Leave", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
@@ -450,6 +463,7 @@ func main() {
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
+				util.Print(userid, "++++++++++++++ Send Sticker ++++++++++++++")
 				if userid == "" {
 					util.Print(userid, "Stand", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
@@ -499,6 +513,7 @@ func main() {
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
+				util.Print(userid, "++++++++++++++ Extend Decision Time ++++++++++++++")
 				if userid == "" {
 					util.Print(userid, "Extend Decision Time", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
@@ -525,6 +540,7 @@ func main() {
 				channel := ""
 				data, _ := handler.ConvertStringToRequestStruct(msg)
 				userid := handler.GetUserIDFromToken(data.Header.Token)
+				util.Print(userid, "++++++++++++++ Disable Table ++++++++++++++")
 				if userid == "" {
 					util.Print(userid, "Disband Table", "Token is invalid")
 					result <- handler.CreateResponse(userid, channel)
