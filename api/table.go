@@ -128,7 +128,7 @@ func SaveSettlements() ([]byte, error) {
 		GroupID:    state.Snapshot.GroupID,
 	}
 	for _, player := range state.Snapshot.Players {
-		if player.IsPlaying {
+		if !player.IsPlaying {
 			continue
 		}
 		summary.Settlements = append(summary.Settlements, model.Settlement{
