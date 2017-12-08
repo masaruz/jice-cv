@@ -38,7 +38,8 @@ func Kick(slice model.Players, id string) model.Players {
 func Add(slice model.Players, player model.Player) model.Players {
 	for _, other := range slice {
 		if other.ID == player.ID {
-			return slice
+			slice = Remove(slice, player.ID)
+			break
 		}
 	}
 	return append(slice, player)

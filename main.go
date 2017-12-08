@@ -546,11 +546,10 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
-				// Set table expired equal 0 to make sure it actually expired
+				// Set table expired less than finish table time to make sure it actually expired
 				handler.FinishTable()
 				// Never let player force close this table when game is started
 				if !handler.IsGameStart() {
-					state.Snapshot.IsTableExpired = true
 					handler.TryTerminate()
 				}
 				channel = constant.DisbandTable
