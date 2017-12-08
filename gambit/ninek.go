@@ -89,18 +89,7 @@ func (game NineK) Start() bool {
 				// Assign how much they buy-in
 				player.Chips = game.GetSettings().BuyInMin
 				// Update scoreboard
-				// If actually buyin success
-				scoreboard, sbindex := util.GetScoreboard(player.ID)
-				// If not found player in scoreboard then add them
-				if sbindex == -1 {
-					state.Snapshot.Scoreboard = append(state.Snapshot.Scoreboard, model.Scoreboard{
-						UserID:      player.ID,
-						DisplayName: player.Name,
-						BuyInAmount: player.Chips,
-					})
-				} else {
-					scoreboard.BuyInAmount += player.Chips
-				}
+				handler.UpdateScoreboard(player, "add")
 			}
 			// If player has minimum chip for able to play
 			if state.Snapshot.AFKCounts[index] >= game.MaxAFKCount {

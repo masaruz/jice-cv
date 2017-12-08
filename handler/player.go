@@ -100,6 +100,36 @@ func Sit(id string, slot int) bool {
 	if caller.Slot == -1 {
 		return false
 	}
+	if state.Snapshot.Env != "dev" {
+		body, err := api.CashBack(caller.ID)
+		util.Print("Response from CashBack", string(body), err)
+		resp := &api.Response{}
+		json.Unmarshal(body, resp)
+		// If cashback error
+		if resp.Error != (api.Error{}) && resp.Error.StatusCode != 404 {
+			// Force to stand
+			Stand(caller.ID)
+			return false
+		}
+		// After cashback success set chips to be 0
+		caller.Chips = 0
+		// Need request to server for buyin
+		body, err = api.BuyIn(caller.ID, state.Snapshot.Gambit.GetSettings().BuyInMin)
+		util.Print("Response from BuyIn", string(body), err)
+		resp = &api.Response{}
+		json.Unmarshal(body, resp)
+		// BuyIn must be successful
+		if resp.Error != (api.Error{}) {
+			// Force to stand
+			Stand(caller.ID)
+			return false
+		}
+		util.Print("Buy-in success")
+	}
+	// Assign how much they buy-in
+	caller.Chips = state.Snapshot.Gambit.GetSettings().BuyInMin
+	// Update scoreboard
+	UpdateScoreboard(&caller, "add")
 	// remove from visitor
 	state.Snapshot.Visitors = util.Remove(state.Snapshot.Visitors, id)
 	caller.Action = model.Action{Name: constant.Sit}
