@@ -1,6 +1,9 @@
 package api
 
-import "os"
+import (
+	"999k_engine/constant"
+	"os"
+)
 
 // constant use for api package
 // const (
@@ -8,8 +11,8 @@ import "os"
 // 	APIKey = "hozbzFOs516fH6Z5kEgwq21nHJhBhSHW6qvbvkmW"
 // )
 var (
-	Host   = os.Getenv("HawkeyeURL")
-	APIKey = os.Getenv("APIKey")
+	Host   = os.Getenv(constant.HawkeyeURL)
+	APIKey = os.Getenv(constant.APIKey)
 )
 
 // Response from api server

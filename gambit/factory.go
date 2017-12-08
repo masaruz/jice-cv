@@ -34,12 +34,12 @@ func Create(gambit string) engine.Gambit {
 		cap = 0.5
 	}
 	// Minimum buy-in
-	minbi, err := strconv.Atoi(os.Getenv(constant.MinimumBuyIn))
+	minbi, err := strconv.Atoi(os.Getenv(constant.BuyInMin))
 	if err != nil {
 		minbi = 200
 	}
 	// Maximum buy-in
-	maxbi, err := strconv.Atoi(os.Getenv(constant.MaximumBuyIn))
+	maxbi, err := strconv.Atoi(os.Getenv(constant.BuyInMax))
 	if err != nil {
 		maxbi = 1000
 	}
