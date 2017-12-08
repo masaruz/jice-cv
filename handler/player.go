@@ -200,6 +200,18 @@ func Stand(id string) bool {
 	state.Snapshot.Players = util.Kick(state.Snapshot.Players, caller.ID)
 	state.Snapshot.Visitors = util.Add(state.Snapshot.Visitors, visitor)
 	SetOtherActionsWhoAreNotPlaying(constant.Sit)
+	// Update realtime data ex. Visitors
+	if state.Snapshot.Env != "dev" {
+		body, err := api.UpdateRealtimeData()
+		util.Print("Response from UpdateRealtimeData", string(body), err)
+		resp := &api.Response{}
+		json.Unmarshal(body, resp)
+		if resp.Error != (api.Error{}) {
+			// Force to stand
+			Stand(caller.ID)
+			return false
+		}
+	}
 	return true
 }
 
