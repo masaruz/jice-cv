@@ -105,7 +105,6 @@ func (game NineK) Start() bool {
 		// if there are more than 2 players are sitting
 		if util.CountSitting(state.Snapshot.Players) >= 2 {
 			// Increase gameindex for backend process ex. realtime-data, analytic
-			state.Snapshot.GameIndex++
 			util.Print("Gameindex increased")
 			util.Print("Prepare to start game")
 			if state.Snapshot.Env != "dev" {
@@ -116,10 +115,10 @@ func (game NineK) Start() bool {
 				json.Unmarshal(body, resp)
 				// Is there any error when start game
 				if resp.Error != (api.Error{}) {
-					state.Snapshot.GameIndex--
 					return false
 				}
 			}
+			state.Snapshot.GameIndex++
 			// everyone is assumed afk
 			state.Snapshot.DoActions = make([]bool, game.MaxPlayers)
 			state.Snapshot.Rakes = make(map[string]float64)
