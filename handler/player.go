@@ -141,6 +141,13 @@ func Sit(id string, slot int) bool {
 	if state.Snapshot.Env != "dev" {
 		body, err := api.UpdateRealtimeData()
 		util.Print("Response from UpdateRealtimeData", string(body), err)
+		resp := &api.Response{}
+		json.Unmarshal(body, resp)
+		if resp.Error != (api.Error{}) {
+			// Force to stand
+			Stand(caller.ID)
+			return false
+		}
 	}
 	return true
 }
