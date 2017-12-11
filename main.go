@@ -325,10 +325,11 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
-				if util.CountSitting(state.GS.Players) > 1 && !handler.IsTableStart() {
+				if util.CountSitting(state.GS.Players) > 1 &&
+					!handler.IsTableStart() &&
+					state.GS.Gambit.Start() {
 					channel = constant.StartTable
 					handler.StartTable()
-					state.GS.Gambit.Start()
 					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
