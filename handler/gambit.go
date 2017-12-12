@@ -260,8 +260,6 @@ func FlushPlayers() {
 		player := &state.Snapshot.Players[index]
 		player.IsPlaying = false
 		player.Bets = []int{}
-		player.Default = model.Action{}
-		player.Action = model.Action{}
 		player.Actions = model.Actions{}
 		player.StartLine = 0
 		player.DeadLine = 0

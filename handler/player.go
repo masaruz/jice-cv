@@ -87,7 +87,7 @@ func AutoSit(id string) bool {
 
 // Sit for playing the game
 func Sit(id string, slot int) bool {
-	_, caller := util.Get(state.Snapshot.Visitors, id)
+	index, caller := util.Get(state.Snapshot.Visitors, id)
 	caller.Slot = -1
 	// find slot for them
 	for _, player := range state.Snapshot.Players {
@@ -149,12 +149,13 @@ func Sit(id string, slot int) bool {
 			return false
 		}
 	}
+	state.Snapshot.AFKCounts[index] = 0
 	return true
 }
 
 // Stand when player need to quit
 func Stand(id string) bool {
-	_, caller := util.Get(state.Snapshot.Players, id)
+	index, caller := util.Get(state.Snapshot.Players, id)
 	if caller.ID == "" {
 		return false
 	}
@@ -212,6 +213,7 @@ func Stand(id string) bool {
 			return false
 		}
 	}
+	state.Snapshot.AFKCounts[index] = 0
 	return true
 }
 
