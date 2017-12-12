@@ -39,12 +39,12 @@ func RestoreStateData() {
 	state.GS.TableID = os.Getenv(constant.TableID)
 	state.GS.GroupID = os.Getenv(constant.GroupID)
 	state.GS.StartTableTime, _ = strconv.ParseInt(os.Getenv(constant.StartTime), 10, 64)
-	// duration, _ := strconv.ParseInt(os.Getenv(constant.Duration), 10, 64)
+	state.GS.Duration, _ = strconv.ParseInt(os.Getenv(constant.Duration), 10, 64)
 	// If manager send startime means this table already start
-	// if state.GS.GameIndex > 0 {
-	// 	state.GS.FinishTableTime = state.GS.StartTableTime + duration
-	// 	state.GS.IsTableStart = true
-	// }
+	if state.GS.StartTableTime != 0 {
+		state.GS.FinishTableTime = state.GS.StartTableTime + state.GS.Duration
+		state.GS.IsTableStart = true
+	}
 }
 
 // ConvertStringToRequestStruct convert string to struct (state.Req)

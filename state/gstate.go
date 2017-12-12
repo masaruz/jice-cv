@@ -22,6 +22,7 @@ type GameState struct {
 	IsTableExpired   bool
 	StartTableTime   int64
 	FinishTableTime  int64
+	Duration         int64
 	StartRoundTime   int64
 	FinishRoundTime  int64
 	MinimumBet       int

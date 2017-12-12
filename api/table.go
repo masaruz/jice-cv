@@ -100,7 +100,7 @@ func StartGame() ([]byte, error) {
 	table.GroupID = state.Snapshot.GroupID
 	table.GameIndex = state.Snapshot.GameIndex
 	if table.GameIndex == 0 {
-		table.StartTime = time.Now().Unix()
+		table.StartTime = state.Snapshot.StartTableTime
 	}
 	// cast param to byte
 	data, err := json.Marshal(table)

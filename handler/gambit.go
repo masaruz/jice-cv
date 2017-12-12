@@ -26,7 +26,7 @@ func CreateSeats(seats int) {
 func StartTable() {
 	start := time.Now().Unix()
 	state.Snapshot.StartTableTime = start
-	state.Snapshot.FinishTableTime = start + (60 * 30)
+	state.Snapshot.FinishTableTime = start + state.GS.Duration
 	state.Snapshot.IsTableStart = true
 }
 

@@ -69,6 +69,7 @@ func Log() {
 	Print("Start round time:", state.GS.StartRoundTime)
 	Print("Finish round time:", state.GS.FinishRoundTime)
 	Print("Start table time:", state.GS.StartTableTime)
+	Print("Duration:", state.GS.Duration)
 	Print("Finish table time:", state.GS.FinishTableTime)
 	Print(">>>>>>>>>>>> Done Broadcasting <<<<<<<<<<<<<<<")
 }
