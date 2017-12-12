@@ -550,7 +550,7 @@ func main() {
 				// Set table expired less than finish table time to make sure it actually expired
 				handler.FinishTable()
 				// Never let player force close this table when game is started
-				if !handler.IsGameStart() {
+				if !state.Snapshot.IsTableStart {
 					handler.TryTerminate()
 				}
 				channel = constant.DisbandTable

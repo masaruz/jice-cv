@@ -41,7 +41,8 @@ func (game NineK) Start() bool {
 	util.Print("Try to start")
 	if handler.IsTableStart() &&
 		!handler.IsGameStart() &&
-		!handler.IsInExtendFinishRoundTime() {
+		!handler.IsInExtendFinishRoundTime() &&
+		!handler.IsTableExpired() {
 		// filter players who are not ready to play
 		for index := range state.Snapshot.Players {
 			player := &state.Snapshot.Players[index]
@@ -147,6 +148,9 @@ func (game NineK) Start() bool {
 		}
 		handler.PreparePlayers(false)
 		// Need to update state because number of players might be changed
+		state.GS = util.CloneState(state.Snapshot)
+	} else if !handler.IsGameStart() && !handler.IsInExtendFinishRoundTime() {
+		handler.TryTerminate()
 		state.GS = util.CloneState(state.Snapshot)
 	}
 	util.Print("Start Failed")
@@ -293,15 +297,11 @@ func (game NineK) Finish() bool {
 		// Revert minimum bet
 		handler.SetMinimumBet(game.BlindsBig)
 		handler.FlushPlayers()
-		// Check if table expired then terminate
-		handler.TryTerminate()
 		state.Snapshot.Turn = 0
 		state.Snapshot.IsGameStart = false
 		util.Print("Finish Success")
 		return true
 	}
-	// Check if table expired then terminate
-	handler.TryTerminate()
 	util.Print("Finish Failed")
 	return false
 }

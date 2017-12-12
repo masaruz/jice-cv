@@ -47,6 +47,11 @@ func IsTableStart() bool {
 		time.Now().Unix() < state.Snapshot.FinishTableTime
 }
 
+// IsTableExpired true or false
+func IsTableExpired() bool {
+	return state.Snapshot.IsTableExpired
+}
+
 // IsGameStart true or false
 func IsGameStart() bool {
 	return state.Snapshot.IsGameStart
@@ -396,11 +401,17 @@ func TryTerminate() {
 		state.Snapshot.IsTableStart = false
 		// TODO call terminate api
 		if state.Snapshot.Env != "dev" {
+			for _, player := range state.Snapshot.Players {
+				if player.ID == "" {
+					continue
+				}
+				api.CashBack(player.ID)
+			}
 			// Delay 5 second before send signal to hawkeye that please kill this container
 			go func() {
 				body, err := api.TableEnd()
 				util.Print("Response from TableEnd", string(body), err)
-				time.Sleep(time.Second * 3)
+				time.Sleep(time.Second * 10)
 				body, err = api.Terminate()
 				util.Print("Response from Terminate", string(body), err)
 			}()
