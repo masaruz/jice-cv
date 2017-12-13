@@ -327,7 +327,8 @@ func ExtendPlayerTimeline(id string) bool {
 // ExtendFinishRoundTime force this timeline to be ended
 func ExtendFinishRoundTime() {
 	// added delay for display the winner
-	state.Snapshot.FinishRoundTime = time.Now().Unix() + 5
+	state.Snapshot.FinishRoundTime = time.Now().Unix() +
+		state.Snapshot.Gambit.GetSettings().FinishGameDelay
 }
 
 // ShiftPlayersToEndOfTimeline shift current and prev player to the end of timeline

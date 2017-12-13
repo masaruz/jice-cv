@@ -15,15 +15,16 @@ import (
 
 // NineK is 9K
 type NineK struct {
-	MaxPlayers   int
-	DecisionTime int64
-	MaxAFKCount  int
-	BlindsSmall  int
-	BlindsBig    int
-	BuyInMin     int
-	BuyInMax     int
-	Rake         float64 // percentage
-	Cap          float64 // cap of rake
+	MaxPlayers      int
+	DecisionTime    int64
+	FinishGameDelay int64
+	MaxAFKCount     int
+	BlindsSmall     int
+	BlindsBig       int
+	BuyInMin        int
+	BuyInMax        int
+	Rake            float64 // percentage
+	Cap             float64 // cap of rake
 }
 
 // Init deck and environment variables
@@ -581,15 +582,16 @@ func (game NineK) Evaluate(values []int) (scores []int, kind string) {
 // GetSettings return settings variables
 func (game NineK) GetSettings() engine.Settings {
 	return engine.Settings{
-		MaxPlayers:   game.MaxPlayers,
-		DecisionTime: game.DecisionTime,
-		MaxAFKCount:  game.MaxAFKCount,
-		BlindsSmall:  game.BlindsSmall,
-		BlindsBig:    game.BlindsSmall,
-		BuyInMin:     game.BuyInMin,
-		BuyInMax:     game.BuyInMax,
-		Rake:         game.Rake,
-		Cap:          game.Cap,
+		MaxPlayers:      game.MaxPlayers,
+		DecisionTime:    game.DecisionTime,
+		MaxAFKCount:     game.MaxAFKCount,
+		BlindsSmall:     game.BlindsSmall,
+		BlindsBig:       game.BlindsSmall,
+		BuyInMin:        game.BuyInMin,
+		BuyInMax:        game.BuyInMax,
+		Rake:            game.Rake,
+		Cap:             game.Cap,
+		FinishGameDelay: game.FinishGameDelay,
 	}
 }
 

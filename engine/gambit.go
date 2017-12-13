@@ -38,13 +38,14 @@ type Gambit interface {
 
 // Settings attributes for gambit
 type Settings struct {
-	MaxPlayers   int
-	DecisionTime int64
-	MaxAFKCount  int
-	BlindsSmall  int
-	BlindsBig    int
-	BuyInMin     int
-	BuyInMax     int
-	Rake         float64 // percentage
-	Cap          float64 // cap of rake
+	MaxPlayers      int
+	DecisionTime    int64
+	FinishGameDelay int64
+	MaxAFKCount     int
+	BlindsSmall     int
+	BlindsBig       int
+	BuyInMin        int
+	BuyInMax        int
+	Rake            float64 // percentage
+	Cap             float64 // cap of rake
 }

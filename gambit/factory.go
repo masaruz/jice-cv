@@ -46,14 +46,15 @@ func Create(gambit string) engine.Gambit {
 	switch gambit {
 	default:
 		return NineK{
-			MaxPlayers:   max,
-			MaxAFKCount:  3,
-			DecisionTime: dtime,
-			BlindsSmall:  bsm,
-			BlindsBig:    bbg,
-			Rake:         rake,
-			Cap:          cap,
-			BuyInMax:     maxbi,
-			BuyInMin:     minbi}
+			MaxPlayers:      max,
+			MaxAFKCount:     3,
+			DecisionTime:    dtime,
+			BlindsSmall:     bsm,
+			BlindsBig:       bbg,
+			Rake:            rake,
+			Cap:             cap,
+			BuyInMax:        maxbi,
+			BuyInMin:        minbi,
+			FinishGameDelay: 5}
 	}
 }

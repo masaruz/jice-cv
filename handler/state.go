@@ -113,6 +113,7 @@ func CreateResponse(id string, event string) string {
 				FinishRoundTime: state.GS.FinishRoundTime,
 				IsTableExpired:  state.GS.IsTableExpired,
 				GameIndex:       state.GS.GameIndex,
+				FinishGameDelay: state.GS.Gambit.GetSettings().FinishGameDelay,
 				GameState: state.PlayerState{
 					Player:       player,
 					Competitors:  competitors,
