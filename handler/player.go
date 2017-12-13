@@ -219,7 +219,7 @@ func Stand(id string) bool {
 
 // SetPlayersRake calculate and set rake for players
 func SetPlayersRake(rate float64, cap float64) {
-	pots := float64(util.SumPots(state.Snapshot.Pots))
+	pots := float64(util.SumPots(state.Snapshot.PlayerPots))
 	rake := (rate * pots) / 100
 	if rake > cap {
 		rake = cap

@@ -29,6 +29,7 @@ type GameState struct {
 	MaximumBet       int
 	Gambit           engine.Gambit
 	Pots             []int
+	PlayerPots       []int
 	AFKCounts        []int
 	DoActions        []bool
 	Event            string

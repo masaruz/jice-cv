@@ -16,13 +16,14 @@ import (
 func TestLoop01(t *testing.T) {
 	decisionTime := int64(1)
 	ninek := gambit.NineK{
-		MaxAFKCount:  5,
-		MaxPlayers:   6,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		BlindsSmall:  10,
-		BlindsBig:    10,
-		DecisionTime: decisionTime}
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		MaxPlayers:      6,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		BlindsSmall:     10,
+		BlindsBig:       10,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -131,13 +132,14 @@ func TestLoop01(t *testing.T) {
 func TestLoop02(t *testing.T) {
 	decisionTime := int64(1)
 	ninek := gambit.NineK{
-		MaxAFKCount:  5,
-		MaxPlayers:   6,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		BlindsSmall:  10,
-		BlindsBig:    10,
-		DecisionTime: decisionTime}
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		MaxPlayers:      6,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		BlindsSmall:     10,
+		BlindsBig:       10,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -275,13 +277,14 @@ func TestLoop03(t *testing.T) {
 	delay := int64(0)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -381,13 +384,14 @@ func TestLoop04(t *testing.T) {
 	delay := int64(0)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -402,7 +406,7 @@ func TestLoop04(t *testing.T) {
 	handler.Sit("player3", 3) // first
 	handler.Sit("player4", 5)
 	handler.StartTable()
-	if !state.Snapshot.Gambit.Start() || util.SumPots(state.Snapshot.Pots) != 40 {
+	if !state.Snapshot.Gambit.Start() || util.SumPots(state.Snapshot.PlayerPots) != 40 {
 		t.Error()
 	}
 	for _, player := range state.Snapshot.Players {
@@ -485,13 +489,14 @@ func TestLoop05(t *testing.T) {
 	delay := int64(0)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -506,7 +511,7 @@ func TestLoop05(t *testing.T) {
 	handler.Sit("player3", 5)
 	handler.Sit("player4", 1) // dealer
 	handler.StartTable()
-	if !state.Snapshot.Gambit.Start() || util.SumPots(state.Snapshot.Pots) != 40 {
+	if !state.Snapshot.Gambit.Start() || util.SumPots(state.Snapshot.PlayerPots) != 40 {
 		t.Error()
 	}
 	time.Sleep(time.Second * time.Duration(delay))
@@ -585,13 +590,14 @@ func TestLoop06(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -814,13 +820,14 @@ func TestLoop07(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	// dumb player
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
@@ -888,13 +895,14 @@ func TestLoop08(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -985,13 +993,14 @@ func TestLoop09(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -1062,13 +1071,14 @@ func TestLoop10(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -1127,13 +1137,14 @@ func TestLoop11(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -1203,13 +1214,14 @@ func TestLoop12(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -1238,13 +1250,14 @@ func TestLoop13(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -1308,13 +1321,14 @@ func TestLoop14(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     1000,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        1000,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -1426,13 +1440,14 @@ func TestLoop15(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     1000,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        1000,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -1466,13 +1481,13 @@ func TestLoop15(t *testing.T) {
 	if state.Snapshot.Gambit.AllIn(id1) || state.Snapshot.Gambit.Raise(id1, 41) || !state.Snapshot.Gambit.Raise(id1, 40) {
 		t.Error()
 	}
-	if util.SumPots(state.Snapshot.Pots) != 80 {
+	if util.SumPots(state.Snapshot.PlayerPots) != 80 {
 		t.Error()
 	}
 	if !state.Snapshot.Gambit.Raise(id2, 80) {
 		t.Error()
 	}
-	if util.SumPots(state.Snapshot.Pots) != 160 {
+	if util.SumPots(state.Snapshot.PlayerPots) != 160 {
 		t.Error()
 	}
 	if state.Snapshot.Gambit.Finish() || state.Snapshot.Gambit.NextRound() {
@@ -1481,19 +1496,19 @@ func TestLoop15(t *testing.T) {
 	if state.Snapshot.Gambit.Bet(id3, 79) || state.Snapshot.Gambit.Raise(id3, 161) || !state.Snapshot.Gambit.Raise(id3, 160) {
 		t.Error(state.Snapshot.MaximumBet)
 	}
-	if util.SumPots(state.Snapshot.Pots) != 320 {
+	if util.SumPots(state.Snapshot.PlayerPots) != 320 {
 		t.Error()
 	}
 	if state.Snapshot.Gambit.Bet(id4, 159) || state.Snapshot.Gambit.Raise(id4, 321) || !state.Snapshot.Gambit.Raise(id4, 320) {
 		t.Error()
 	}
-	if util.SumPots(state.Snapshot.Pots) != 640 {
+	if util.SumPots(state.Snapshot.PlayerPots) != 640 {
 		t.Error()
 	}
 	if state.Snapshot.Gambit.Bet(id1, 279) || state.Snapshot.Gambit.Raise(id1, 601) || !state.Snapshot.Gambit.Raise(id1, 600) {
 		t.Error(state.Snapshot.MinimumBet)
 	}
-	if util.SumPots(state.Snapshot.Pots) != 1240 {
+	if util.SumPots(state.Snapshot.PlayerPots) != 1240 {
 		t.Error()
 	}
 	if !state.Snapshot.Gambit.Call(id2) {
@@ -1537,7 +1552,7 @@ func TestLoop15(t *testing.T) {
 	// p4.Print()
 	// fmt.Println("now:", time.Now().Unix())
 	// fmt.Println("fin:", state.Snapshot.FinishRoundTime)
-	// fmt.Println("pots:", state.Snapshot.Pots)
+	// fmt.Println("pots:", state.Snapshot.PlayerPots)
 	// fmt.Println()
 	if state.Snapshot.Gambit.NextRound() || !state.Snapshot.Gambit.Finish() {
 		t.Error()
@@ -1558,20 +1573,21 @@ func TestLoop15(t *testing.T) {
 	// p4.Print()
 	// fmt.Println("now:", time.Now().Unix())
 	// fmt.Println("fin:", state.Snapshot.FinishRoundTime)
-	// fmt.Println("pots:", state.Snapshot.Pots)
+	// fmt.Println("pots:", state.Snapshot.PlayerPots)
 }
 
 func TestLoop16(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -1682,13 +1698,14 @@ func TestLoop17(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -1739,13 +1756,14 @@ func TestLoop18(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -1760,7 +1778,7 @@ func TestLoop18(t *testing.T) {
 	handler.Sit(id2, 4)
 	handler.Sit(id3, 1)
 	state.Snapshot.Gambit.Start()
-	if state.Snapshot.MinimumBet != minimumBet || state.Snapshot.MaximumBet != util.SumPots(state.Snapshot.Pots) {
+	if state.Snapshot.MinimumBet != minimumBet || state.Snapshot.MaximumBet != util.SumPots(state.Snapshot.PlayerPots) {
 		t.Error()
 	}
 	if !state.Snapshot.Gambit.Check(id1) {
@@ -1928,13 +1946,14 @@ func TestLoop19(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -1949,7 +1968,7 @@ func TestLoop19(t *testing.T) {
 	handler.Sit(id2, 4)
 	handler.Sit(id3, 1)
 	state.Snapshot.Gambit.Start()
-	if state.Snapshot.MinimumBet != minimumBet || state.Snapshot.MaximumBet != util.SumPots(state.Snapshot.Pots) {
+	if state.Snapshot.MinimumBet != minimumBet || state.Snapshot.MaximumBet != util.SumPots(state.Snapshot.PlayerPots) {
 		t.Error()
 	}
 	i1, _ := util.Get(state.Snapshot.Players, id1)
@@ -2235,13 +2254,14 @@ func TestLoop26(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     1000,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        1000,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -2412,13 +2432,14 @@ func TestLoop27(t *testing.T) {
 	decisionTime := int64(1)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -2447,7 +2468,7 @@ func TestLoop27(t *testing.T) {
 		p3.Action.Name != "" || p3.Default.Name != constant.Fold {
 		t.Error()
 	}
-	if util.SumPots(state.Snapshot.Pots) != 60 {
+	if util.SumPots(state.Snapshot.PlayerPots) != 60 {
 		t.Error()
 	}
 }
@@ -2456,13 +2477,14 @@ func TestLoop28(t *testing.T) {
 	decisionTime := int64(1)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     1000,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        1000,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -2479,7 +2501,7 @@ func TestLoop28(t *testing.T) {
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
-	if !handler.Stand(id3) || util.SumPots(state.Snapshot.Pots) != 30 ||
+	if !handler.Stand(id3) || util.SumPots(state.Snapshot.PlayerPots) != 30 ||
 		util.CountPlayerNotFoldAndNotAllIn(state.Snapshot.Players) != 2 {
 		t.Error()
 	}
@@ -2495,7 +2517,7 @@ func TestLoop28(t *testing.T) {
 	if !state.Snapshot.Gambit.Raise(id2, 90) {
 		t.Error()
 	}
-	if !state.Snapshot.Gambit.Call(id1) || util.SumPots(state.Snapshot.Pots) != 270 {
+	if !state.Snapshot.Gambit.Call(id1) || util.SumPots(state.Snapshot.PlayerPots) != 270 {
 		t.Error()
 	}
 	if state.Snapshot.Gambit.Finish() || !state.Snapshot.Gambit.NextRound() {
@@ -2530,13 +2552,14 @@ func TestLoop29(t *testing.T) {
 	decisionTime := int64(1)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -2630,13 +2653,14 @@ func TestLoop30(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -2721,13 +2745,14 @@ func TestLoop31(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -2765,13 +2790,14 @@ func TestLoop32(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -2817,13 +2843,14 @@ func TestLoop33(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -2975,15 +3002,16 @@ func TestLoop35(t *testing.T) {
 	minimumBet := 10
 	cap := 0.50
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		BuyInMin:     1000,
-		BuyInMax:     1000,
-		DecisionTime: decisionTime,
-		Rake:         5.00,
-		Cap:          cap}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		BuyInMin:        1000,
+		BuyInMax:        1000,
+		DecisionTime:    decisionTime,
+		Rake:            5.00,
+		Cap:             cap}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -3159,7 +3187,7 @@ func TestLoop35(t *testing.T) {
 	// p3.Print()
 	// p4.Print()
 	// fmt.Println(state.Snapshot.Rakes)
-	// fmt.Println(state.Snapshot.Pots)
+	// fmt.Println(state.Snapshot.PlayerPots)
 }
 
 func TestLoop36(t *testing.T) {
@@ -3225,13 +3253,14 @@ func TestLoop37(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -3335,13 +3364,14 @@ func TestLoop38(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -3451,13 +3481,14 @@ func TestLoop40(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
@@ -3503,13 +3534,14 @@ func TestLoop41(t *testing.T) {
 	decisionTime := int64(3)
 	minimumBet := 10
 	ninek := gambit.NineK{
-		BlindsSmall:  minimumBet,
-		BlindsBig:    minimumBet,
-		BuyInMin:     200,
-		BuyInMax:     1000,
-		MaxPlayers:   6,
-		MaxAFKCount:  5,
-		DecisionTime: decisionTime}
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DecisionTime:    decisionTime}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS

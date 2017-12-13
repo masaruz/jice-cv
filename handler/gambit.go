@@ -74,7 +74,7 @@ func IncreaseTurn() {
 
 // IncreasePots when players pay chips
 func IncreasePots(index int, chips int) {
-	state.Snapshot.Pots[index] += chips
+	state.Snapshot.PlayerPots[index] += chips
 }
 
 // SetMinimumBet set minimum players can bet
@@ -366,7 +366,7 @@ func PlayersInvestToPots(chips int) {
 			player.Bets = append(player.Bets, 0)
 		}
 	}
-	SetMaximumBet(util.SumPots(state.Snapshot.Pots))
+	SetMaximumBet(util.SumPots(state.Snapshot.PlayerPots))
 }
 
 // OverwriteActionToBehindPlayers overwritten action with default
@@ -382,10 +382,10 @@ func OverwriteActionToBehindPlayers() {
 // BurnBet burn bet from player
 func BurnBet(index int, burn int) {
 	// if this player cannot pay all of it
-	if burn > state.Snapshot.Pots[index] {
-		state.Snapshot.Pots[index] = 0
+	if burn > state.Snapshot.PlayerPots[index] {
+		state.Snapshot.PlayerPots[index] = 0
 	} else {
-		state.Snapshot.Pots[index] -= burn
+		state.Snapshot.PlayerPots[index] -= burn
 	}
 }
 

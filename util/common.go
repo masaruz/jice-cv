@@ -34,14 +34,14 @@ func CloneState(oldState state.GameState) state.GameState {
 	newState.AFKCounts = make([]int, len(oldState.AFKCounts))
 	newState.DoActions = make([]bool, len(oldState.Players))
 	newState.Deck.Cards = make(model.Cards, len(newState.Deck.Cards))
-	newState.Pots = make([]int, len(oldState.Pots))
+	newState.PlayerPots = make([]int, len(oldState.PlayerPots))
 	newState.Scoreboard = make([]model.Scoreboard, len(oldState.Scoreboard))
 	copy(newState.Players, oldState.Players)
 	copy(newState.Visitors, oldState.Visitors)
 	copy(newState.AFKCounts, oldState.AFKCounts)
 	copy(newState.DoActions, oldState.DoActions)
 	copy(newState.Deck.Cards, oldState.Deck.Cards)
-	copy(newState.Pots, oldState.Pots)
+	copy(newState.PlayerPots, oldState.PlayerPots)
 	copy(newState.Scoreboard, oldState.Scoreboard)
 	return newState
 }

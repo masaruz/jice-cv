@@ -30,7 +30,7 @@ type NineK struct {
 // Init deck and environment variables
 func (game NineK) Init() {
 	// create counting afk
-	state.GS.Pots = make([]int, game.MaxPlayers)
+	state.GS.PlayerPots = make([]int, game.MaxPlayers)
 	state.GS.AFKCounts = make([]int, game.MaxPlayers)
 	// set the seats
 	handler.CreateSeats(game.MaxPlayers)
@@ -124,7 +124,7 @@ func (game NineK) Start() bool {
 			// everyone is assumed afk
 			state.Snapshot.DoActions = make([]bool, game.MaxPlayers)
 			state.Snapshot.Rakes = make(map[string]float64)
-			state.Snapshot.Pots = make([]int, game.MaxPlayers)
+			state.Snapshot.PlayerPots = make([]int, game.MaxPlayers)
 			// set players to be ready
 			handler.PreparePlayers(true)
 			handler.StartGame()
@@ -246,12 +246,12 @@ func (game NineK) Finish() bool {
 			// This mean we found some winners
 			if pos != -1 {
 				winner := &state.Snapshot.Players[pos]
-				for poti, pot := range state.Snapshot.Pots {
+				for poti, pot := range state.Snapshot.PlayerPots {
 					if pot == 0 {
 						continue
 					}
 					playerbet := pot
-					winnerbet := state.Snapshot.Pots[pos]
+					winnerbet := state.Snapshot.PlayerPots[pos]
 					earnedbet := 0
 					if winnerbet > playerbet {
 						// If winner has higher bet
@@ -377,7 +377,7 @@ func (game NineK) Call(id string) bool {
 	handler.IncreasePots(index, chips)
 	// set action of everyone
 	handler.OverwriteActionToBehindPlayers()
-	handler.SetMaximumBet(util.SumPots(state.Snapshot.Pots))
+	handler.SetMaximumBet(util.SumPots(state.Snapshot.PlayerPots))
 	// others need to know what to do next
 	handler.SetOtherActions(id, constant.Bet)
 	diff := time.Now().Unix() - player.DeadLine
@@ -408,7 +408,7 @@ func (game NineK) AllIn(id string) bool {
 	player.Action = model.Action{Name: constant.AllIn}
 	player.Actions = game.Reducer(constant.Check, id)
 	handler.IncreasePots(index, chips)
-	handler.SetMaximumBet(util.SumPots(state.Snapshot.Pots))
+	handler.SetMaximumBet(util.SumPots(state.Snapshot.PlayerPots))
 	// set action of everyone
 	handler.OverwriteActionToBehindPlayers()
 	// others automatic set to fold as default
@@ -492,7 +492,7 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 		// raise must be highest * 2
 		raise := highestbet * 2
 		// all sum bets
-		pots := util.SumPots(state.Snapshot.Pots)
+		pots := util.SumPots(state.Snapshot.PlayerPots)
 		if highestbet <= playerbet {
 			return game.Reducer(constant.Check, id)
 		}
@@ -624,7 +624,7 @@ func (game NineK) pay(id string, chips int, action string) bool {
 	// assign minimum bet
 	handler.SetMinimumBet(player.Bets[state.Snapshot.Turn])
 	// assign maximum bet
-	handler.SetMaximumBet(util.SumPots(state.Snapshot.Pots))
+	handler.SetMaximumBet(util.SumPots(state.Snapshot.PlayerPots))
 	// set action of everyone
 	handler.OverwriteActionToBehindPlayers()
 	// others automatic set to fold as default
