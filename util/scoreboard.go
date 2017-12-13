@@ -14,11 +14,3 @@ func GetScoreboard(userid string) (*model.Scoreboard, int) {
 	}
 	return nil, -1
 }
-
-// AddScoreboardWinAmount add amount of earning chips to scoreboard
-func AddScoreboardWinAmount(userid string, amount int) {
-	scoreboard, index := GetScoreboard(userid)
-	if index != -1 {
-		scoreboard.WinningsAmount += amount
-	}
-}

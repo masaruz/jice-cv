@@ -10,9 +10,9 @@ import (
 func UpdateScoreboard(player *model.Player, action string) {
 	// Update scoreboard
 	// If actually buyin success
-	scoreboard, sbindex := util.GetScoreboard(player.ID)
+	scoreboard, index := util.GetScoreboard(player.ID)
 	// If not found player in scoreboard then add them
-	if sbindex == -1 {
+	if index == -1 {
 		state.Snapshot.Scoreboard = append(state.Snapshot.Scoreboard, model.Scoreboard{
 			UserID:      player.ID,
 			DisplayName: player.Name,
@@ -25,5 +25,13 @@ func UpdateScoreboard(player *model.Player, action string) {
 		case "remove":
 			scoreboard.BuyInAmount -= player.Chips
 		}
+	}
+}
+
+// AddScoreboardWinAmount add amount of earning chips to scoreboard
+func AddScoreboardWinAmount(userid string, amount int) {
+	scoreboard, index := util.GetScoreboard(userid)
+	if index != -1 {
+		scoreboard.WinningsAmount += amount
 	}
 }

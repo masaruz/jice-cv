@@ -48,6 +48,7 @@ type RespPayload struct {
 	StartRoundTime  int64         `json:"start_round_time"`
 	FinishRoundTime int64         `json:"finish_round_time"`
 	IsTableExpired  bool          `json:"is_table_expired"`
+	FinishGameDelay int64         `json:"finish_game_delay"`
 }
 
 // ReqPayload request payload

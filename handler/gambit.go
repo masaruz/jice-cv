@@ -26,7 +26,7 @@ func CreateSeats(seats int) {
 func StartTable() {
 	start := time.Now().Unix()
 	state.Snapshot.StartTableTime = start
-	state.Snapshot.FinishTableTime = start + state.GS.Duration
+	state.Snapshot.FinishTableTime = start + state.Snapshot.Duration
 	state.Snapshot.IsTableStart = true
 }
 
@@ -357,7 +357,7 @@ func PlayersInvestToPots(chips int) {
 		if player := &state.Snapshot.Players[index]; util.IsPlayingAndNotFoldAndNotAllIn(*player) {
 			player.Chips -= chips
 			player.WinLossAmount -= chips
-			util.AddScoreboardWinAmount(player.ID, -chips)
+			AddScoreboardWinAmount(player.ID, -chips)
 			player.Bets = append(player.Bets, chips)
 			IncreasePots(index, chips)
 			// start with first element in pots
@@ -391,28 +391,23 @@ func BurnBet(index int, burn int) {
 // TryTerminate try to terminate the container
 func TryTerminate() {
 	// Check if current time is more than finish table time
-	if time.Now().Unix() >= state.Snapshot.FinishTableTime &&
-		state.Snapshot.FinishTableTime != 0 {
-		util.Print("Table is timeout then terminate")
-		// For force client to leave
-		state.Snapshot.IsTableExpired = true
-		state.Snapshot.IsTableStart = false
-		// TODO call terminate api
-		if state.Snapshot.Env != "dev" {
-			for _, player := range state.Snapshot.Players {
-				if player.ID == "" {
-					continue
-				}
-				api.CashBack(player.ID)
+	util.Print("Try terminating")
+	state.Snapshot.IsTableStart = false
+	// TODO call terminate api
+	if state.Snapshot.Env != "dev" {
+		for _, player := range state.Snapshot.Players {
+			if player.ID == "" {
+				continue
 			}
-			// Delay 5 second before send signal to hawkeye that please kill this container
-			go func() {
-				body, err := api.TableEnd()
-				util.Print("Response from TableEnd", string(body), err)
-				time.Sleep(time.Second * 10)
-				body, err = api.Terminate()
-				util.Print("Response from Terminate", string(body), err)
-			}()
+			api.CashBack(player.ID)
 		}
+		// Delay 5 second before send signal to hawkeye that please kill this container
+		go func() {
+			body, err := api.TableEnd()
+			util.Print("Response from TableEnd", string(body), err)
+			time.Sleep(time.Second * 10)
+			body, err = api.Terminate()
+			util.Print("Response from Terminate", string(body), err)
+		}()
 	}
 }

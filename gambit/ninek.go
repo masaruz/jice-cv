@@ -149,7 +149,11 @@ func (game NineK) Start() bool {
 		handler.PreparePlayers(false)
 		// Need to update state because number of players might be changed
 		state.GS = util.CloneState(state.Snapshot)
-	} else if !handler.IsGameStart() && !handler.IsInExtendFinishRoundTime() {
+	} else if !handler.IsGameStart() &&
+		!handler.IsInExtendFinishRoundTime() &&
+		time.Now().Unix() >= state.Snapshot.FinishTableTime &&
+		state.Snapshot.FinishTableTime != 0 {
+		state.Snapshot.IsTableExpired = true
 		handler.TryTerminate()
 		state.GS = util.CloneState(state.Snapshot)
 	}
@@ -258,7 +262,7 @@ func (game NineK) Finish() bool {
 					if earnedbet != 0 {
 						winner.Chips += earnedbet
 						winner.WinLossAmount += earnedbet
-						util.AddScoreboardWinAmount(winner.ID, earnedbet)
+						handler.AddScoreboardWinAmount(winner.ID, earnedbet)
 						earnedplayers := util.CountPlayerAlreadyEarned(state.Snapshot.Players)
 						if util.CountPlayerNotFold(state.Snapshot.Players)-earnedplayers > 1 || earnedplayers == 0 {
 							winner.IsWinner = true
@@ -361,7 +365,7 @@ func (game NineK) Call(id string) bool {
 	if player.Chips < chips || chips == 0 {
 		return false
 	}
-	util.AddScoreboardWinAmount(player.ID, -chips)
+	handler.AddScoreboardWinAmount(player.ID, -chips)
 	state.Snapshot.DoActions[index] = true
 	player.Chips -= chips
 	player.WinLossAmount -= chips
@@ -394,7 +398,7 @@ func (game NineK) AllIn(id string) bool {
 	if player.Bets[state.Snapshot.Turn]+chips > state.Snapshot.MaximumBet {
 		return false
 	}
-	util.AddScoreboardWinAmount(player.ID, -chips)
+	handler.AddScoreboardWinAmount(player.ID, -chips)
 	state.Snapshot.DoActions[index] = true
 	player.Bets[state.Snapshot.Turn] += chips
 	player.WinLossAmount -= chips
@@ -604,7 +608,7 @@ func (game NineK) pay(id string, chips int, action string) bool {
 	if player.Chips < chips {
 		return false
 	}
-	util.AddScoreboardWinAmount(player.ID, -chips)
+	handler.AddScoreboardWinAmount(player.ID, -chips)
 	state.Snapshot.DoActions[index] = true
 	// added value to the bet in this turn
 	player.Chips -= chips

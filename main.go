@@ -551,6 +551,7 @@ func main() {
 				handler.FinishTable()
 				// Never let player force close this table when game is started
 				if !state.Snapshot.IsTableStart {
+					state.Snapshot.IsTableExpired = true
 					handler.TryTerminate()
 				}
 				channel = constant.DisbandTable

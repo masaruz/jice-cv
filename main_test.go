@@ -26,6 +26,7 @@ func TestLoop01(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
@@ -51,7 +52,9 @@ func TestLoop01(t *testing.T) {
 		t.Error()
 	}
 	handler.StartTable()
-	state.Snapshot.Gambit.Start()
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
 	// make sure everyone is playing and has 2 cards
 	for _, player := range state.Snapshot.Players {
 		if player.ID == "" {
@@ -115,10 +118,10 @@ func TestLoop01(t *testing.T) {
 	if !state.Snapshot.Gambit.Finish() {
 		t.Error()
 	}
-	// _, p1 = util.Get(state.Snapshot.Players, "player1")
-	// _, p2 = util.Get(state.Snapshot.Players, "player2")
-	// _, p3 = util.Get(state.Snapshot.Players, "player3")
-	// _, p4 = util.Get(state.Snapshot.Players, "player4")
+	// _, p1 := util.Get(state.Snapshot.Players, "player1")
+	// _, p2 := util.Get(state.Snapshot.Players, "player2")
+	// _, p3 := util.Get(state.Snapshot.Players, "player3")
+	// _, p4 := util.Get(state.Snapshot.Players, "player4")
 	// p1.Print()
 	// p2.Print()
 	// p3.Print()
@@ -138,6 +141,7 @@ func TestLoop02(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
@@ -281,6 +285,7 @@ func TestLoop03(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
@@ -386,6 +391,7 @@ func TestLoop04(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
@@ -489,6 +495,7 @@ func TestLoop05(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
@@ -588,6 +595,7 @@ func TestLoop06(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	// dumb player
 	id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
 	handler.Connect(id1)
@@ -817,6 +825,7 @@ func TestLoop07(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -889,6 +898,7 @@ func TestLoop08(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -985,6 +995,7 @@ func TestLoop09(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1061,6 +1072,7 @@ func TestLoop10(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1125,6 +1137,7 @@ func TestLoop11(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1200,6 +1213,7 @@ func TestLoop12(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1234,6 +1248,7 @@ func TestLoop13(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2 := "player1", "player2"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1303,6 +1318,7 @@ func TestLoop14(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1420,6 +1436,7 @@ func TestLoop15(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1558,6 +1575,7 @@ func TestLoop16(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1674,6 +1692,7 @@ func TestLoop17(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2, id3, id4 := "player1", "player2", "player3", "player4"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1730,6 +1749,7 @@ func TestLoop18(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -1918,6 +1938,7 @@ func TestLoop19(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -2224,6 +2245,7 @@ func TestLoop26(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -2400,6 +2422,7 @@ func TestLoop27(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -2443,6 +2466,7 @@ func TestLoop28(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -2516,6 +2540,7 @@ func TestLoop29(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -2615,6 +2640,7 @@ func TestLoop30(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -2705,6 +2731,7 @@ func TestLoop31(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2, id3 := "player1", "player2", "player3"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -2748,6 +2775,7 @@ func TestLoop32(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2 := "player1", "player2"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -2799,6 +2827,7 @@ func TestLoop33(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	id1, id2 := "player1", "player2"
 	handler.Connect(id1)
 	handler.Connect(id2)
@@ -2835,6 +2864,7 @@ func TestLoop34(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
@@ -2957,6 +2987,7 @@ func TestLoop35(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
@@ -3149,6 +3180,7 @@ func TestLoop36(t *testing.T) {
 		t.Error(state.Snapshot)
 	}
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	if state.Snapshot.TableID != "default" {
 		t.Error()
 	}
@@ -3203,6 +3235,7 @@ func TestLoop37(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
@@ -3312,6 +3345,7 @@ func TestLoop38(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
@@ -3427,6 +3461,7 @@ func TestLoop40(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
@@ -3478,6 +3513,7 @@ func TestLoop41(t *testing.T) {
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
 	handler.Connect("player1")
 	handler.Connect("player2")
 	handler.Connect("player3")
