@@ -72,8 +72,8 @@ func IncreaseTurn() {
 	state.Snapshot.Turn++
 }
 
-// IncreasePots when players pay chips
-func IncreasePots(index int, chips int) {
+// IncreasePlayerPot when players pay chips
+func IncreasePlayerPot(index int, chips int) {
 	state.Snapshot.PlayerPots[index] += chips
 }
 
@@ -360,7 +360,7 @@ func PlayersInvestToPots(chips int) {
 			player.WinLossAmount -= chips
 			AddScoreboardWinAmount(player.ID, -chips)
 			player.Bets = append(player.Bets, chips)
-			IncreasePots(index, chips)
+			IncreasePlayerPot(index, chips)
 			// start with first element in pots
 		} else if util.IsPlayingAndNotFold(*player) {
 			player.Bets = append(player.Bets, 0)

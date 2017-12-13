@@ -374,7 +374,7 @@ func (game NineK) Call(id string) bool {
 	player.Default = model.Action{Name: constant.Call}
 	player.Action = model.Action{Name: constant.Call}
 	player.Actions = game.Reducer(constant.Check, id)
-	handler.IncreasePots(index, chips)
+	handler.IncreasePlayerPot(index, chips)
 	// set action of everyone
 	handler.OverwriteActionToBehindPlayers()
 	handler.SetMaximumBet(util.SumPots(state.Snapshot.PlayerPots))
@@ -407,7 +407,7 @@ func (game NineK) AllIn(id string) bool {
 	player.Default = model.Action{Name: constant.AllIn}
 	player.Action = model.Action{Name: constant.AllIn}
 	player.Actions = game.Reducer(constant.Check, id)
-	handler.IncreasePots(index, chips)
+	handler.IncreasePlayerPot(index, chips)
 	handler.SetMaximumBet(util.SumPots(state.Snapshot.PlayerPots))
 	// set action of everyone
 	handler.OverwriteActionToBehindPlayers()
@@ -620,7 +620,7 @@ func (game NineK) pay(id string, chips int, action string) bool {
 	player.Default = model.Action{Name: action}
 	player.Action = model.Action{Name: action}
 	player.Actions = game.Reducer(constant.Check, id)
-	handler.IncreasePots(index, chips)
+	handler.IncreasePlayerPot(index, chips)
 	// assign minimum bet
 	handler.SetMinimumBet(player.Bets[state.Snapshot.Turn])
 	// assign maximum bet
