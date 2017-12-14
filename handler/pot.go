@@ -111,7 +111,7 @@ func AssignWinnerToPots(gs *state.GameState, id string) {
 				player := &gs.Players[index]
 				pot.Players = map[string]bool{key: true}
 				pot.WinnerSlot = player.Slot
-				player.Chips += pot.Value
+				player.Chips += float64(pot.Value) - state.Snapshot.Rakes[player.ID]
 				player.WinLossAmount += pot.Value
 				player.IsWinner = true
 				player.IsEarned = true

@@ -127,7 +127,7 @@ func Sit(id string, slot int) bool {
 		util.Print("Buy-in success")
 	}
 	// Assign how much they buy-in
-	caller.Chips = state.Snapshot.Gambit.GetSettings().BuyInMin
+	caller.Chips = float64(state.Snapshot.Gambit.GetSettings().BuyInMin)
 	// Update scoreboard
 	UpdateScoreboard(&caller, "add")
 	// remove from visitor

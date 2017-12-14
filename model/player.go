@@ -9,7 +9,7 @@ type Player struct {
 	Picture       string     `json:"picture"`
 	Cards         Cards      `json:"cards"`
 	CardAmount    int        `json:"card_amount"`
-	Chips         int        `json:"chips"`
+	Chips         float64    `json:"chips"`
 	Type          string     `json:"type"`
 	Bets          []int      `json:"bets"`
 	Slot          int        `json:"slot,omitempty"`

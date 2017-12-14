@@ -4,6 +4,7 @@ import (
 	"999k_engine/model"
 	"999k_engine/state"
 	"999k_engine/util"
+	"math"
 )
 
 // UpdateScoreboard update buyin amount to scoreboard
@@ -16,14 +17,15 @@ func UpdateScoreboard(player *model.Player, action string) {
 		state.Snapshot.Scoreboard = append(state.Snapshot.Scoreboard, model.Scoreboard{
 			UserID:      player.ID,
 			DisplayName: player.Name,
-			BuyInAmount: player.Chips,
+			BuyInAmount: int(math.Floor(player.Chips)),
 		})
 	} else {
+		chips := int(math.Floor(player.Chips))
 		switch action {
 		case "add":
-			scoreboard.BuyInAmount += player.Chips
+			scoreboard.BuyInAmount += chips
 		case "remove":
-			scoreboard.BuyInAmount -= player.Chips
+			scoreboard.BuyInAmount -= chips
 		}
 	}
 }

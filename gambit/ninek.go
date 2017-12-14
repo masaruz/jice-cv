@@ -9,6 +9,7 @@ import (
 	"999k_engine/state"
 	"999k_engine/util"
 	"encoding/json"
+	"math"
 	"sort"
 	"time"
 )
@@ -52,10 +53,10 @@ func (game NineK) Start() bool {
 				continue
 			}
 			// If player has no chip enough
-			if player.Chips < game.GetSettings().BlindsSmall {
+			if int(math.Floor(player.Chips)) < game.GetSettings().BlindsSmall {
 				// If in development assign chips and continue
 				if state.Snapshot.Env == "dev" {
-					player.Chips = game.GetSettings().BuyInMin
+					player.Chips = float64(game.GetSettings().BuyInMin)
 					continue
 				}
 				// Make sure this player ready to buyin
@@ -89,7 +90,7 @@ func (game NineK) Start() bool {
 				}
 				util.Print("Buy-in success")
 				// Assign how much they buy-in
-				player.Chips = game.GetSettings().BuyInMin
+				player.Chips = float64(game.GetSettings().BuyInMin)
 				// Update scoreboard
 				handler.UpdateScoreboard(player, "add")
 			}
@@ -339,12 +340,12 @@ func (game NineK) Call(id string) bool {
 	chips := util.GetHighestBetInTurn(state.Snapshot.Turn, state.Snapshot.Players) -
 		player.Bets[state.Snapshot.Turn]
 	// cannot call more than player's chips
-	if player.Chips < chips || chips == 0 {
+	if int(math.Floor(player.Chips)) < chips || chips == 0 {
 		return false
 	}
 	handler.AddScoreboardWinAmount(player.ID, -chips)
 	state.Snapshot.DoActions[index] = true
-	player.Chips -= chips
+	player.Chips -= float64(chips)
 	player.WinLossAmount -= chips
 	player.Bets[state.Snapshot.Turn] += chips
 	player.Default = model.Action{Name: constant.Call}
@@ -370,7 +371,7 @@ func (game NineK) AllIn(id string) bool {
 	}
 	index, _ := util.Get(state.Snapshot.Players, id)
 	player := &state.Snapshot.Players[index]
-	chips := player.Chips
+	chips := int(math.Floor(player.Chips))
 	// not more than maximum
 	if player.Bets[state.Snapshot.Turn]+chips > state.Snapshot.MaximumBet {
 		return false
@@ -441,8 +442,8 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 		}
 		// maximum will be player's chips if not enough
 		maximum := 0
-		if state.Snapshot.MaximumBet > player.Chips {
-			maximum = player.Chips
+		if state.Snapshot.MaximumBet > int(math.Floor(player.Chips)) {
+			maximum = int(math.Floor(player.Chips))
 		} else {
 			maximum = state.Snapshot.MaximumBet
 		}
@@ -461,7 +462,7 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 			extendAction}
 	case constant.Bet:
 		_, player := util.Get(state.Snapshot.Players, id)
-		playerchips := player.Chips + player.Bets[state.Snapshot.Turn]
+		playerchips := int(math.Floor(player.Chips)) + player.Bets[state.Snapshot.Turn]
 		// highest bet in that turn
 		highestbet := util.GetHighestBetInTurn(state.Snapshot.Turn, state.Snapshot.Players)
 		playerbet := player.Bets[state.Snapshot.Turn]
@@ -482,7 +483,7 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 				model.Action{Name: constant.AllIn,
 					Hints: model.Hints{
 						model.Hint{
-							Name: "amount", Type: "integer", Value: player.Chips}}},
+							Name: "amount", Type: "integer", Value: int(math.Floor(player.Chips))}}},
 				extendAction}
 		}
 		diff := highestbet - playerbet
@@ -583,13 +584,13 @@ func (game NineK) pay(id string, chips int, action string) bool {
 		return false
 	}
 	// cannot bet more than player's chips
-	if player.Chips < chips {
+	if int(math.Floor(player.Chips)) < chips {
 		return false
 	}
 	handler.AddScoreboardWinAmount(player.ID, -chips)
 	state.Snapshot.DoActions[index] = true
 	// added value to the bet in this turn
-	player.Chips -= chips
+	player.Chips -= float64(chips)
 	player.WinLossAmount -= chips
 	player.Bets[state.Snapshot.Turn] += chips
 	// broadcast to everyone that I bet

@@ -1290,8 +1290,8 @@ func TestLoop13(t *testing.T) {
 	// 	t.Error()
 	// }
 	// handler.Sit(id2, 3)
-	p1.Chips = state.Snapshot.Gambit.GetSettings().BlindsSmall
-	p2.Chips = state.Snapshot.Gambit.GetSettings().BlindsSmall
+	p1.Chips = float64(state.Snapshot.Gambit.GetSettings().BlindsSmall)
+	p2.Chips = float64(state.Snapshot.Gambit.GetSettings().BlindsSmall)
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}

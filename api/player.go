@@ -94,11 +94,11 @@ func CashBack(userid string) ([]byte, error) {
 	_, player := util.Get(state.GS.Players, userid)
 	// cast param to byte
 	data, err := json.Marshal(struct {
-		UserID         string `json:"userid"`
-		GroupID        string `json:"groupid"`
-		CreateTime     int64  `json:"createtime"`
-		GameIndex      int    `json:"gameindex"`
-		CashBackAmount int    `json:"cashbackamount"`
+		UserID         string  `json:"userid"`
+		GroupID        string  `json:"groupid"`
+		CreateTime     int64   `json:"createtime"`
+		GameIndex      int     `json:"gameindex"`
+		CashBackAmount float64 `json:"cashbackamount"`
 	}{
 		UserID:         userid,
 		GroupID:        state.GS.GroupID,

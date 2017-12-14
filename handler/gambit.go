@@ -362,7 +362,7 @@ func PlayersInvestToPots(chips int) {
 			CalculatePot(&state.Snapshot, player.ID, state.Snapshot.PlayerPots[index])
 		}
 		if util.IsPlayingAndNotFoldAndNotAllIn(*player) {
-			player.Chips -= chips
+			player.Chips -= float64(chips)
 			player.WinLossAmount -= chips
 			AddScoreboardWinAmount(player.ID, -chips)
 			player.Bets = append(player.Bets, chips)
