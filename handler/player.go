@@ -225,8 +225,10 @@ func SetPlayersRake(rate float64, cap float64) {
 		rake = cap
 	}
 	for _, player := range state.Snapshot.Players {
-		percent := float64(util.SumBet(player)) / pots
-		state.Snapshot.Rakes[player.ID] = rake * percent
+		if player.IsPlaying {
+			percent := float64(util.SumBet(player)) / pots
+			state.Snapshot.Rakes[player.ID] = rake * percent
+		}
 	}
 }
 

@@ -177,7 +177,9 @@ func TestLoop02(t *testing.T) {
 		BuyInMax:        1000,
 		BlindsSmall:     10,
 		BlindsBig:       10,
-		DecisionTime:    decisionTime}
+		DecisionTime:    decisionTime,
+		Rake:            5.00,
+		Cap:             0.5}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
 	state.Snapshot = util.CloneState(state.GS)
