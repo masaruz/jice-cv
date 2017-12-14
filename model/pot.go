@@ -4,10 +4,10 @@ import "log"
 
 // Pot handle situation of distributed pot
 type Pot struct {
-	Ratio   int
-	Value   int
-	Players map[string]bool
-	Winner  string
+	Ratio      int
+	Players    map[string]bool
+	Value      int `json:"value"`
+	WinnerSlot int `json:"winner_slot"`
 }
 
 // Pots are array of Pot

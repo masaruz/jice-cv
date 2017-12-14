@@ -119,7 +119,7 @@ func CreateResponse(id string, event string) string {
 					Competitors:  competitors,
 					Visitors:     visitors,
 					Pots:         []int{util.SumPots(state.GS.PlayerPots)},
-					UIPots:       state.GS.Pots,
+					SummaryPots:  state.GS.Pots,
 					HighestBet:   util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players),
 					Version:      state.GS.Version,
 					IsTableStart: state.GS.IsTableStart,
