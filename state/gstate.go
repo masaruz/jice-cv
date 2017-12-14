@@ -28,7 +28,7 @@ type GameState struct {
 	MinimumBet       int
 	MaximumBet       int
 	Gambit           engine.Gambit
-	Pots             []int
+	Pots             model.Pots
 	PlayerPots       []int
 	AFKCounts        []int
 	DoActions        []bool

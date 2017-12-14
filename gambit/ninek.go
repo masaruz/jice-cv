@@ -131,10 +131,12 @@ func (game NineK) Start() bool {
 			handler.SetMinimumBet(game.BlindsBig)
 			// let all players bets to the pots
 			handler.PlayersInvestToPots(game.BlindsBig)
+			handler.MergePots(&state.Snapshot)
 			// start turn
 			handler.IncreaseTurn()
 			// start new bets
 			handler.PlayersInvestToPots(0)
+			handler.MergePots(&state.Snapshot)
 			handler.SetOtherActions("", constant.Check)
 			handler.SetOtherDefaultAction("", constant.Check)
 			handler.SetDealer()
@@ -181,6 +183,7 @@ func (game NineK) NextRound() bool {
 		handler.SetOtherDefaultAction("", constant.Check)
 		handler.CreateTimeLine(game.DecisionTime)
 		handler.PlayersInvestToPots(0)
+		handler.MergePots(&state.Snapshot)
 		util.Print("1 cards dealed")
 		handler.IncreaseTurn()
 		// no one is assumed afk
@@ -201,6 +204,8 @@ func (game NineK) Finish() bool {
 		// if has 3 cards bet equal
 		(handler.IsFullHand(3) && handler.BetsEqual() && handler.IsEndRound())) {
 		util.Print("Prepare to finish game")
+		handler.PlayersInvestToPots(0)
+		handler.MergePots(&state.Snapshot)
 		// calculate afk players
 		for index, doaction := range state.Snapshot.DoActions {
 			// Skip empty players
@@ -246,36 +251,7 @@ func (game NineK) Finish() bool {
 			// This mean we found some winners
 			if pos != -1 {
 				winner := &state.Snapshot.Players[pos]
-				for poti, pot := range state.Snapshot.PlayerPots {
-					if pot == 0 {
-						continue
-					}
-					playerbet := pot
-					winnerbet := state.Snapshot.PlayerPots[pos]
-					earnedbet := 0
-					if winnerbet > playerbet {
-						// If winner has higher bet
-						earnedbet = playerbet
-					} else {
-						// If winner has lower bet
-						earnedbet = winnerbet
-					}
-					if earnedbet != 0 {
-						winner.Chips += earnedbet
-						winner.WinLossAmount += earnedbet
-						handler.AddScoreboardWinAmount(winner.ID, earnedbet)
-						earnedplayers := util.CountPlayerAlreadyEarned(state.Snapshot.Players)
-						if util.CountPlayerNotFold(state.Snapshot.Players)-earnedplayers > 1 || earnedplayers == 0 {
-							winner.IsWinner = true
-						}
-					}
-					// If not caller
-					if poti != pos {
-						handler.BurnBet(poti, earnedbet)
-					}
-				}
-				winner.IsEarned = true
-				handler.BurnBet(pos, util.SumBet(*winner))
+				handler.AssignWinnerToPots(&state.Snapshot, winner.ID)
 				hscore = -1
 				hbonus = -1
 				pos = -1

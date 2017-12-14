@@ -353,9 +353,15 @@ func ShiftPlayersToEndOfTimeline(id string, second int64) {
 
 // PlayersInvestToPots added bet to everyone base on turn
 func PlayersInvestToPots(chips int) {
+	InitPots(&state.Snapshot)
 	// initiate bet value to players
 	for index := range state.Snapshot.Players {
-		if player := &state.Snapshot.Players[index]; util.IsPlayingAndNotFoldAndNotAllIn(*player) {
+		player := &state.Snapshot.Players[index]
+		// New pot calculation
+		if state.Snapshot.PlayerPots[index] != 0 {
+			CalculatePot(&state.Snapshot, player.ID, state.Snapshot.PlayerPots[index])
+		}
+		if util.IsPlayingAndNotFoldAndNotAllIn(*player) {
 			player.Chips -= chips
 			player.WinLossAmount -= chips
 			AddScoreboardWinAmount(player.ID, -chips)
@@ -366,6 +372,7 @@ func PlayersInvestToPots(chips int) {
 			player.Bets = append(player.Bets, 0)
 		}
 	}
+	MergePots(&state.Snapshot)
 	SetMaximumBet(util.SumPots(state.Snapshot.PlayerPots))
 }
 
