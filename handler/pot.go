@@ -108,6 +108,7 @@ func AssignWinnerToPots(gs *state.GameState, id string) {
 		for key := range pot.Players {
 			if id == key {
 				pot.Players = map[string]bool{key: true}
+				pot.Winner = key
 				index, _ := util.Get(gs.Players, key)
 				player := &gs.Players[index]
 				player.Chips += pot.Value

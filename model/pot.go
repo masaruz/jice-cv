@@ -7,6 +7,7 @@ type Pot struct {
 	Ratio   int
 	Value   int
 	Players map[string]bool
+	Winner  string
 }
 
 // Pots are array of Pot
