@@ -31,7 +31,7 @@ func UpdateScoreboard(player *model.Player, action string) {
 }
 
 // AddScoreboardWinAmount add amount of earning chips to scoreboard
-func AddScoreboardWinAmount(userid string, amount int) {
+func AddScoreboardWinAmount(userid string, amount float64) {
 	scoreboard, index := util.GetScoreboard(userid)
 	if index != -1 {
 		scoreboard.WinningsAmount += amount

@@ -259,7 +259,6 @@ func FlushPlayers() {
 	for index := range state.Snapshot.Players {
 		player := &state.Snapshot.Players[index]
 		player.IsPlaying = false
-		player.Bets = []int{}
 		player.Actions = model.Actions{}
 		player.StartLine = 0
 		player.DeadLine = 0
@@ -365,7 +364,7 @@ func PlayersInvestToPots(chips int) {
 		if util.IsPlayingAndNotFoldAndNotAllIn(*player) {
 			player.Chips -= float64(chips)
 			player.WinLossAmount -= float64(chips)
-			AddScoreboardWinAmount(player.ID, -chips)
+			AddScoreboardWinAmount(player.ID, float64(-chips))
 			player.Bets = append(player.Bets, chips)
 			IncreasePlayerPot(index, chips)
 			// start with first element in pots
