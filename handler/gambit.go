@@ -277,7 +277,7 @@ func ShortenTimeline(diff int64) {
 			player.DeadLine -= diff
 		}
 	}
-	state.Snapshot.FinishRoundTime = state.Snapshot.FinishRoundTime - diff
+	state.Snapshot.FinishRoundTime -= diff
 }
 
 // ShortenTimelineAfterTarget shift timeline of everyone behind target player
@@ -294,7 +294,7 @@ func ShortenTimelineAfterTarget(id string, second int64) {
 			player.DeadLine -= second
 		}
 	}
-	state.Snapshot.FinishRoundTime = state.Snapshot.FinishRoundTime - second
+	state.Snapshot.FinishRoundTime -= second
 }
 
 // ExtendPlayerTimeline extend player timeline
