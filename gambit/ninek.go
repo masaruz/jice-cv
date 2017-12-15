@@ -347,7 +347,7 @@ func (game NineK) Call(id string) bool {
 	handler.AddScoreboardWinAmount(player.ID, -chips)
 	state.Snapshot.DoActions[index] = true
 	player.Chips -= float64(chips)
-	player.WinLossAmount -= chips
+	player.WinLossAmount -= float64(chips)
 	player.Bets[state.Snapshot.Turn] += chips
 	player.Default = model.Action{Name: constant.Call}
 	player.Action = model.Action{Name: constant.Call}
@@ -380,7 +380,7 @@ func (game NineK) AllIn(id string) bool {
 	handler.AddScoreboardWinAmount(player.ID, -chips)
 	state.Snapshot.DoActions[index] = true
 	player.Bets[state.Snapshot.Turn] += chips
-	player.WinLossAmount -= chips
+	player.WinLossAmount -= float64(chips)
 	player.Chips = 0
 	player.Default = model.Action{Name: constant.AllIn}
 	player.Action = model.Action{Name: constant.AllIn}
@@ -593,7 +593,7 @@ func (game NineK) pay(id string, chips int, action string) bool {
 	state.Snapshot.DoActions[index] = true
 	// added value to the bet in this turn
 	player.Chips -= float64(chips)
-	player.WinLossAmount -= chips
+	player.WinLossAmount -= float64(chips)
 	player.Bets[state.Snapshot.Turn] += chips
 	// broadcast to everyone that I bet
 	player.Default = model.Action{Name: action}

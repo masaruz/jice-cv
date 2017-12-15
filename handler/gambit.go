@@ -364,7 +364,7 @@ func PlayersInvestToPots(chips int) {
 		}
 		if util.IsPlayingAndNotFoldAndNotAllIn(*player) {
 			player.Chips -= float64(chips)
-			player.WinLossAmount -= chips
+			player.WinLossAmount -= float64(chips)
 			AddScoreboardWinAmount(player.ID, -chips)
 			player.Bets = append(player.Bets, chips)
 			IncreasePlayerPot(index, chips)

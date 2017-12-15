@@ -3171,7 +3171,7 @@ func TestLoop35(t *testing.T) {
 	}
 	for _, player := range state.Snapshot.Players {
 		if player.IsWinner {
-			if player.WinLossAmount != 250 {
+			if player.WinLossAmount != 245 {
 				t.Error()
 			}
 		} else if player.ID != "" {

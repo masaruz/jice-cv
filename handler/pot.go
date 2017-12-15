@@ -135,12 +135,14 @@ func AssignWinnerToPots(gs *state.GameState, id string) {
 					if state.Snapshot.Rakes[key] < 0 {
 						state.Snapshot.Rakes[key] = 0
 					}
+					player.WinLossAmount += float64(pot.Value)
 					// Is a real winner
 				} else {
-					player.Chips += float64(pot.Value) - pot.Rake
+					net := float64(pot.Value) - pot.Rake
+					player.Chips += net
+					player.WinLossAmount += net
 					player.IsWinner = true
 				}
-				player.WinLossAmount += pot.Value
 				player.IsEarned = true
 				AddScoreboardWinAmount(player.ID, pot.Value)
 				break

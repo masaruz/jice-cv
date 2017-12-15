@@ -10,6 +10,7 @@ type Player struct {
 	Cards         Cards      `json:"cards"`
 	CardAmount    int        `json:"card_amount"`
 	Chips         float64    `json:"chips"`
+	WinLossAmount float64    `json:"win_loss_amount,omitempty"`
 	Type          string     `json:"type"`
 	Bets          []int      `json:"bets"`
 	Slot          int        `json:"slot,omitempty"`
@@ -21,7 +22,6 @@ type Player struct {
 	IsWinner      bool       `json:"is_winner,omitempty"`
 	DeadLine      int64      `json:"deadline"`
 	StartLine     int64      `json:"startline"`
-	WinLossAmount int        `json:"win_loss_amount,omitempty"`
 	Stickers      *[]Sticker `json:"send_stickers,omitempty"`
 }
 
