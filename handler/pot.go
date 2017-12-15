@@ -132,6 +132,9 @@ func AssignWinnerToPots(gs *state.GameState, id string) {
 				if len(related) == 1 {
 					player.Chips += float64(pot.Value)
 					state.Snapshot.Rakes[key] -= (pot.Rake / float64(len(related)))
+					if state.Snapshot.Rakes[key] < 0 {
+						state.Snapshot.Rakes[key] = 0
+					}
 					// Is a real winner
 				} else {
 					player.Chips += float64(pot.Value) - pot.Rake
