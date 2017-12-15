@@ -1283,13 +1283,13 @@ func TestLoop13(t *testing.T) {
 	state.Snapshot.FinishRoundTime = 0
 	// Shipping force player to stand
 	// index1, _ := util.Get(state.Snapshot.Players, id1)
-	// index2, _ := util.Get(state.Snapshot.Players, id2)
-	// state.Snapshot.Players[index2].Chips = 9
-	// state.Snapshot.FinishRoundTime = 0
-	// if state.Snapshot.Gambit.Start() {
-	// 	t.Error()
-	// }
-	// handler.Sit(id2, 3)
+	index2, _ := util.Get(state.Snapshot.Players, id2)
+	state.Snapshot.Players[index2].Chips = 9
+	state.Snapshot.FinishRoundTime = 0
+	if state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	handler.Sit(id2, 3)
 	p1.Chips = float64(state.Snapshot.Gambit.GetSettings().BlindsSmall)
 	p2.Chips = float64(state.Snapshot.Gambit.GetSettings().BlindsSmall)
 	if !state.Snapshot.Gambit.Start() {

@@ -55,54 +55,17 @@ func (game NineK) Start() bool {
 			}
 			// If player has no chip enough
 			if int(math.Floor(player.Chips)) < game.GetSettings().BlindsSmall {
-				// If in development assign chips and continue
-				if state.Snapshot.Env == "dev" {
-					player.Chips = float64(game.GetSettings().BuyInMin)
-					continue
+				// Force to stand
+				if !handler.Stand(player.ID) {
+					return false
 				}
-				// Make sure this player ready to buyin
-				// Cashback can be fail if they not buyin yet
-				body, err := api.CashBack(player.ID)
-				util.Print("Response from CashBack", string(body), err)
-				resp := &api.Response{}
-				json.Unmarshal(body, resp)
-				// If cashback error
-				if resp.Error != (api.Error{}) && resp.Error.StatusCode != 404 {
-					// Force to stand
-					if !handler.Stand(player.ID) {
-						return false
-					}
-					continue
-				}
-				// After cashback success set chips to be 0
-				player.Chips = 0
-				// Need request to server for buyin
-				body, err = api.BuyIn(player.ID, game.GetSettings().BuyInMin)
-				util.Print("Response from BuyIn", string(body), err)
-				resp = &api.Response{}
-				json.Unmarshal(body, resp)
-				// BuyIn must be successful
-				if resp.Error != (api.Error{}) {
-					// Force to stand
-					if !handler.Stand(player.ID) {
-						return false
-					}
-					continue
-				}
-				util.Print("Buy-in success")
-				// Assign how much they buy-in
-				player.Chips = float64(game.GetSettings().BuyInMin)
-				// Update scoreboard
-				handler.UpdateScoreboard(player, "add")
-			}
-			// If player has minimum chip for able to play
-			if state.Snapshot.AFKCounts[index] >= game.MaxAFKCount {
+				// If player has minimum chip for able to play
+			} else if state.Snapshot.AFKCounts[index] >= game.MaxAFKCount {
 				util.Print(player.ID, "Is AFK")
 				// Force to stand
 				if !handler.Stand(player.ID) {
 					return false
 				}
-				continue
 			}
 		}
 		// After filtered with the critiria

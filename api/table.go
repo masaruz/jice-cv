@@ -127,7 +127,8 @@ func SaveSettlements() ([]byte, error) {
 		GameIndex:  state.Snapshot.GameIndex,
 		GroupID:    state.Snapshot.GroupID,
 	}
-	for _, player := range state.Snapshot.Players {
+	for index := range state.Snapshot.Players {
+		player := &state.Snapshot.Players[index]
 		if !player.IsPlaying {
 			continue
 		}
