@@ -337,8 +337,41 @@ func TestLoop02(t *testing.T) {
 	if !state.Snapshot.Gambit.Finish() {
 		t.Error()
 	}
+	handler.Sit("b", 5)
+	state.Snapshot.FinishRoundTime = 0
+	a.Chips = 110
+	b.Chips = 120
+	c.Chips = 130
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Bet(a.ID, 20) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Raise(b.ID, 40) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Raise(c.ID, 80) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.AllIn(a.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.AllIn(b.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.AllIn(c.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.NextRound() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
 	// a.Print()
 	// b.Print()
 	// c.Print()
 	// state.Snapshot.Pots.Print()
+	// log.Println(state.Snapshot.Rakes)
 }

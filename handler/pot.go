@@ -100,6 +100,17 @@ func MergePots(gs *state.GameState) {
 
 // AssignWinnerToPots who receive which pot
 func AssignWinnerToPots(gs *state.GameState, id string) {
+	total := util.SumPots(gs.PlayerPots)
+	rakes := (gs.Gambit.GetSettings().Rake / 100) * float64(total)
+	cap := gs.Gambit.GetSettings().Cap * float64(gs.Gambit.GetSettings().BlindsBig)
+	if rakes > cap {
+		rakes = cap
+	}
+	for i := range gs.Pots {
+		pot := &gs.Pots[i]
+		ratio := float64(pot.Value) / float64(total)
+		pot.Rake = rakes * ratio
+	}
 	for i := len(gs.Pots) - 1; i >= 0; i-- {
 		pot := &gs.Pots[i]
 		if pot.Value == 0 {
@@ -117,9 +128,16 @@ func AssignWinnerToPots(gs *state.GameState, id string) {
 				pot.RelatedPlayerSlots = related
 				pot.Players = map[string]bool{key: true}
 				pot.WinnerSlot = player.Slot
-				player.Chips += float64(pot.Value) - state.Snapshot.Rakes[player.ID]
+				// Receive changed
+				if len(related) == 1 {
+					player.Chips += float64(pot.Value)
+					state.Snapshot.Rakes[key] -= (pot.Rake / float64(len(related)))
+					// Is a real winner
+				} else {
+					player.Chips += float64(pot.Value) - pot.Rake
+					player.IsWinner = true
+				}
 				player.WinLossAmount += pot.Value
-				player.IsWinner = true
 				player.IsEarned = true
 				AddScoreboardWinAmount(player.ID, pot.Value)
 				break
