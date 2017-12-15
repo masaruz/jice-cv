@@ -55,6 +55,7 @@ func Create(gambit string) engine.Gambit {
 			Cap:             cap,
 			BuyInMax:        maxbi,
 			BuyInMin:        minbi,
-			FinishGameDelay: 5}
+			FinishGameDelay: 5,
+			DelayNextRound:  1}
 	}
 }

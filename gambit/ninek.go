@@ -18,6 +18,7 @@ import (
 type NineK struct {
 	MaxPlayers      int
 	DecisionTime    int64
+	DelayNextRound  int64
 	FinishGameDelay int64
 	MaxAFKCount     int
 	BlindsSmall     int
@@ -569,6 +570,7 @@ func (game NineK) GetSettings() engine.Settings {
 		Rake:            game.Rake,
 		Cap:             game.Cap,
 		FinishGameDelay: game.FinishGameDelay,
+		DelayNextRound:  game.DelayNextRound,
 	}
 }
 

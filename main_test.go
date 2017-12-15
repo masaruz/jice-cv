@@ -3475,6 +3475,86 @@ func TestLoop38(t *testing.T) {
 }
 
 func TestLoop39(t *testing.T) {
+	decisionTime := int64(3)
+	minimumBet := 10
+	ninek := gambit.NineK{
+		BlindsSmall:     minimumBet,
+		BlindsBig:       minimumBet,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		MaxPlayers:      6,
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		DelayNextRound:  1,
+		DecisionTime:    decisionTime}
+	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot = state.GS
+	state.Snapshot.Duration = 1800
+	handler.Connect("player1")
+	handler.Connect("player2")
+	handler.Connect("player3")
+	handler.Connect("player4")
+	// dumb player
+	handler.Sit("player1", 2)
+	handler.Sit("player2", 3)
+	handler.Sit("player3", 5)
+	handler.Sit("player4", 1)
+	p1 := &state.Snapshot.Players[2]
+	p2 := &state.Snapshot.Players[3]
+	p3 := &state.Snapshot.Players[5]
+	p4 := &state.Snapshot.Players[1]
+	handler.StartTable()
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	index, player := util.GetLastPlayerInTimeline(state.Snapshot.Players)
+	if index != 1 || player.ID != "player4" {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check(p1.ID) {
+		t.Error()
+	}
+	index, player = util.GetLastPlayerInTimeline(state.Snapshot.Players)
+	if index != 1 || player.ID != "player4" {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Bet(p2.ID, 20) {
+		t.Error()
+	}
+	index, player = util.GetLastPlayerInTimeline(state.Snapshot.Players)
+	if index != 2 || player.ID != "player1" {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Raise(p3.ID, 40) {
+		t.Error()
+	}
+	index, player = util.GetLastPlayerInTimeline(state.Snapshot.Players)
+	if index != 3 || player.ID != "player2" {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Call(p4.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Call(p1.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Call(p2.ID) {
+		t.Error()
+	}
+	if state.Snapshot.Gambit.NextRound() {
+		t.Error()
+	}
+	time.Sleep(time.Second)
+	if !state.Snapshot.Gambit.NextRound() {
+		t.Error()
+	}
+	// p1.Print()
+	// p2.Print()
+	// p3.Print()
+	// p4.Print()
+	// fmt.Println("now:", time.Now().Unix())
+	// fmt.Println("end:", state.Snapshot.FinishRoundTime)
 }
 
 func TestLoop40(t *testing.T) {

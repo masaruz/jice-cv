@@ -121,7 +121,7 @@ func CreateTimeLine(decisionTime int64) {
 			loop++
 		}
 	}
-	state.Snapshot.FinishRoundTime = start
+	state.Snapshot.FinishRoundTime = start + state.Snapshot.Gambit.GetSettings().DelayNextRound
 }
 
 // PreparePlayers make everyone
@@ -343,10 +343,11 @@ func ShiftPlayersToEndOfTimeline(id string, second int64) {
 		// force shift to players who is in game not allin and behine the timeline
 		if util.IsPlayingAndNotFoldAndNotAllIn(*player) &&
 			util.IsPlayerBehindTheTimeline(*player) {
-			finishRoundTime := state.Snapshot.FinishRoundTime
+			_, last := util.GetLastPlayerInTimeline(state.Snapshot.Players)
+			finishRoundTime := last.DeadLine
 			player.StartLine = finishRoundTime
 			player.DeadLine = finishRoundTime + second
-			state.Snapshot.FinishRoundTime = finishRoundTime + second
+			state.Snapshot.FinishRoundTime = finishRoundTime + second + state.Snapshot.Gambit.GetSettings().DelayNextRound
 		}
 	}
 }

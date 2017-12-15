@@ -99,39 +99,17 @@ func CountSitting(players model.Players) int {
 	return count
 }
 
-// FindPrevPlayer return prev player who sit prev to current player
-func FindPrevPlayer(current int, players model.Players) (int, model.Player) {
-	amount := len(players)
-	prev := -1
-	round := 0
-	for round < amount {
-		if current == 0 {
-			current = amount
+// GetLastPlayerInTimeline who is the last man
+func GetLastPlayerInTimeline(players model.Players) (int, model.Player) {
+	last := model.Player{}
+	index := -1
+	for i, player := range players {
+		if player.StartLine > last.StartLine {
+			last = player
+			index = i
 		}
-		prev = current - 1
-		if IsPlayingAndNotFold(players[prev]) {
-			return prev, players[prev]
-		}
-		round++
-		current--
 	}
-	return -1, model.Player{}
-}
-
-// FindNextPlayer return next player who sit next to current player
-func FindNextPlayer(current int, players model.Players) (int, model.Player) {
-	amount := len(players)
-	next := -1
-	round := 0
-	for round < amount {
-		next = (current + 1) % amount
-		if IsPlayingAndNotFold(players[next]) {
-			return next, players[next]
-		}
-		round++
-		current++
-	}
-	return -1, model.Player{}
+	return index, last
 }
 
 // IsPlayingAndNotFold if player is not fold and playing

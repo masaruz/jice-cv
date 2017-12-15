@@ -41,6 +41,7 @@ type Settings struct {
 	MaxPlayers      int
 	DecisionTime    int64
 	FinishGameDelay int64
+	DelayNextRound  int64
 	MaxAFKCount     int
 	BlindsSmall     int
 	BlindsBig       int

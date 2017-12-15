@@ -101,17 +101,11 @@ func main() {
 					return
 				}
 				util.Print("Prepare to check Start(), NextRound(), Finish()")
-				// If cannot start, next and finish then it is during gameplay
-				if !state.GS.Gambit.Start() &&
-					!state.GS.Gambit.NextRound() &&
-					!state.GS.Gambit.Finish() {
-					// util.Print(userid, "Stimulate", "nothing")
-				} else {
+				if state.GS.Gambit.Start() || state.GS.Gambit.NextRound() || state.GS.Gambit.Finish() {
 					channel = constant.PushState
 					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
-					// util.Print(userid, "Stimulate", "success")
 				}
 				// If no seat then just result current state
 				result <- handler.CreateResponse(userid, channel)
