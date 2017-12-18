@@ -21,6 +21,10 @@ func RestoreStateData() {
 		json.Unmarshal([]byte(s), visitors)
 		// Convert to player visitor
 		for _, visitor := range *visitors {
+			index, _ := util.Get(state.GS.Players, visitor.UserID)
+			if index != -1 {
+				continue
+			}
 			state.GS.Visitors = append(state.GS.Visitors,
 				model.Player{
 					ID:   visitor.UserID,

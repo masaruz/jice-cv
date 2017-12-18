@@ -4146,3 +4146,183 @@ func TestLoop44(t *testing.T) {
 	// state.Snapshot.Pots.Print()
 	// log.Println(state.Snapshot.Rakes)
 }
+
+func TestLoop45(t *testing.T) {
+	decisionTime := int64(1)
+	ninek := gambit.NineK{
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		MaxPlayers:      6,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		BlindsSmall:     50,
+		BlindsBig:       50,
+		DecisionTime:    decisionTime,
+		Rake:            5.00,
+		Cap:             0.5}
+	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot = util.CloneState(state.GS)
+	state.Snapshot.Duration = 1800
+	handler.Enter(model.Player{ID: "a"})
+	handler.Enter(model.Player{ID: "b"})
+	handler.Enter(model.Player{ID: "c"})
+	// dumb player
+	handler.Sit("a", 2)
+	handler.Sit("b", 5)
+	handler.Sit("c", 1)
+	a := &state.Snapshot.Players[2]
+	b := &state.Snapshot.Players[5]
+	c := &state.Snapshot.Players[1]
+	a.Chips = 250
+	b.Chips = 350
+	c.Chips = 400
+	handler.StartTable()
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Bet(a.ID, 100) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Raise(b.ID, 200) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.AllIn(c.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.AllIn(a.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.AllIn(b.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.NextRound() {
+		t.Error()
+	}
+	a.Cards = model.Cards{9, 10, 11}
+	b.Cards = model.Cards{5, 6, 7}
+	c.Cards = model.Cards{1, 2, 3}
+	tmp := util.CloneState(state.Snapshot)
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	if !a.IsWinner || !b.IsWinner || c.IsWinner {
+		t.Error()
+	}
+	state.Snapshot = util.CloneState(tmp)
+	a = &state.Snapshot.Players[2]
+	b = &state.Snapshot.Players[5]
+	c = &state.Snapshot.Players[1]
+	a.Cards = model.Cards{1, 2, 3}
+	b.Cards = model.Cards{5, 6, 7}
+	c.Cards = model.Cards{9, 10, 11}
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	if a.IsWinner || b.IsWinner || !c.IsWinner {
+		t.Error()
+	}
+	state.Snapshot = util.CloneState(tmp)
+	a = &state.Snapshot.Players[2]
+	b = &state.Snapshot.Players[5]
+	c = &state.Snapshot.Players[1]
+	a.Cards = model.Cards{1, 2, 3}
+	b.Cards = model.Cards{9, 10, 11}
+	c.Cards = model.Cards{5, 6, 7}
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	if a.IsWinner || !b.IsWinner || c.IsWinner {
+		t.Error()
+	}
+	// a.Print()
+	// b.Print()
+	// c.Print()
+	// state.Snapshot.Pots.Print()
+	// log.Println(time.Now().Unix())
+	// log.Println(state.Snapshot.FinishRoundTime)
+}
+
+func TestLoop46(t *testing.T) {
+	decisionTime := int64(1)
+	ninek := gambit.NineK{
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		MaxPlayers:      6,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		BlindsSmall:     50,
+		BlindsBig:       50,
+		DecisionTime:    decisionTime,
+		Rake:            5.00,
+		Cap:             0.5}
+	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot = util.CloneState(state.GS)
+	state.Snapshot.Duration = 1800
+	handler.Enter(model.Player{ID: "a"})
+	handler.Enter(model.Player{ID: "b"})
+	// dumb player
+	handler.Sit("a", 2)
+	handler.Sit("b", 1)
+	a := &state.Snapshot.Players[2]
+	b := &state.Snapshot.Players[1]
+	a.Chips = 250
+	b.Chips = 350
+	handler.StartTable()
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Bet(a.ID, 50) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Raise(b.ID, 100) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.AllIn(a.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.AllIn(b.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.NextRound() {
+		t.Error()
+	}
+	a.Cards = model.Cards{9, 10, 11}
+	b.Cards = model.Cards{5, 6, 7}
+	tmp := util.CloneState(state.Snapshot)
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	if !a.IsWinner || b.IsWinner {
+		t.Error()
+	}
+	state.Snapshot = util.CloneState(tmp)
+	a = &state.Snapshot.Players[2]
+	b = &state.Snapshot.Players[1]
+	a.Cards = model.Cards{1, 2, 3}
+	b.Cards = model.Cards{5, 6, 7}
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	if a.IsWinner || !b.IsWinner {
+		t.Error()
+	}
+	state.Snapshot = util.CloneState(tmp)
+	a = &state.Snapshot.Players[2]
+	b = &state.Snapshot.Players[1]
+	a.Cards = model.Cards{1, 2, 3}
+	b.Cards = model.Cards{9, 10, 11}
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	if a.IsWinner || !b.IsWinner {
+		t.Error()
+	}
+	// a.Print()
+	// b.Print()
+	// c.Print()
+	// state.Snapshot.Pots.Print()
+	// log.Println(time.Now().Unix())
+	// log.Println(state.Snapshot.FinishRoundTime)
+}
