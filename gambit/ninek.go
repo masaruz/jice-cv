@@ -46,6 +46,11 @@ func (game NineK) Start() bool {
 		!handler.IsGameStart() &&
 		!handler.IsInExtendFinishRoundTime() &&
 		!handler.IsTableExpired() {
+		// everyone is assumed afk
+		state.Snapshot.DoActions = make([]bool, game.MaxPlayers)
+		state.Snapshot.Rakes = make(map[string]float64)
+		state.Snapshot.PlayerPots = make([]int, game.MaxPlayers)
+		handler.InitPots(&state.Snapshot)
 		// filter players who are not ready to play
 		for index := range state.Snapshot.Players {
 			player := &state.Snapshot.Players[index]
@@ -86,10 +91,6 @@ func (game NineK) Start() bool {
 				}
 			}
 			state.Snapshot.GameIndex++
-			// everyone is assumed afk
-			state.Snapshot.DoActions = make([]bool, game.MaxPlayers)
-			state.Snapshot.Rakes = make(map[string]float64)
-			state.Snapshot.PlayerPots = make([]int, game.MaxPlayers)
 			// set players to be ready
 			handler.PreparePlayers(true)
 			handler.StartGame()
@@ -312,8 +313,14 @@ func (game NineK) Call(id string) bool {
 	player.Chips -= float64(chips)
 	player.WinLossAmount -= float64(chips)
 	player.Bets[state.Snapshot.Turn] += chips
-	player.Default = model.Action{Name: constant.Call}
-	player.Action = model.Action{Name: constant.Call}
+	playerAction := model.Action{}
+	if math.Floor(player.Chips) == 0 {
+		playerAction = model.Action{Name: constant.AllIn}
+	} else {
+		playerAction = model.Action{Name: constant.Call}
+	}
+	player.Default = playerAction
+	player.Action = playerAction
 	player.Actions = game.Reducer(constant.Check, id)
 	handler.IncreasePlayerPot(index, chips)
 	// set action of everyone
@@ -340,6 +347,7 @@ func (game NineK) AllIn(id string) bool {
 	if player.Bets[state.Snapshot.Turn]+chips > state.Snapshot.MaximumBet {
 		return false
 	}
+	highestbet := util.GetHighestBetInTurn(state.Snapshot.Turn, state.Snapshot.Players)
 	handler.AddScoreboardWinAmount(player.ID, float64(-chips))
 	state.Snapshot.DoActions[index] = true
 	player.Bets[state.Snapshot.Turn] += chips
@@ -359,7 +367,7 @@ func (game NineK) AllIn(id string) bool {
 	diff := time.Now().Unix() - player.DeadLine
 	handler.ShortenTimeline(diff)
 	// duration extend the timeline
-	if player.Bets[state.Snapshot.Turn] >= util.GetHighestBetInTurn(state.Snapshot.Turn, state.Snapshot.Players) {
+	if player.Bets[state.Snapshot.Turn] > highestbet {
 		handler.SetMinimumBet(player.Bets[state.Snapshot.Turn])
 		handler.ShiftPlayersToEndOfTimeline(id, game.DecisionTime)
 	}
@@ -398,7 +406,7 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 	switch event {
 	case constant.Check:
 		_, player := util.Get(state.Snapshot.Players, id)
-		if player.Chips == 0 {
+		if math.Floor(player.Chips) == 0 {
 			return model.Actions{
 				model.Action{Name: constant.Fold},
 				model.Action{Name: constant.Check},
@@ -559,8 +567,14 @@ func (game NineK) pay(id string, chips int, action string) bool {
 	player.WinLossAmount -= float64(chips)
 	player.Bets[state.Snapshot.Turn] += chips
 	// broadcast to everyone that I bet
-	player.Default = model.Action{Name: action}
-	player.Action = model.Action{Name: action}
+	playerAction := model.Action{}
+	if math.Floor(player.Chips) == 0 {
+		playerAction = model.Action{Name: constant.AllIn}
+	} else {
+		playerAction = model.Action{Name: action}
+	}
+	player.Default = playerAction
+	player.Action = playerAction
 	player.Actions = game.Reducer(constant.Check, id)
 	handler.IncreasePlayerPot(index, chips)
 	// assign minimum bet

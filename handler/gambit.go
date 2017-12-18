@@ -7,6 +7,7 @@ import (
 	"999k_engine/model"
 	"999k_engine/state"
 	"999k_engine/util"
+	"math"
 	"time"
 )
 
@@ -144,6 +145,7 @@ func PreparePlayers(isPlaying bool) {
 
 // SetOtherDefaultAction make every has default action
 func SetOtherDefaultAction(id string, action string) {
+	_, caller := util.Get(state.Snapshot.Players, id)
 	daction := model.Action{Name: action}
 	for index := range state.Snapshot.Players {
 		player := &state.Snapshot.Players[index]
@@ -151,13 +153,12 @@ func SetOtherDefaultAction(id string, action string) {
 			continue
 		}
 		// if chips equal 0 then must be allin
-		if player.Chips == 0 {
+		if math.Floor(player.Chips) == 0 {
 			player.Default = model.Action{Name: constant.AllIn}
 			player.Action = model.Action{Name: constant.AllIn}
 			continue
 		}
 		if id != "" && id != player.ID {
-			_, caller := util.Get(state.Snapshot.Players, id)
 			// if caller's bet more than others then overwrite their action
 			if caller.Bets[state.Snapshot.Turn] > player.Bets[state.Snapshot.Turn] {
 				player.Default = daction
