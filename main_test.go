@@ -4326,3 +4326,45 @@ func TestLoop46(t *testing.T) {
 	// log.Println(time.Now().Unix())
 	// log.Println(state.Snapshot.FinishRoundTime)
 }
+
+func TestLoop47(t *testing.T) {
+	decisionTime := int64(1)
+	ninek := gambit.NineK{
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		MaxPlayers:      6,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		BlindsSmall:     50,
+		BlindsBig:       50,
+		DecisionTime:    decisionTime,
+		Rake:            5.00,
+		Cap:             0.5}
+	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot = util.CloneState(state.GS)
+	state.Snapshot.Duration = 1800
+	handler.Enter(model.Player{ID: "a"})
+	handler.Enter(model.Player{ID: "b"})
+	// dumb player
+	handler.Sit("a", 2)
+	handler.Sit("b", 1)
+	a := &state.Snapshot.Players[2]
+	b := &state.Snapshot.Players[1]
+	handler.StartTable()
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Fold(a.ID) {
+		t.Error()
+	}
+	if state.Snapshot.Gambit.NextRound() || !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	if !b.IsWinner || a.IsWinner {
+		t.Error()
+	}
+	// a.Print()
+	// b.Print()
+	// state.Snapshot.Pots.Print()
+}

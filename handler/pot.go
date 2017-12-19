@@ -130,7 +130,7 @@ func AssignWinnerToPots(gs *state.GameState, id string) {
 				pot.WinnerSlot = player.Slot
 				// Receive changed
 				net := 0.0
-				if len(related) == 1 {
+				if len(related) == 1 && i != 0 {
 					net = float64(pot.Value)
 					player.Chips += net
 					state.Snapshot.Rakes[key] -= (pot.Rake / float64(len(related)))
