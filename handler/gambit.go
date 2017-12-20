@@ -369,7 +369,9 @@ func PlayersInvestToPots(chips int) {
 			player.Bets = append(player.Bets, chips)
 			IncreasePlayerPot(index, chips)
 			// start with first element in pots
-		} else if util.IsPlayingAndNotFold(*player) {
+			// Even fold player need to be updated because UI
+			// UI need to let their chip run into the pot
+		} else if player.IsEarned {
 			player.Bets = append(player.Bets, 0)
 		}
 	}
@@ -402,7 +404,6 @@ func TryTerminate() {
 	// Check if current time is more than finish table time
 	util.Print("Try terminating")
 	state.Snapshot.IsTableStart = false
-	// TODO call terminate api
 	if state.Snapshot.Env != "dev" {
 		for _, player := range state.Snapshot.Players {
 			if player.ID == "" {

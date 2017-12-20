@@ -466,6 +466,10 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 					Hints: model.Hints{
 						model.Hint{
 							Name: "amount", Type: "integer", Value: diff}}},
+				model.Action{Name: constant.AllIn,
+					Hints: model.Hints{
+						model.Hint{
+							Name: "amount", Type: "integer", Value: int(math.Floor(player.Chips))}}},
 				extendAction}
 		}
 		// maximum will be player's chips if not enough

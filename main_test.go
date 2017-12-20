@@ -1192,7 +1192,6 @@ func TestLoop11(t *testing.T) {
 		t.Error()
 	}
 	state.Snapshot.FinishRoundTime = 0
-	// TODO Until we can check that player actually has not enough chip
 	// if state.Snapshot.Gambit.Start() {
 	// 	t.Error()
 	// }
@@ -2773,9 +2772,10 @@ func TestLoop31(t *testing.T) {
 	}
 	_, p1 := util.Get(state.Snapshot.Players, id1)
 	// _, p2 := util.Get(state.Snapshot.Players, id2)
-	if len(p1.Actions) > 3 {
+	if len(p1.Actions) > 4 {
 		t.Error()
 	}
+	// log.Println(p1.Actions)
 	// p1.Print()
 	// p2.Print()
 	// fmt.Println("now:", time.Now().Unix())
@@ -4364,6 +4364,18 @@ func TestLoop47(t *testing.T) {
 	if !b.IsWinner || a.IsWinner {
 		t.Error()
 	}
+	state.Snapshot.FinishRoundTime = 0
+	a.Chips = 151
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Bet(b.ID, 50) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Raise(a.ID, 100) {
+		t.Error()
+	}
+	// log.Println(a.Actions)
 	// a.Print()
 	// b.Print()
 	// state.Snapshot.Pots.Print()
