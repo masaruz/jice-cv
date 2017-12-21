@@ -15,7 +15,9 @@ import (
 func Reducer(event string, id string) model.Actions {
 	switch event {
 	case constant.Sit:
-		if util.CountSitting(state.Snapshot.Players) >= 2 && !state.Snapshot.IsTableStart {
+		if !state.Snapshot.IsTableStart &&
+			(state.Snapshot.PlayerTableKeys[id].ClubMemberLevel == 1 ||
+				state.Snapshot.PlayerTableKeys[id].ClubMemberLevel == 2) {
 			return model.Actions{
 				model.Action{Name: constant.Stand},
 				model.Action{Name: constant.StartTable}}
@@ -277,8 +279,8 @@ func GetUserIDFromToken(tablekey string) string {
 	if state.Snapshot.Env == "dev" {
 		return "default"
 	}
-	for userid, key := range state.GS.PlayerTableKeys {
-		if key == tablekey {
+	for userid, playerTableKey := range state.GS.PlayerTableKeys {
+		if playerTableKey.TableKey == tablekey {
 			log.Printf("Found userid [%s] from tablekey [%s]", userid[:4], tablekey[:4])
 			return userid
 		}

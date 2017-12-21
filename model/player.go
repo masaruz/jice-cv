@@ -25,6 +25,13 @@ type Player struct {
 	Stickers      *[]Sticker `json:"send_stickers,omitempty"`
 }
 
+// PlayerTableKey for player authentication each table
+type PlayerTableKey struct {
+	TableKey        string `json:"tablekey"`
+	UserID          string `json:"userid"`
+	ClubMemberLevel int    `json:"club_member_level"`
+}
+
 // Print status of p only for development
 func (p Player) Print() {
 	log.Println(p.ID, p.Name, p.Cards, p.Default, p.Action,

@@ -319,6 +319,11 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
+				if state.Snapshot.PlayerTableKeys[userid].ClubMemberLevel != 1 {
+					util.Print(userid, "Disband Table", "Not Allowed")
+					result <- handler.CreateResponse(userid, channel)
+					return
+				}
 				if util.CountSitting(state.GS.Players) > 1 && !handler.IsTableStart() {
 					channel = constant.StartTable
 					handler.StartTable()
@@ -541,6 +546,11 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
+				if state.Snapshot.PlayerTableKeys[userid].ClubMemberLevel != 1 {
+					util.Print(userid, "Disband Table", "Not Allowed")
+					result <- handler.CreateResponse(userid, channel)
+					return
+				}
 				// Set table expired less than finish table time to make sure it actually expired
 				handler.FinishTable()
 				// Never let player force close this table when game is started
@@ -575,16 +585,13 @@ func main() {
 		result := make(chan []byte)
 		queue <- func() {
 			state.Snapshot = util.CloneState(state.GS)
-			var playerTableKeys []struct {
-				TableKey string `json:"tablekey"`
-				UserID   string `json:"userid"`
-			}
+			playerTableKeys := []model.PlayerTableKey{}
 			b, _ := ioutil.ReadAll(r.Body)
 			json.Unmarshal(b, &playerTableKeys)
 			for suid, sptk := range state.Snapshot.PlayerTableKeys {
 				for index, ptk := range playerTableKeys {
 					// Same table key but not same user
-					if suid != ptk.UserID && sptk == ptk.TableKey {
+					if suid != ptk.UserID && sptk.TableKey == ptk.TableKey {
 						playerTableKeys[index].TableKey = ""
 					}
 				}
@@ -595,14 +602,14 @@ func main() {
 				if ptk.TableKey == "" {
 					delete(state.Snapshot.PlayerTableKeys, ptk.UserID)
 				} else {
-					state.Snapshot.PlayerTableKeys[ptk.UserID] = ptk.TableKey
+					state.Snapshot.PlayerTableKeys[ptk.UserID] = ptk
 				}
 			}
 			// Return success to hawkeye
 			resp, _ := json.Marshal(struct {
-				Code      int               `json:"code"`
-				Message   string            `json:"message"`
-				Resources map[string]string `json:"resources"`
+				Code      int                             `json:"code"`
+				Message   string                          `json:"message"`
+				Resources map[string]model.PlayerTableKey `json:"resources"`
 			}{
 				Code:      200, // Success code
 				Message:   "Update successfully",

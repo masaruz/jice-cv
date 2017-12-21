@@ -92,8 +92,8 @@ func broadcast(so socketio.Socket, players model.Players, event string, owner st
 
 // CreateResponse what each player should see
 func CreateResponse(id string, event string) string {
-	competitors := createSharedState(state.GS.Players)
-	visitors := createSharedState(state.GS.Visitors)
+	competitors := CreateSharedState(state.GS.Players)
+	visitors := CreateSharedState(state.GS.Visitors)
 	_, player := util.Get(state.GS.Players, id)
 	actions := model.Actions{}
 	if _, c := util.Get(state.GS.Players, id); c.ID != "" {
@@ -118,6 +118,7 @@ func CreateResponse(id string, event string) string {
 				IsTableExpired:  state.GS.IsTableExpired,
 				GameIndex:       state.GS.GameIndex,
 				FinishGameDelay: state.GS.Gambit.GetSettings().FinishGameDelay,
+				Scoreboard:      state.GS.Scoreboard,
 				GameState: state.PlayerState{
 					Player:       player,
 					Competitors:  competitors,
@@ -134,20 +135,20 @@ func CreateResponse(id string, event string) string {
 }
 
 // filter only attributes are able to be shared
-func createSharedState(players model.Players) model.Players {
+func CreateSharedState(players model.Players) model.Players {
 	others := model.Players{}
-	notFold := 0
+	fight := 0
 	// Count player who actually fold
 	for _, player := range players {
 		if player.Action.Name != constant.Fold &&
 			len(player.Cards) > 0 {
-			notFold++
+			fight++
 		}
 	}
 	// Decide that players should see the cards
 	for _, player := range players {
 		// If during gameplay or everyone is fold their cards
-		if state.GS.IsGameStart || notFold <= 1 {
+		if state.GS.IsGameStart || fight <= 1 {
 			player.Cards = model.Cards{}
 		}
 		others = append(others, player)

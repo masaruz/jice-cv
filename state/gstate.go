@@ -35,7 +35,7 @@ type GameState struct {
 	Event            string
 	TableDisplayName string
 	Rakes            map[string]float64
-	PlayerTableKeys  map[string]string // Map of each player_table_key and player_id
+	PlayerTableKeys  map[string]model.PlayerTableKey // Map of each player_table_key and player_id
 	Scoreboard       []model.Scoreboard
 	Env              string
 }
@@ -48,13 +48,13 @@ var GS = GameState{
 	TableID:         "from_manager",
 	GroupID:         "from_manager",
 	GameIndex:       0,
-	PlayerTableKeys: make(map[string]string),
+	PlayerTableKeys: make(map[string]model.PlayerTableKey),
 	Env:             os.Getenv(constant.Env),
 }
 
 // Snapshot is temporary gamestate used for handle state before end the script
 var Snapshot = GameState{
-	PlayerTableKeys: make(map[string]string),
+	PlayerTableKeys: make(map[string]model.PlayerTableKey),
 	Env:             os.Getenv(constant.Env),
 }
 

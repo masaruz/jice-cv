@@ -2800,6 +2800,13 @@ func TestLoop32(t *testing.T) {
 	id1, id2 := "player1", "player2"
 	handler.Connect(id1)
 	handler.Connect(id2)
+	state.Snapshot.PlayerTableKeys = make(map[string]model.PlayerTableKey)
+	state.Snapshot.PlayerTableKeys[id1] = model.PlayerTableKey{
+		ClubMemberLevel: 1,
+	}
+	state.Snapshot.PlayerTableKeys[id2] = model.PlayerTableKey{
+		ClubMemberLevel: 3,
+	}
 	// dumb player
 	handler.Sit(id1, 5) // first
 	handler.Sit(id2, 3)
@@ -2808,22 +2815,22 @@ func TestLoop32(t *testing.T) {
 	if p1.Actions[0].Name != constant.Stand || p1.Actions[1].Name != constant.StartTable {
 		t.Error()
 	}
-	if p2.Actions[0].Name != constant.Stand || p2.Actions[1].Name != constant.StartTable {
+	if p2.Actions[0].Name != constant.Stand || len(p2.Actions) > 2 {
 		t.Error()
 	}
 	handler.Stand(id2)
-	if p1.Actions[0].Name != constant.Stand || len(p1.Actions) > 1 {
+	if p1.Actions[0].Name != constant.Stand || len(p1.Actions) > 3 {
 		t.Error()
 	}
 	handler.Sit(id2, 3)
 	if p1.Actions[0].Name != constant.Stand || p1.Actions[1].Name != constant.StartTable {
 		t.Error()
 	}
-	if p2.Actions[0].Name != constant.Stand || p2.Actions[1].Name != constant.StartTable {
+	if p2.Actions[0].Name != constant.Stand || len(p2.Actions) > 2 {
 		t.Error()
 	}
 	handler.Leave(id2)
-	if p1.Actions[0].Name != constant.Stand || len(p1.Actions) > 1 {
+	if p1.Actions[0].Name != constant.Stand || len(p1.Actions) > 3 {
 		t.Error()
 	}
 	// fmt.Println(p1)
@@ -3218,7 +3225,7 @@ func TestLoop36(t *testing.T) {
 	state.Snapshot.Players[0].ID = "player1"
 	state.Snapshot.Deck.Cards[2] = 2
 	state.Snapshot = state.GameState{
-		PlayerTableKeys: make(map[string]string),
+		PlayerTableKeys: make(map[string]model.PlayerTableKey),
 		Env:             os.Getenv(constant.Env),
 	}
 	if state.GS.Players[0].ID != "player1" || state.Snapshot.Players != nil {
@@ -4379,4 +4386,64 @@ func TestLoop47(t *testing.T) {
 	// a.Print()
 	// b.Print()
 	// state.Snapshot.Pots.Print()
+}
+
+func TestLoop48(t *testing.T) {
+	decisionTime := int64(1)
+	ninek := gambit.NineK{
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		MaxPlayers:      6,
+		BuyInMin:        200,
+		BuyInMax:        1000,
+		BlindsSmall:     50,
+		BlindsBig:       50,
+		DecisionTime:    decisionTime,
+		Rake:            5.00,
+		Cap:             0.5}
+	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot = util.CloneState(state.GS)
+	state.Snapshot.Duration = 1800
+	handler.Enter(model.Player{ID: "a"})
+	handler.Enter(model.Player{ID: "b"})
+	handler.Enter(model.Player{ID: "c"})
+	// dumb player
+	handler.Sit("a", 2)
+	handler.Sit("b", 5)
+	handler.Sit("c", 1)
+	a := &state.Snapshot.Players[2]
+	b := &state.Snapshot.Players[1]
+	handler.StartTable()
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	state.GS = util.CloneState(state.Snapshot)
+	others := handler.CreateSharedState(state.Snapshot.Players)
+	for _, other := range others {
+		if other.ID == "" {
+			continue
+		}
+		if len(other.Cards) > 0 {
+			t.Error()
+		}
+	}
+	if !state.Snapshot.Gambit.Fold(a.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Fold(b.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.NextRound() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	for _, other := range others {
+		if other.ID == "" {
+			continue
+		}
+		other.Print()
+	}
 }
