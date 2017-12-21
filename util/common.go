@@ -72,6 +72,10 @@ func Log() {
 	for _, visitor := range state.GS.Visitors {
 		visitor.Print()
 	}
+	Print("<<< TableKeys >>>")
+	for _, ptk := range state.GS.PlayerTableKeys {
+		Print(ptk.UserID, ptk.ClubMemberLevel)
+	}
 	Print("Current gameindex:", state.GS.GameIndex)
 	Print("Now:", time.Now().Unix())
 	Print("Start round time:", state.GS.StartRoundTime)

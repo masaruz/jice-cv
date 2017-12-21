@@ -145,8 +145,11 @@ func (game NineK) NextRound() bool {
 		// Initialize values
 		handler.Deal(1, game.MaxPlayers)
 		handler.SetMinimumBet(game.BlindsBig)
-		handler.SetOtherActions("", constant.Check)
-		handler.SetOtherDefaultAction("", constant.Check)
+		// If there are figthers
+		if util.CountPlayerNotFoldAndNotAllIn(state.Snapshot.Players) > 1 {
+			handler.SetOtherActions("", constant.Check)
+			handler.SetOtherDefaultAction("", constant.Check)
+		}
 		handler.CreateTimeLine(game.DecisionTime)
 		handler.PlayersInvestToPots(0)
 		handler.MergePots(&state.Snapshot)

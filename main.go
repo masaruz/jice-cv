@@ -324,15 +324,16 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
-				if util.CountSitting(state.GS.Players) > 1 && !handler.IsTableStart() {
+				if !handler.IsTableStart() {
 					channel = constant.StartTable
 					handler.StartTable()
-					if state.GS.Gambit.Start() {
-						state.GS = util.CloneState(state.Snapshot)
-						state.GS.IncreaseVersion()
-						handler.BroadcastGameState(so, channel, userid)
-						util.Print(userid, "StartTable", "success")
+					if util.CountSitting(state.Snapshot.Players) > 1 {
+						state.Snapshot.Gambit.Start()
 					}
+					state.GS = util.CloneState(state.Snapshot)
+					state.GS.IncreaseVersion()
+					handler.BroadcastGameState(so, channel, userid)
+					util.Print(userid, "StartTable", "success")
 				}
 				result <- handler.CreateResponse(userid, channel)
 				return
@@ -582,6 +583,7 @@ func main() {
 	router.Handle("/socket.io", server)
 	router.HandleFunc("/updateAuth", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
+		util.Print("++++++++++++++ Updating Auth ++++++++++++++")
 		result := make(chan []byte)
 		queue <- func() {
 			state.Snapshot = util.CloneState(state.GS)
