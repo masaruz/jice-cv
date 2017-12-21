@@ -371,7 +371,7 @@ func PlayersInvestToPots(chips int) {
 			// start with first element in pots
 			// Even fold player need to be updated because UI
 			// UI need to let their chip run into the pot
-		} else if player.IsEarned {
+		} else if player.IsPlaying {
 			player.Bets = append(player.Bets, 0)
 		}
 	}
