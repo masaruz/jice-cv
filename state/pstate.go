@@ -41,15 +41,16 @@ type Header struct {
 
 // RespPayload is response payload
 type RespPayload struct {
-	EventName       string        `json:"eventname"`
-	Actions         model.Actions `json:"actions"`
-	GameState       PlayerState   `json:"gamestate"`
-	GameIndex       int           `json:"gameindex"`
-	CurrentTime     int64         `json:"current_time"`
-	StartRoundTime  int64         `json:"start_round_time"`
-	FinishRoundTime int64         `json:"finish_round_time"`
-	IsTableExpired  bool          `json:"is_table_expired"`
-	FinishGameDelay int64         `json:"finish_game_delay"`
+	EventName       string             `json:"eventname"`
+	Actions         model.Actions      `json:"actions"`
+	GameState       PlayerState        `json:"gamestate"`
+	Scoreboard      []model.Scoreboard `json:"scoreboard"`
+	GameIndex       int                `json:"gameindex"`
+	CurrentTime     int64              `json:"current_time"`
+	StartRoundTime  int64              `json:"start_round_time"`
+	FinishRoundTime int64              `json:"finish_round_time"`
+	IsTableExpired  bool               `json:"is_table_expired"`
+	FinishGameDelay int64              `json:"finish_game_delay"`
 }
 
 // ReqPayload request payload
