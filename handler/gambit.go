@@ -26,11 +26,14 @@ func CreateSeats(seats int) {
 }
 
 // StartTable set table start
-func StartTable() {
+func StartTable(id string) {
 	start := time.Now().Unix()
 	state.Snapshot.StartTableTime = start
 	state.Snapshot.FinishTableTime = start + state.Snapshot.Duration
 	state.Snapshot.IsTableStart = true
+	index, _ := util.Get(state.Snapshot.Players, id)
+	player := &state.Snapshot.Players[index]
+	player.Actions = Reducer(constant.StartTable, id)
 }
 
 // FinishTable set table start

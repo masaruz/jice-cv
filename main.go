@@ -326,7 +326,7 @@ func main() {
 				}
 				if !handler.IsTableStart() {
 					channel = constant.StartTable
-					handler.StartTable()
+					handler.StartTable(userid)
 					if util.CountSitting(state.Snapshot.Players) > 1 {
 						state.Snapshot.Gambit.Start()
 					}
