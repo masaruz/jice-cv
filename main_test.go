@@ -4516,16 +4516,19 @@ func TestLoop48(t *testing.T) {
 	}
 	state.GS = util.CloneState(state.Snapshot)
 	others = handler.CreateSharedState(state.Snapshot.Players)
-	if len(others[0].Cards) > 0 {
+	// handler.Sit("a", 2)
+	// handler.Sit("b", 5)
+	// handler.Sit("c", 1)
+	if len(others[1].Cards) > 0 {
 		t.Error()
 	}
-	if tmp := others[1]; len(tmp.Cards) > 0 && !tmp.IsWinner {
+	if tmp := others[2]; len(tmp.Cards) > 0 && !tmp.IsWinner {
 		t.Error()
 	}
-	if tmp := others[1]; len(tmp.Cards) < 3 && tmp.IsWinner {
+	if tmp := others[2]; len(tmp.Cards) < 3 && tmp.IsWinner {
 		t.Error()
 	}
-	if tmp := others[2]; len(tmp.Cards) < 3 {
+	if tmp := others[5]; len(tmp.Cards) < 3 {
 		t.Error()
 	}
 	handler.Connect("d")
@@ -4578,9 +4581,9 @@ func TestLoop48(t *testing.T) {
 	state.GS = util.CloneState(state.Snapshot)
 	others = handler.CreateSharedState(state.Snapshot.Players)
 	// for _, other := range others {
-	// 	if other.ID == "" {
-	// 		continue
-	// 	}
+	// if other.ID == "" {
+	// 	continue
+	// }
 	// 	other.Print()
 	// }
 	if tmp := others[0]; len(tmp.Cards) > 0 && !tmp.IsWinner && tmp.Action.Name != constant.AllIn {
@@ -4589,19 +4592,16 @@ func TestLoop48(t *testing.T) {
 	if tmp := others[0]; len(tmp.Cards) < 3 && !tmp.IsWinner && tmp.Action.Name == constant.AllIn {
 		t.Error()
 	}
-	if tmp := others[0]; len(tmp.Cards) < 3 && tmp.IsWinner {
-		t.Error()
-	}
 	if tmp := others[1]; len(tmp.Cards) > 0 { // Because fold
 		t.Error()
 	}
 	if tmp := others[2]; len(tmp.Cards) < 3 { // Because allin
 		t.Error()
 	}
-	if tmp := others[3]; len(tmp.Cards) > 0 && !tmp.IsWinner {
+	if tmp := others[5]; len(tmp.Cards) > 0 && !tmp.IsWinner {
 		t.Error()
 	}
-	if tmp := others[3]; len(tmp.Cards) < 3 && tmp.IsWinner {
+	if tmp := others[5]; len(tmp.Cards) < 3 && tmp.IsWinner {
 		t.Error()
 	}
 	// a.Print()
@@ -4625,5 +4625,71 @@ func TestLoop49(t *testing.T) {
 	}
 	if b.Chips != 1 {
 		t.Error()
+	}
+}
+
+func TestLoop50(t *testing.T) {
+	decisionTime := int64(1)
+	ninek := gambit.NineK{
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		MaxPlayers:      6,
+		BuyInMin:        500,
+		BuyInMax:        1000,
+		BlindsSmall:     50,
+		BlindsBig:       50,
+		DecisionTime:    decisionTime,
+		Rake:            5.00,
+		Cap:             0.5}
+	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot = util.CloneState(state.GS)
+	state.Snapshot.Duration = 1800
+	handler.Enter(model.Player{ID: "a"})
+	handler.Enter(model.Player{ID: "b"})
+	// dumb player
+	handler.Sit("a", 2)
+	handler.Sit("b", 5)
+	// a := &state.Snapshot.Players[2]
+	b := &state.Snapshot.Players[5]
+	handler.StartTable("a")
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	state.GS = util.CloneState(state.Snapshot)
+	others := handler.CreateSharedState(state.Snapshot.Players)
+	for _, other := range others {
+		if other.ID == "" {
+			continue
+		}
+		if len(other.Cards) > 0 {
+			t.Error()
+		}
+	}
+	if !state.Snapshot.Gambit.Fold(b.ID) {
+		t.Error()
+	}
+	// if !state.Snapshot.Gambit.Check(a.ID) {
+	// 	t.Error()
+	// }
+	// if !state.Snapshot.Gambit.NextRound() {
+	// 	t.Error()
+	// }
+	// if !state.Snapshot.Gambit.Bet(b.ID, 50) {
+	// 	t.Error()
+	// }
+	// if !state.Snapshot.Gambit.Raise(a.ID, 100) {
+	// 	t.Error()
+	// }
+	// if !state.Snapshot.Gambit.Call(b.ID) {
+	// 	t.Error()
+	// }
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	state.GS = util.CloneState(state.Snapshot)
+	others = handler.CreateSharedState(state.Snapshot.Players)
+	for _, other := range others {
+		other.Print()
 	}
 }

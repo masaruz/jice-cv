@@ -135,8 +135,7 @@ func SaveSettlements() ([]byte, error) {
 		summary.Settlements = append(summary.Settlements, model.Settlement{
 			UserID:        player.ID,
 			WinLossAmount: player.WinLossAmount,
-			PaidRake:      state.Snapshot.Rakes[player.ID],
-			IsWinner:      player.IsWinner})
+			PaidRake:      state.Snapshot.Rakes[player.ID]})
 		player.WinLossAmount = 0
 	}
 	// cast param to byte

@@ -138,7 +138,7 @@ func CreateResponse(id string, event string) string {
 func CreateSharedState(players model.Players) model.Players {
 	fight := 0
 	// Count player who actually fold
-	for _, player := range players {
+	for _, player := range state.GS.Players {
 		if player.Action.Name != constant.Fold &&
 			len(player.Cards) > 0 {
 			fight++
@@ -147,26 +147,19 @@ func CreateSharedState(players model.Players) model.Players {
 	others := model.Players{}
 	if state.GS.IsGameStart || fight <= 1 {
 		// Decide that players should see the cards
-		for _, player := range players {
+		for _, player := range state.GS.Players {
 			// If during gameplay or everyone is fold their cards
 			player.Cards = model.Cards{}
 			others = append(others, player)
 		}
 	} else {
-		for _, player := range players {
+		for _, player := range state.GS.Players {
 			// If call but is winner
 			if player.Action.Name == constant.Fold ||
 				(player.Action.Name == constant.Call && !player.IsWinner) {
 				player.Cards = model.Cards{}
-				others = append(others, player)
-			} else if (player.Action.Name == constant.Call && player.IsWinner) ||
-				player.Action.Name == constant.Raise {
-				others = append(others, player)
-			} else if player.Action.Name == constant.Check {
-				others = append(others, player)
-			} else if player.Action.Name == constant.AllIn {
-				others = append(others, player)
 			}
+			others = append(others, player)
 		}
 	}
 	return others
