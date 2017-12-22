@@ -54,7 +54,7 @@ func TestLoop01(t *testing.T) {
 	if util.CountSitting(state.Snapshot.Players) != 4 {
 		t.Error()
 	}
-	handler.StartTable()
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -161,7 +161,7 @@ func TestLoop02(t *testing.T) {
 	if state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
-	handler.StartTable()
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -301,7 +301,7 @@ func TestLoop03(t *testing.T) {
 	if state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
-	handler.StartTable()
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -407,7 +407,7 @@ func TestLoop04(t *testing.T) {
 	handler.Sit("player2", 4)
 	handler.Sit("player3", 3) // first
 	handler.Sit("player4", 5)
-	handler.StartTable()
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() || util.SumPots(state.Snapshot.PlayerPots) != 40 {
 		t.Error()
 	}
@@ -511,7 +511,7 @@ func TestLoop05(t *testing.T) {
 	handler.Sit("player2", 4)
 	handler.Sit("player3", 5)
 	handler.Sit("player4", 1) // dealer
-	handler.StartTable()
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() || util.SumPots(state.Snapshot.PlayerPots) != 40 {
 		t.Error()
 	}
@@ -647,7 +647,7 @@ func TestLoop06(t *testing.T) {
 		util.CountPlayerNotFoldAndNotAllIn(state.Snapshot.Players) != 0 {
 		t.Error()
 	}
-	handler.StartTable()
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -843,7 +843,7 @@ func TestLoop07(t *testing.T) {
 	handler.Sit(id2, 3)
 	handler.Sit(id3, 4)
 	handler.Sit(id4, 1) // dealer
-	handler.StartTable()
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -918,14 +918,11 @@ func TestLoop08(t *testing.T) {
 			t.Error()
 		}
 	}
-	handler.StartTable()
-	if state.Snapshot.Gambit.Start() {
-		t.Error("not enough players to start the game")
-	}
 	// dumb player
 	handler.Sit(id1, 2) // first
 	handler.Sit(id2, 5)
 	handler.Sit(id3, 1) // dealer
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error("has 3 players game should be start")
 	}
@@ -1011,15 +1008,12 @@ func TestLoop09(t *testing.T) {
 	handler.Connect(id2)
 	handler.Connect(id3)
 	handler.Connect(id4)
-	handler.StartTable()
-	if state.Snapshot.Gambit.Start() {
-		t.Error("not enough players to start the game")
-	}
 	// dumb player
 	handler.Sit(id1, 2) // first
 	handler.Sit(id2, 4)
 	handler.Sit(id3, 5)
 	handler.Sit(id4, 1) // dealer
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error("has 3 players game should be start")
 	}
@@ -1088,7 +1082,6 @@ func TestLoop10(t *testing.T) {
 	handler.Connect(id1)
 	handler.Connect(id2)
 	handler.Connect(id3)
-	handler.StartTable()
 	if state.Snapshot.Gambit.Start() {
 		t.Error("not enough players to start the game")
 	}
@@ -1096,6 +1089,7 @@ func TestLoop10(t *testing.T) {
 	handler.Sit(id1, 2) // first
 	handler.Sit(id2, 4)
 	handler.Sit(id3, 1)
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error("has 3 players game should be start")
 	}
@@ -1154,11 +1148,11 @@ func TestLoop11(t *testing.T) {
 	handler.Connect(id1)
 	handler.Connect(id2)
 	handler.Connect(id3)
-	handler.StartTable()
 	// dumb player
 	handler.Sit(id1, 2) // first
 	handler.Sit(id2, 4)
 	handler.Sit(id3, 1)
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error("has 3 players game should be start")
 	}
@@ -1230,11 +1224,11 @@ func TestLoop12(t *testing.T) {
 	handler.Connect(id1)
 	handler.Connect(id2)
 	handler.Connect(id3)
-	handler.StartTable()
 	// dumb player
 	handler.Sit(id1, 2) // first
 	handler.Sit(id2, 4)
 	handler.Sit(id3, 1)
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error("has 3 players game should be start")
 	}
@@ -1265,10 +1259,10 @@ func TestLoop13(t *testing.T) {
 	id1, id2 := "player1", "player2"
 	handler.Connect(id1)
 	handler.Connect(id2)
-	handler.StartTable()
 	// dumb player
 	handler.Sit(id1, 2)
 	handler.Sit(id2, 4)
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error("has 2 players game should be start")
 	}
@@ -1337,7 +1331,6 @@ func TestLoop14(t *testing.T) {
 	handler.Connect(id1)
 	handler.Connect(id2)
 	handler.Connect(id3)
-	handler.StartTable()
 	if state.Snapshot.Gambit.Start() {
 		t.Error("not enough players to start the game")
 	}
@@ -1345,6 +1338,7 @@ func TestLoop14(t *testing.T) {
 	handler.Sit(id1, 2) // first
 	handler.Sit(id2, 4)
 	handler.Sit(id3, 1)
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error("has 3 players game should be start")
 	}
@@ -1453,7 +1447,6 @@ func TestLoop15(t *testing.T) {
 	handler.Connect(id2)
 	handler.Connect(id3)
 	handler.Connect(id4)
-	handler.StartTable()
 	if state.Snapshot.Gambit.Start() {
 		t.Error("not enough players to start the game")
 	}
@@ -1462,6 +1455,7 @@ func TestLoop15(t *testing.T) {
 	handler.Sit(id2, 4)
 	handler.Sit(id3, 5)
 	handler.Sit(id4, 1)
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -1593,7 +1587,6 @@ func TestLoop16(t *testing.T) {
 	handler.Connect(id2)
 	handler.Connect(id3)
 	handler.Connect(id4)
-	handler.StartTable()
 	if state.Snapshot.Gambit.Start() {
 		t.Error("not enough players to start the game")
 	}
@@ -1602,6 +1595,7 @@ func TestLoop16(t *testing.T) {
 	handler.Sit(id2, 4)
 	handler.Sit(id3, 5)
 	handler.Sit(id4, 1)
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -1711,7 +1705,6 @@ func TestLoop17(t *testing.T) {
 	handler.Connect(id2)
 	handler.Connect(id3)
 	handler.Connect(id4)
-	handler.StartTable()
 	if state.Snapshot.Gambit.Start() {
 		t.Error("not enough players to start the game")
 	}
@@ -1720,6 +1713,7 @@ func TestLoop17(t *testing.T) {
 	handler.Sit(id2, 4)
 	handler.Sit(id3, 5)
 	handler.Sit(id4, 1)
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -1768,11 +1762,11 @@ func TestLoop18(t *testing.T) {
 	handler.Connect(id1)
 	handler.Connect(id2)
 	handler.Connect(id3)
-	handler.StartTable()
 	// dumb player
 	handler.Sit(id1, 2) // first
 	handler.Sit(id2, 4)
 	handler.Sit(id3, 1)
+	handler.StartTable("player1")
 	state.Snapshot.Gambit.Start()
 	if state.Snapshot.MinimumBet != minimumBet || state.Snapshot.MaximumBet != util.SumPots(state.Snapshot.PlayerPots) {
 		t.Error()
@@ -1958,11 +1952,11 @@ func TestLoop19(t *testing.T) {
 	handler.Connect(id1)
 	handler.Connect(id2)
 	handler.Connect(id3)
-	handler.StartTable()
 	// dumb player
 	handler.Sit(id1, 2) // first
 	handler.Sit(id2, 4)
 	handler.Sit(id3, 1)
+	handler.StartTable("player1")
 	state.Snapshot.Gambit.Start()
 	if state.Snapshot.MinimumBet != minimumBet || state.Snapshot.MaximumBet != util.SumPots(state.Snapshot.PlayerPots) {
 		t.Error()
@@ -2266,11 +2260,11 @@ func TestLoop26(t *testing.T) {
 	handler.Connect(id1)
 	handler.Connect(id2)
 	handler.Connect(id3)
-	handler.StartTable()
 	// dumb player
 	handler.Sit(id1, 2) // first
 	handler.Sit(id2, 4)
 	handler.Sit(id3, 1)
+	handler.StartTable("player1")
 	state.Snapshot.Gambit.Start()
 	_, p1 := util.Get(state.Snapshot.Players, id1)
 	_, p2 := util.Get(state.Snapshot.Players, id2)
@@ -2444,11 +2438,11 @@ func TestLoop27(t *testing.T) {
 	handler.Connect(id1)
 	handler.Connect(id2)
 	handler.Connect(id3)
-	handler.StartTable()
 	// dumb player
 	handler.Sit(id1, 2) // first
 	handler.Sit(id2, 4)
 	handler.Sit(id3, 1)
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -2489,11 +2483,11 @@ func TestLoop28(t *testing.T) {
 	handler.Connect(id1)
 	handler.Connect(id2)
 	handler.Connect(id3)
-	handler.StartTable()
 	// dumb player
 	handler.Sit(id1, 2) // first
 	handler.Sit(id2, 4)
 	handler.Sit(id3, 1)
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -2564,10 +2558,10 @@ func TestLoop29(t *testing.T) {
 	handler.Connect(id1)
 	handler.Connect(id2)
 	handler.Connect(id3)
-	handler.StartTable()
 	// dumb player
 	handler.Sit(id1, 5) // first
 	handler.Sit(id2, 3) // dealer
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -2665,11 +2659,11 @@ func TestLoop30(t *testing.T) {
 	handler.Connect(id1)
 	handler.Connect(id2)
 	handler.Connect(id3)
-	handler.StartTable()
 	// dumb player
 	handler.Sit(id1, 3) // first
 	handler.Sit(id2, 5)
 	handler.Sit(id3, 1) // dealer
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -2757,10 +2751,10 @@ func TestLoop31(t *testing.T) {
 	handler.Connect(id1)
 	handler.Connect(id2)
 	handler.Connect(id3)
-	handler.StartTable()
 	// dumb player
 	handler.Sit(id1, 5) // first
 	handler.Sit(id2, 3)
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -2865,7 +2859,7 @@ func TestLoop33(t *testing.T) {
 	// dumb player
 	handler.Sit(id1, 5) // first
 	handler.Sit(id2, 3)
-	handler.StartTable()
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -2920,7 +2914,7 @@ func TestLoop34(t *testing.T) {
 	if util.CountSitting(state.Snapshot.Players) != 4 {
 		t.Error()
 	}
-	handler.StartTable()
+	handler.StartTable("player1")
 	state.Snapshot.Gambit.Start()
 	// make sure everyone is playing and has 2 cards
 	for _, player := range state.Snapshot.Players {
@@ -3044,7 +3038,7 @@ func TestLoop35(t *testing.T) {
 	p2 := &state.Snapshot.Players[5]
 	p3 := &state.Snapshot.Players[3]
 	p4 := &state.Snapshot.Players[1]
-	handler.StartTable()
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -3282,7 +3276,7 @@ func TestLoop37(t *testing.T) {
 	p2 := &state.Snapshot.Players[3]
 	p3 := &state.Snapshot.Players[5]
 	p4 := &state.Snapshot.Players[1]
-	handler.StartTable()
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -3393,7 +3387,7 @@ func TestLoop38(t *testing.T) {
 	p2 := &state.Snapshot.Players[3]
 	p3 := &state.Snapshot.Players[5]
 	p4 := &state.Snapshot.Players[1]
-	handler.StartTable()
+	handler.StartTable("player1")
 	if state.Snapshot.GameIndex != 0 {
 		t.Error()
 	}
@@ -3508,7 +3502,7 @@ func TestLoop39(t *testing.T) {
 	p2 := &state.Snapshot.Players[3]
 	p3 := &state.Snapshot.Players[5]
 	p4 := &state.Snapshot.Players[1]
-	handler.StartTable()
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -3590,7 +3584,7 @@ func TestLoop40(t *testing.T) {
 	p2 := &state.Snapshot.Players[3]
 	p3 := &state.Snapshot.Players[5]
 	p4 := &state.Snapshot.Players[1]
-	handler.StartTable()
+	handler.StartTable("player1")
 	if state.Snapshot.GameIndex != 0 {
 		t.Error()
 	}
@@ -3643,7 +3637,7 @@ func TestLoop41(t *testing.T) {
 	p2 := &state.Snapshot.Players[3]
 	p3 := &state.Snapshot.Players[5]
 	p4 := &state.Snapshot.Players[1]
-	handler.StartTable()
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -3756,7 +3750,7 @@ func TestLoop42(t *testing.T) {
 	p2.Chips = 20
 	p3.Chips = 20
 	p4.Chips = 40
-	handler.StartTable()
+	handler.StartTable("player1")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -3974,7 +3968,7 @@ func TestLoop44(t *testing.T) {
 	a := &state.Snapshot.Players[2]
 	b := &state.Snapshot.Players[5]
 	c := &state.Snapshot.Players[1]
-	handler.StartTable()
+	handler.StartTable("a")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -4186,7 +4180,7 @@ func TestLoop45(t *testing.T) {
 	a.Chips = 250
 	b.Chips = 350
 	c.Chips = 400
-	handler.StartTable()
+	handler.StartTable("a")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -4278,7 +4272,7 @@ func TestLoop46(t *testing.T) {
 	b := &state.Snapshot.Players[1]
 	a.Chips = 250
 	b.Chips = 350
-	handler.StartTable()
+	handler.StartTable("a")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -4360,7 +4354,7 @@ func TestLoop47(t *testing.T) {
 	handler.Sit("b", 1)
 	a := &state.Snapshot.Players[2]
 	b := &state.Snapshot.Players[1]
-	handler.StartTable()
+	handler.StartTable("a")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -4396,7 +4390,7 @@ func TestLoop48(t *testing.T) {
 		MaxAFKCount:     5,
 		FinishGameDelay: 5,
 		MaxPlayers:      6,
-		BuyInMin:        200,
+		BuyInMin:        500,
 		BuyInMax:        1000,
 		BlindsSmall:     50,
 		BlindsBig:       50,
@@ -4416,7 +4410,8 @@ func TestLoop48(t *testing.T) {
 	handler.Sit("c", 1)
 	a := &state.Snapshot.Players[2]
 	b := &state.Snapshot.Players[5]
-	handler.StartTable()
+	c := &state.Snapshot.Players[1]
+	handler.StartTable("a")
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
@@ -4443,12 +4438,176 @@ func TestLoop48(t *testing.T) {
 	if !state.Snapshot.Gambit.Finish() {
 		t.Error()
 	}
+	state.GS = util.CloneState(state.Snapshot)
+	others = handler.CreateSharedState(state.Snapshot.Players)
+	for _, other := range others {
+		if other.ID == "" {
+			continue
+		}
+		if len(other.Cards) > 0 {
+			t.Error()
+		}
+	}
+	state.Snapshot.FinishRoundTime = 0
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check(b.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check(c.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check(a.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.NextRound() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check(b.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check(c.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check(a.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	state.GS = util.CloneState(state.Snapshot)
+	others = handler.CreateSharedState(state.Snapshot.Players)
+	for _, other := range others {
+		if other.ID == "" {
+			continue
+		}
+		if len(other.Cards) != 3 {
+			t.Error()
+		}
+	}
+	state.Snapshot.FinishRoundTime = 0
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Fold(c.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check(a.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check(b.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.NextRound() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Bet(a.ID, 50) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Raise(b.ID, 100) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Call(a.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	state.GS = util.CloneState(state.Snapshot)
+	others = handler.CreateSharedState(state.Snapshot.Players)
+	if len(others[0].Cards) > 0 {
+		t.Error()
+	}
+	if tmp := others[1]; len(tmp.Cards) > 0 && !tmp.IsWinner {
+		t.Error()
+	}
+	if tmp := others[1]; len(tmp.Cards) < 3 && tmp.IsWinner {
+		t.Error()
+	}
+	if tmp := others[2]; len(tmp.Cards) < 3 {
+		t.Error()
+	}
+	handler.Connect("d")
+	handler.Sit("d", 0)
+	d := &state.Snapshot.Players[0]
+	a.Chips = 250
+	b.Chips = 300
+	c.Chips = 250
+	d.Chips = 250
+	state.Snapshot.FinishRoundTime = 0
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Fold(c.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check(a.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check(b.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check(d.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.NextRound() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Bet(a.ID, 50) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Raise(b.ID, 100) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Call(d.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Raise(a.ID, 150) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Call(b.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Call(d.ID) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	state.GS = util.CloneState(state.Snapshot)
+	others = handler.CreateSharedState(state.Snapshot.Players)
 	// for _, other := range others {
 	// 	if other.ID == "" {
 	// 		continue
 	// 	}
 	// 	other.Print()
 	// }
+	if tmp := others[0]; len(tmp.Cards) > 0 && !tmp.IsWinner && tmp.Action.Name != constant.AllIn {
+		t.Error()
+	}
+	if tmp := others[0]; len(tmp.Cards) < 3 && !tmp.IsWinner && tmp.Action.Name == constant.AllIn {
+		t.Error()
+	}
+	if tmp := others[0]; len(tmp.Cards) < 3 && tmp.IsWinner {
+		t.Error()
+	}
+	if tmp := others[1]; len(tmp.Cards) > 0 { // Because fold
+		t.Error()
+	}
+	if tmp := others[2]; len(tmp.Cards) < 3 { // Because allin
+		t.Error()
+	}
+	if tmp := others[3]; len(tmp.Cards) > 0 && !tmp.IsWinner {
+		t.Error()
+	}
+	if tmp := others[3]; len(tmp.Cards) < 3 && tmp.IsWinner {
+		t.Error()
+	}
+	// a.Print()
+	// b.Print()
+	// c.Print()
+	// d.Print()
 	// log.Println(time.Now().Unix())
 	// log.Println(state.Snapshot.FinishRoundTime)
 }

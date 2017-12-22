@@ -155,10 +155,18 @@ func CreateSharedState(players model.Players) model.Players {
 	} else {
 		for _, player := range players {
 			// If call but is winner
-			if player.Action.Name == constant.Fold {
+			if player.Action.Name == constant.Fold ||
+				(player.Action.Name == constant.Call && !player.IsWinner) {
 				player.Cards = model.Cards{}
+				others = append(others, player)
+			} else if (player.Action.Name == constant.Call && player.IsWinner) ||
+				player.Action.Name == constant.Raise {
+				others = append(others, player)
+			} else if player.Action.Name == constant.Check {
+				others = append(others, player)
+			} else if player.Action.Name == constant.AllIn {
+				others = append(others, player)
 			}
-			others = append(others, player)
 		}
 	}
 	return others
