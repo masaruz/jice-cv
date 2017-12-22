@@ -134,9 +134,8 @@ func CreateResponse(id string, event string) string {
 	return string(data)
 }
 
-// filter only attributes are able to be shared
+// CreateSharedState filter only attributes are able to be shared
 func CreateSharedState(players model.Players) model.Players {
-	others := model.Players{}
 	fight := 0
 	// Count player who actually fold
 	for _, player := range players {
@@ -145,13 +144,22 @@ func CreateSharedState(players model.Players) model.Players {
 			fight++
 		}
 	}
-	// Decide that players should see the cards
-	for _, player := range players {
-		// If during gameplay or everyone is fold their cards
-		if state.GS.IsGameStart || fight <= 1 {
+	others := model.Players{}
+	if state.GS.IsGameStart || fight <= 1 {
+		// Decide that players should see the cards
+		for _, player := range players {
+			// If during gameplay or everyone is fold their cards
 			player.Cards = model.Cards{}
+			others = append(others, player)
 		}
-		others = append(others, player)
+	} else {
+		for _, player := range players {
+			// If call but is winner
+			if player.Action.Name == constant.Fold {
+				player.Cards = model.Cards{}
+			}
+			others = append(others, player)
+		}
 	}
 	return others
 }

@@ -4413,7 +4413,7 @@ func TestLoop48(t *testing.T) {
 	handler.Sit("b", 5)
 	handler.Sit("c", 1)
 	a := &state.Snapshot.Players[2]
-	b := &state.Snapshot.Players[1]
+	b := &state.Snapshot.Players[5]
 	handler.StartTable()
 	if !state.Snapshot.Gambit.Start() {
 		t.Error()
@@ -4434,16 +4434,19 @@ func TestLoop48(t *testing.T) {
 	if !state.Snapshot.Gambit.Fold(b.ID) {
 		t.Error()
 	}
-	if !state.Snapshot.Gambit.NextRound() {
+	state.Snapshot.FinishRoundTime = 0
+	if state.Snapshot.Gambit.NextRound() {
 		t.Error()
 	}
 	if !state.Snapshot.Gambit.Finish() {
 		t.Error()
 	}
-	for _, other := range others {
-		if other.ID == "" {
-			continue
-		}
-		other.Print()
-	}
+	// for _, other := range others {
+	// 	if other.ID == "" {
+	// 		continue
+	// 	}
+	// 	other.Print()
+	// }
+	// log.Println(time.Now().Unix())
+	// log.Println(state.Snapshot.FinishRoundTime)
 }
