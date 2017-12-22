@@ -5,6 +5,8 @@ import (
 	"999k_engine/model"
 	"999k_engine/state"
 	"999k_engine/util"
+
+	"github.com/shopspring/decimal"
 )
 
 // InitPots create and allowcate memory to handle pots
@@ -130,21 +132,26 @@ func AssignWinnerToPots(gs *state.GameState, id string) {
 				pot.WinnerSlot = player.Slot
 				// Receive changed
 				net := 0.0
+				potValueDecimal := decimal.NewFromFloat(float64(pot.Value))
+				potRakeDecimal := decimal.NewFromFloat(pot.Rake)
+				playerChipDecimal := decimal.NewFromFloat(player.Chips)
 				if len(related) == 1 && i != 0 {
-					net = float64(pot.Value)
-					player.Chips += net
-					state.Snapshot.Rakes[key] -= (pot.Rake / float64(len(related)))
+					net, _ = potValueDecimal.Float64()
+					player.Chips, _ = playerChipDecimal.Add(potValueDecimal).Float64()
+					state.Snapshot.Rakes[key], _ = decimal.NewFromFloat(state.Snapshot.Rakes[key]).Sub(
+						potRakeDecimal.Div(
+							decimal.NewFromFloat(float64(len(related))))).Float64()
 					if state.Snapshot.Rakes[key] < 0 {
 						state.Snapshot.Rakes[key] = 0
 					}
-					player.WinLossAmount += net
 					// Is a real winner
 				} else {
-					net = float64(pot.Value) - pot.Rake
-					player.Chips += net
-					player.WinLossAmount += net
+					netDecimal := potValueDecimal.Sub(potRakeDecimal)
+					net, _ = netDecimal.Float64()
+					player.Chips, _ = playerChipDecimal.Add(netDecimal).Float64()
 					player.IsWinner = true
 				}
+				player.WinLossAmount, _ = decimal.NewFromFloat(player.WinLossAmount).Add(decimal.NewFromFloat(net)).Float64()
 				AddScoreboardWinAmount(player.ID, net)
 				player.IsEarned = true
 				break

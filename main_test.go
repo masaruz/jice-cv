@@ -11,6 +11,8 @@ import (
 	"os"
 	"testing"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 func TestLoop01(t *testing.T) {
@@ -4449,4 +4451,20 @@ func TestLoop48(t *testing.T) {
 	// }
 	// log.Println(time.Now().Unix())
 	// log.Println(state.Snapshot.FinishRoundTime)
+}
+
+func TestLoop49(t *testing.T) {
+	a := model.Player{Chips: 0}
+	b := model.Player{Chips: 0}
+	added := 0.0001
+	for i := 0; i < 10000; i++ {
+		a.Chips += added
+		b.Chips, _ = decimal.NewFromFloat(b.Chips).Add(decimal.NewFromFloat(added)).Float64()
+	}
+	if a.Chips == 1 {
+		t.Error()
+	}
+	if b.Chips != 1 {
+		t.Error()
+	}
 }

@@ -12,6 +12,8 @@ import (
 	"math"
 	"sort"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 // NineK is 9K
@@ -307,14 +309,15 @@ func (game NineK) Call(id string) bool {
 	player := &state.Snapshot.Players[index]
 	chips := util.GetHighestBetInTurn(state.Snapshot.Turn, state.Snapshot.Players) -
 		player.Bets[state.Snapshot.Turn]
+	chipsDecimal := decimal.NewFromFloat(float64(chips))
 	// cannot call more than player's chips
 	if int(math.Floor(player.Chips)) < chips || chips == 0 {
 		return false
 	}
 	handler.AddScoreboardWinAmount(player.ID, float64(-chips))
 	state.Snapshot.DoActions[index] = true
-	player.Chips -= float64(chips)
-	player.WinLossAmount -= float64(chips)
+	player.Chips, _ = decimal.NewFromFloat(player.Chips).Sub(chipsDecimal).Float64()
+	player.WinLossAmount, _ = decimal.NewFromFloat(player.WinLossAmount).Sub(chipsDecimal).Float64()
 	player.Bets[state.Snapshot.Turn] += chips
 	playerAction := model.Action{}
 	if math.Floor(player.Chips) == 0 {
@@ -354,8 +357,9 @@ func (game NineK) AllIn(id string) bool {
 	handler.AddScoreboardWinAmount(player.ID, float64(-chips))
 	state.Snapshot.DoActions[index] = true
 	player.Bets[state.Snapshot.Turn] += chips
-	player.WinLossAmount -= float64(chips)
-	player.Chips = 0
+	chipsDecimal := decimal.NewFromFloat(float64(chips))
+	player.Chips, _ = decimal.NewFromFloat(player.Chips).Sub(chipsDecimal).Float64()
+	player.WinLossAmount, _ = decimal.NewFromFloat(player.WinLossAmount).Sub(chipsDecimal).Float64()
 	player.Default = model.Action{Name: constant.AllIn}
 	player.Action = model.Action{Name: constant.AllIn}
 	player.Actions = game.Reducer(constant.Check, id)
@@ -570,8 +574,9 @@ func (game NineK) pay(id string, chips int, action string) bool {
 	handler.AddScoreboardWinAmount(player.ID, float64(-chips))
 	state.Snapshot.DoActions[index] = true
 	// added value to the bet in this turn
-	player.Chips -= float64(chips)
-	player.WinLossAmount -= float64(chips)
+	chipsDecimal := decimal.NewFromFloat(float64(chips))
+	player.Chips, _ = decimal.NewFromFloat(player.Chips).Sub(chipsDecimal).Float64()
+	player.WinLossAmount, _ = decimal.NewFromFloat(player.WinLossAmount).Sub(chipsDecimal).Float64()
 	player.Bets[state.Snapshot.Turn] += chips
 	// broadcast to everyone that I bet
 	playerAction := model.Action{}

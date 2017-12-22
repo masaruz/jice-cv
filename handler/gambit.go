@@ -9,6 +9,8 @@ import (
 	"999k_engine/util"
 	"math"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 // Initiate required variables
@@ -363,8 +365,9 @@ func PlayersInvestToPots(chips int) {
 			CalculatePot(&state.Snapshot, player.ID, state.Snapshot.PlayerPots[index])
 		}
 		if util.IsPlayingAndNotFoldAndNotAllIn(*player) {
-			player.Chips -= float64(chips)
-			player.WinLossAmount -= float64(chips)
+			chipsDecimal := decimal.NewFromFloat(float64(chips))
+			player.Chips, _ = decimal.NewFromFloat(player.Chips).Sub(chipsDecimal).Float64()
+			player.WinLossAmount, _ = decimal.NewFromFloat(player.WinLossAmount).Sub(chipsDecimal).Float64()
 			AddScoreboardWinAmount(player.ID, float64(-chips))
 			player.Bets = append(player.Bets, chips)
 			IncreasePlayerPot(index, chips)
