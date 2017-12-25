@@ -63,14 +63,14 @@ func (game NineK) Start() bool {
 			// If player has no chip enough
 			if int(math.Floor(player.Chips)) < game.GetSettings().BlindsSmall {
 				// Force to stand
-				if !handler.Stand(player.ID) {
+				if !handler.Stand(player.ID, false) {
 					return false
 				}
 				// If player has minimum chip for able to play
 			} else if state.Snapshot.AFKCounts[index] >= game.MaxAFKCount {
 				util.Print(player.ID, "Is AFK")
 				// Force to stand
-				if !handler.Stand(player.ID) {
+				if !handler.Stand(player.ID, false) {
 					return false
 				}
 			}

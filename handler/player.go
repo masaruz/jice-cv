@@ -49,6 +49,10 @@ func Enter(player model.Player) bool {
 	// 	player.Picture == "" {
 	// 	return false
 	// }
+	index, _ := util.Get(state.Snapshot.Players, player.ID)
+	if index != -1 {
+		Stand(player.ID, true)
+	}
 	player.Action = model.Action{Name: constant.Stand}
 	player.Actions = Reducer(constant.Connection, player.ID)
 	state.Snapshot.Visitors = util.Add(state.Snapshot.Visitors, player)
@@ -58,7 +62,7 @@ func Enter(player model.Player) bool {
 // Leave and Remove user from vistor or player list
 func Leave(id string) bool {
 	// force them to stand
-	Stand(id)
+	Stand(id, true)
 	// after they stand then remove from visitor
 	state.Snapshot.Visitors = util.Remove(state.Snapshot.Visitors, id)
 	if state.Snapshot.Env != "dev" {
@@ -110,7 +114,7 @@ func Sit(id string, slot int) bool {
 		// If cashback error
 		if resp.Error != (api.Error{}) && resp.Error.StatusCode != 404 {
 			// Force to stand
-			Stand(caller.ID)
+			Stand(caller.ID, true)
 			return false
 		}
 		// After cashback success set chips to be 0
@@ -123,7 +127,7 @@ func Sit(id string, slot int) bool {
 		// BuyIn must be successful
 		if resp.Error != (api.Error{}) {
 			// Force to stand
-			Stand(caller.ID)
+			Stand(caller.ID, true)
 			return false
 		}
 		util.Print("Buy-in success")
@@ -147,7 +151,7 @@ func Sit(id string, slot int) bool {
 		json.Unmarshal(body, resp)
 		if resp.Error != (api.Error{}) {
 			// Force to stand
-			Stand(caller.ID)
+			Stand(caller.ID, true)
 			return false
 		}
 	}
@@ -156,7 +160,7 @@ func Sit(id string, slot int) bool {
 }
 
 // Stand when player need to quit
-func Stand(id string) bool {
+func Stand(id string, force bool) bool {
 	index, caller := util.Get(state.Snapshot.Players, id)
 	if caller.ID == "" {
 		return false
@@ -169,7 +173,7 @@ func Stand(id string) bool {
 		util.Print("Response from SaveSettlement", string(body), err)
 		resp := &api.Response{}
 		json.Unmarshal(body, resp)
-		if resp.Error != (api.Error{}) && resp.Error.StatusCode != 404 {
+		if resp.Error != (api.Error{}) && resp.Error.StatusCode != 404 && !force {
 			return false
 		}
 		// Save buy-in cash to real player pocket
@@ -177,7 +181,7 @@ func Stand(id string) bool {
 		util.Print("Response from CashBack", string(body), err)
 		resp = &api.Response{}
 		json.Unmarshal(body, resp)
-		if resp.Error != (api.Error{}) && resp.Error.StatusCode != 404 {
+		if resp.Error != (api.Error{}) && resp.Error.StatusCode != 404 && !force {
 			return false
 		}
 	}
@@ -209,9 +213,7 @@ func Stand(id string) bool {
 		util.Print("Response from UpdateRealtimeData", string(body), err)
 		resp := &api.Response{}
 		json.Unmarshal(body, resp)
-		if resp.Error != (api.Error{}) {
-			// Force to stand
-			Stand(caller.ID)
+		if resp.Error != (api.Error{}) && !force {
 			return false
 		}
 	}

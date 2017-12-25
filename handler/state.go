@@ -93,7 +93,6 @@ func broadcast(so socketio.Socket, players model.Players, event string, owner st
 // CreateResponse what each player should see
 func CreateResponse(id string, event string) string {
 	competitors := CreateSharedState(state.GS.Players)
-	visitors := CreateSharedState(state.GS.Visitors)
 	_, player := util.Get(state.GS.Players, id)
 	actions := model.Actions{}
 	if _, c := util.Get(state.GS.Players, id); c.ID != "" {
@@ -122,7 +121,7 @@ func CreateResponse(id string, event string) string {
 				GameState: state.PlayerState{
 					Player:       player,
 					Competitors:  competitors,
-					Visitors:     visitors,
+					Visitors:     state.GS.Visitors,
 					Pots:         []int{util.SumPots(state.GS.PlayerPots)},
 					SummaryPots:  state.GS.Pots,
 					HighestBet:   util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players),
