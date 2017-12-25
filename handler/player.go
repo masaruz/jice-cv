@@ -44,18 +44,12 @@ func Connect(id string) {
 
 // Enter when player actually call to enter to the room
 func Enter(player model.Player) bool {
-	// if player.ID == "" ||
-	// 	player.Name == "" ||
-	// 	player.Picture == "" {
-	// 	return false
-	// }
 	index, _ := util.Get(state.Snapshot.Players, player.ID)
-	if index != -1 {
-		Stand(player.ID, true)
+	if index == -1 {
+		player.Action = model.Action{Name: constant.Stand}
+		player.Actions = Reducer(constant.Connection, player.ID)
+		state.Snapshot.Visitors = util.Add(state.Snapshot.Visitors, player)
 	}
-	player.Action = model.Action{Name: constant.Stand}
-	player.Actions = Reducer(constant.Connection, player.ID)
-	state.Snapshot.Visitors = util.Add(state.Snapshot.Visitors, player)
 	return true
 }
 
@@ -71,28 +65,12 @@ func Leave(id string) bool {
 		// Update realtime data ex. Visitors
 		body, err = api.UpdateRealtimeData()
 		util.Print("Response from UpdateRealtimeData", string(body), err)
-		resp := &api.Response{}
-		json.Unmarshal(body, resp)
-		// Is there any error when start game
-		if resp.Error != (api.Error{}) {
-			return false
-		}
 	}
 	return true
 }
 
-// AutoSit auto find a seat
-func AutoSit(id string) bool {
-	for _, player := range state.Snapshot.Players {
-		if player.ID == "" {
-			return Sit(id, player.Slot)
-		}
-	}
-	return false
-}
-
 // Sit for playing the game
-func Sit(id string, slot int) bool {
+func Sit(id string, slot int) *model.Error {
 	index, caller := util.Get(state.Snapshot.Visitors, id)
 	caller.Slot = -1
 	// find slot for them
@@ -104,18 +82,16 @@ func Sit(id string, slot int) bool {
 		}
 	}
 	if caller.Slot == -1 {
-		return false
+		return &model.Error{Code: NoAvailableSeat}
 	}
 	if state.Snapshot.Env != "dev" {
 		body, err := api.CashBack(caller.ID)
-		util.Print("Response from CashBack", string(body), err)
+		util.Print("Response from Cashback", string(body), err)
 		resp := &api.Response{}
 		json.Unmarshal(body, resp)
 		// If cashback error
 		if resp.Error != (api.Error{}) && resp.Error.StatusCode != 404 {
-			// Force to stand
-			Stand(caller.ID, true)
-			return false
+			return &model.Error{Code: CashbackError}
 		}
 		// After cashback success set chips to be 0
 		caller.Chips = 0
@@ -126,9 +102,7 @@ func Sit(id string, slot int) bool {
 		json.Unmarshal(body, resp)
 		// BuyIn must be successful
 		if resp.Error != (api.Error{}) {
-			// Force to stand
-			Stand(caller.ID, true)
-			return false
+			return &model.Error{Code: BuyInError}
 		}
 		util.Print("Buy-in success")
 	}
@@ -150,13 +124,11 @@ func Sit(id string, slot int) bool {
 		resp := &api.Response{}
 		json.Unmarshal(body, resp)
 		if resp.Error != (api.Error{}) {
-			// Force to stand
-			Stand(caller.ID, true)
-			return false
+			return &model.Error{Code: UpdateRealtimeError}
 		}
 	}
 	state.Snapshot.AFKCounts[index] = 0
-	return true
+	return nil
 }
 
 // Stand when player need to quit

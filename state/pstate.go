@@ -51,6 +51,7 @@ type RespPayload struct {
 	FinishRoundTime int64              `json:"finish_round_time"`
 	IsTableExpired  bool               `json:"is_table_expired"`
 	FinishGameDelay int64              `json:"finish_game_delay"`
+	Error           *model.Error       `json:"error,omitempty"`
 }
 
 // ReqPayload request payload

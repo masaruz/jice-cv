@@ -356,7 +356,8 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
-				if handler.Sit(userid, data.Payload.Parameters[0].IntegerValue) {
+				err := handler.Sit(userid, data.Payload.Parameters[0].IntegerValue)
+				if err == nil {
 					channel = constant.Sit
 					state.GS.Gambit.Start()
 					state.GS = util.CloneState(state.Snapshot)
@@ -366,7 +367,7 @@ func main() {
 				} else {
 					util.Print(userid, "Sit", "Fail")
 				}
-				result <- handler.CreateResponse(userid, channel)
+				result <- handler.CreateResponseWithCode(userid, channel, err)
 				return
 			}
 			defer util.Log()

@@ -690,7 +690,7 @@ func TestLoop06(t *testing.T) {
 	if !state.Snapshot.Gambit.Fold(id4) || !state.Snapshot.Gambit.Fold(id1) {
 		t.Error()
 	}
-	if !handler.Sit(id3, 3) {
+	if handler.Sit(id3, 3) != nil {
 		t.Error()
 	}
 	_, player3 := util.Get(state.Snapshot.Players, id3)
@@ -2585,7 +2585,7 @@ func TestLoop29(t *testing.T) {
 		t.Error()
 	}
 	state.Snapshot.FinishRoundTime = 0
-	if !handler.Sit(id1, 5) || !state.Snapshot.Gambit.Start() {
+	if handler.Sit(id1, 5) != nil || !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
 	_, p1 = util.Get(state.Snapshot.Players, id1)
@@ -2608,7 +2608,7 @@ func TestLoop29(t *testing.T) {
 		t.Error()
 	}
 	state.Snapshot.FinishRoundTime = 0
-	if !handler.Sit(id1, 5) || !state.Snapshot.Gambit.Start() {
+	if handler.Sit(id1, 5) != nil || !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
 	_, p1 = util.Get(state.Snapshot.Players, id1)
@@ -2977,10 +2977,10 @@ func TestLoop34(t *testing.T) {
 	if state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
-	if !handler.Sit("player1", 2) || util.CountSitting(state.Snapshot.Players) != 1 {
+	if handler.Sit("player1", 2) != nil || util.CountSitting(state.Snapshot.Players) != 1 {
 		t.Error()
 	}
-	if !handler.Sit("player2", 5) || util.CountSitting(state.Snapshot.Players) != 2 {
+	if handler.Sit("player2", 5) != nil || util.CountSitting(state.Snapshot.Players) != 2 {
 		t.Error()
 	}
 	if !state.Snapshot.Gambit.Start() {
@@ -3689,7 +3689,7 @@ func TestLoop41(t *testing.T) {
 	if state.Snapshot.Gambit.Finish() || !state.Snapshot.Gambit.NextRound() {
 		t.Error()
 	}
-	if !handler.Sit("player1", 2) {
+	if handler.Sit("player1", 2) != nil {
 		t.Error()
 	}
 	if p1.Type != constant.Dealer {
