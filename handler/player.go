@@ -14,7 +14,10 @@ import (
 // Reducer reduce player common actions
 func Reducer(event string, id string) model.Actions {
 	switch event {
-	case constant.Sit:
+	case constant.StartTable:
+		return model.Actions{
+			model.Action{Name: constant.Stand}}
+	default:
 		if !state.Snapshot.IsTableStart &&
 			(state.Snapshot.PlayerTableKeys[id].ClubMemberLevel == 1 ||
 				state.Snapshot.PlayerTableKeys[id].ClubMemberLevel == 2) {
@@ -24,12 +27,6 @@ func Reducer(event string, id string) model.Actions {
 		}
 		return model.Actions{
 			model.Action{Name: constant.Stand}}
-	case constant.StartTable:
-		return model.Actions{
-			model.Action{Name: constant.Stand}}
-	default:
-		return model.Actions{
-			model.Action{Name: constant.Sit}}
 	}
 }
 
@@ -102,7 +99,11 @@ func Sit(id string, slot int) *model.Error {
 		json.Unmarshal(body, resp)
 		// BuyIn must be successful
 		if resp.Error != (api.Error{}) {
-			return &model.Error{Code: BuyInError}
+			err := &model.Error{Code: BuyInError}
+			if resp.Error.StatusCode == 422 {
+				err = &model.Error{Code: ChipIsNotEnough}
+			}
+			return err
 		}
 		util.Print("Buy-in success")
 	}
