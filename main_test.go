@@ -8,6 +8,7 @@ import (
 	"999k_engine/state"
 	"999k_engine/util"
 	"fmt"
+	"log"
 	"os"
 	"testing"
 	"time"
@@ -4629,67 +4630,64 @@ func TestLoop49(t *testing.T) {
 }
 
 func TestLoop50(t *testing.T) {
-	decisionTime := int64(1)
-	ninek := gambit.NineK{
-		MaxAFKCount:     5,
-		FinishGameDelay: 5,
-		MaxPlayers:      6,
-		BuyInMin:        500,
-		BuyInMax:        1000,
-		BlindsSmall:     50,
-		BlindsBig:       50,
-		DecisionTime:    decisionTime,
-		Rake:            5.00,
-		Cap:             0.5}
-	handler.Initiate(ninek)
-	state.GS.Gambit.Init() // create seats
 	state.Snapshot = util.CloneState(state.GS)
-	state.Snapshot.Duration = 1800
-	handler.Enter(model.Player{ID: "a"})
-	handler.Enter(model.Player{ID: "b"})
-	// dumb player
-	handler.Sit("a", 2)
-	handler.Sit("b", 5)
-	// a := &state.Snapshot.Players[2]
-	b := &state.Snapshot.Players[5]
-	handler.StartTable("a")
-	if !state.Snapshot.Gambit.Start() {
+	players := model.Players{
+		model.Player{ID: "a", Name: "a", Chips: 200},
+		model.Player{ID: "b", Name: "b", Chips: 200},
+	}
+	if len(state.Snapshot.Scoreboard) > 0 {
 		t.Error()
 	}
-	state.GS = util.CloneState(state.Snapshot)
-	others := handler.CreateSharedState(state.Snapshot.Players)
-	for _, other := range others {
-		if other.ID == "" {
-			continue
-		}
-		if len(other.Cards) > 0 {
-			t.Error()
-		}
-	}
-	if !state.Snapshot.Gambit.Fold(b.ID) {
+	a := &players[0]
+	b := &players[1]
+	handler.UpdateBuyInAmount(a)
+	sa := &state.Snapshot.Scoreboard[0]
+	if len(state.Snapshot.Scoreboard) != 1 {
 		t.Error()
 	}
-	// if !state.Snapshot.Gambit.Check(a.ID) {
-	// 	t.Error()
-	// }
-	// if !state.Snapshot.Gambit.NextRound() {
-	// 	t.Error()
-	// }
-	// if !state.Snapshot.Gambit.Bet(b.ID, 50) {
-	// 	t.Error()
-	// }
-	// if !state.Snapshot.Gambit.Raise(a.ID, 100) {
-	// 	t.Error()
-	// }
-	// if !state.Snapshot.Gambit.Call(b.ID) {
-	// 	t.Error()
-	// }
-	if !state.Snapshot.Gambit.Finish() {
+	if sa.UserID != "a" {
 		t.Error()
 	}
-	state.GS = util.CloneState(state.Snapshot)
-	others = handler.CreateSharedState(state.Snapshot.Players)
-	for _, other := range others {
-		other.Print()
+	if sa.DisplayName != "a" {
+		t.Error()
 	}
+	if sa.BuyInAmount != 200 {
+		t.Error()
+	}
+	handler.UpdateBuyInAmount(b)
+	sb := &state.Snapshot.Scoreboard[1]
+	if len(state.Snapshot.Scoreboard) != 2 {
+		t.Error()
+	}
+	if sb.UserID != "b" {
+		t.Error()
+	}
+	if sb.DisplayName != "b" {
+		t.Error()
+	}
+	if sb.BuyInAmount != 200 {
+		t.Error()
+	}
+	handler.UpdateBuyInAmount(a)
+	if len(state.Snapshot.Scoreboard) != 2 {
+		t.Error()
+	}
+	if sa.UserID != "a" {
+		t.Error()
+	}
+	if sa.DisplayName != "a" {
+		t.Error()
+	}
+	if sa.BuyInAmount != 200 {
+		t.Error()
+	}
+	handler.UpdateWinningsAmount(a.ID, 50)
+	handler.UpdateWinningsAmount(b.ID, -50)
+	if sa.WinningsAmount != 50 {
+		t.Error()
+	}
+	if sb.WinningsAmount != -50 {
+		t.Error()
+	}
+	log.Println(state.Snapshot.Scoreboard, sa, sb)
 }

@@ -314,7 +314,7 @@ func (game NineK) Call(id string) bool {
 	if int(math.Floor(player.Chips)) < chips || chips == 0 {
 		return false
 	}
-	handler.AddScoreboardWinAmount(player.ID, float64(-chips))
+	handler.UpdateWinningsAmount(player.ID, float64(-chips))
 	state.Snapshot.DoActions[index] = true
 	player.Chips, _ = decimal.NewFromFloat(player.Chips).Sub(chipsDecimal).Float64()
 	player.WinLossAmount, _ = decimal.NewFromFloat(player.WinLossAmount).Sub(chipsDecimal).Float64()
@@ -354,7 +354,7 @@ func (game NineK) AllIn(id string) bool {
 		return false
 	}
 	highestbet := util.GetHighestBetInTurn(state.Snapshot.Turn, state.Snapshot.Players)
-	handler.AddScoreboardWinAmount(player.ID, float64(-chips))
+	handler.UpdateWinningsAmount(player.ID, float64(-chips))
 	state.Snapshot.DoActions[index] = true
 	player.Bets[state.Snapshot.Turn] += chips
 	chipsDecimal := decimal.NewFromFloat(float64(chips))
@@ -571,7 +571,7 @@ func (game NineK) pay(id string, chips int, action string) bool {
 	if int(math.Floor(player.Chips)) < chips {
 		return false
 	}
-	handler.AddScoreboardWinAmount(player.ID, float64(-chips))
+	handler.UpdateWinningsAmount(player.ID, float64(-chips))
 	state.Snapshot.DoActions[index] = true
 	// added value to the bet in this turn
 	chipsDecimal := decimal.NewFromFloat(float64(chips))

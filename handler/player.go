@@ -110,7 +110,7 @@ func Sit(id string, slot int) *model.Error {
 	// Assign how much they buy-in
 	caller.Chips = float64(state.Snapshot.Gambit.GetSettings().BuyInMin)
 	// Update scoreboard
-	UpdateScoreboard(&caller, "add")
+	UpdateBuyInAmount(&caller)
 	// remove from visitor
 	state.Snapshot.Visitors = util.Remove(state.Snapshot.Visitors, id)
 	caller.Action = model.Action{Name: constant.Sit}

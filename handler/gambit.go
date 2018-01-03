@@ -371,7 +371,7 @@ func PlayersInvestToPots(chips int) {
 			chipsDecimal := decimal.NewFromFloat(float64(chips))
 			player.Chips, _ = decimal.NewFromFloat(player.Chips).Sub(chipsDecimal).Float64()
 			player.WinLossAmount, _ = decimal.NewFromFloat(player.WinLossAmount).Sub(chipsDecimal).Float64()
-			AddScoreboardWinAmount(player.ID, float64(-chips))
+			UpdateWinningsAmount(player.ID, float64(-chips))
 			player.Bets = append(player.Bets, chips)
 			IncreasePlayerPot(index, chips)
 			// start with first element in pots
@@ -421,6 +421,7 @@ func TryTerminate() {
 		go func() {
 			body, err := api.TableEnd()
 			util.Print("Response from TableEnd", string(body), err)
+			// TODO Call delete table realtime
 			time.Sleep(time.Second * 10)
 			body, err = api.Terminate()
 			util.Print("Response from Terminate", string(body), err)
