@@ -8,7 +8,6 @@ import (
 	"999k_engine/state"
 	"999k_engine/util"
 	"fmt"
-	"log"
 	"os"
 	"testing"
 	"time"
@@ -4417,7 +4416,7 @@ func TestLoop48(t *testing.T) {
 		t.Error()
 	}
 	state.GS = util.CloneState(state.Snapshot)
-	others := handler.CreateSharedState(state.Snapshot.Players)
+	others := handler.CreateSharedCardState()
 	for _, other := range others {
 		if other.ID == "" {
 			continue
@@ -4440,7 +4439,7 @@ func TestLoop48(t *testing.T) {
 		t.Error()
 	}
 	state.GS = util.CloneState(state.Snapshot)
-	others = handler.CreateSharedState(state.Snapshot.Players)
+	others = handler.CreateSharedCardState()
 	for _, other := range others {
 		if other.ID == "" {
 			continue
@@ -4478,7 +4477,7 @@ func TestLoop48(t *testing.T) {
 		t.Error()
 	}
 	state.GS = util.CloneState(state.Snapshot)
-	others = handler.CreateSharedState(state.Snapshot.Players)
+	others = handler.CreateSharedCardState()
 	for _, other := range others {
 		if other.ID == "" {
 			continue
@@ -4516,7 +4515,7 @@ func TestLoop48(t *testing.T) {
 		t.Error()
 	}
 	state.GS = util.CloneState(state.Snapshot)
-	others = handler.CreateSharedState(state.Snapshot.Players)
+	others = handler.CreateSharedCardState()
 	// handler.Sit("a", 2)
 	// handler.Sit("b", 5)
 	// handler.Sit("c", 1)
@@ -4580,7 +4579,7 @@ func TestLoop48(t *testing.T) {
 		t.Error()
 	}
 	state.GS = util.CloneState(state.Snapshot)
-	others = handler.CreateSharedState(state.Snapshot.Players)
+	others = handler.CreateSharedCardState()
 	// for _, other := range others {
 	// if other.ID == "" {
 	// 	continue
@@ -4641,7 +4640,7 @@ func TestLoop50(t *testing.T) {
 	a := &players[0]
 	b := &players[1]
 	handler.UpdateBuyInAmount(a)
-	sa := &state.Snapshot.Scoreboard[0]
+	sa := state.Snapshot.Scoreboard[0]
 	if len(state.Snapshot.Scoreboard) != 1 {
 		t.Error()
 	}
@@ -4655,7 +4654,7 @@ func TestLoop50(t *testing.T) {
 		t.Error()
 	}
 	handler.UpdateBuyInAmount(b)
-	sb := &state.Snapshot.Scoreboard[1]
+	sb := state.Snapshot.Scoreboard[1]
 	if len(state.Snapshot.Scoreboard) != 2 {
 		t.Error()
 	}
@@ -4669,6 +4668,7 @@ func TestLoop50(t *testing.T) {
 		t.Error()
 	}
 	handler.UpdateBuyInAmount(a)
+	sa = state.Snapshot.Scoreboard[0]
 	if len(state.Snapshot.Scoreboard) != 2 {
 		t.Error()
 	}
@@ -4683,11 +4683,60 @@ func TestLoop50(t *testing.T) {
 	}
 	handler.UpdateWinningsAmount(a.ID, 50)
 	handler.UpdateWinningsAmount(b.ID, -50)
+	sa = state.Snapshot.Scoreboard[0]
+	sb = state.Snapshot.Scoreboard[1]
 	if sa.WinningsAmount != 50 {
 		t.Error()
 	}
 	if sb.WinningsAmount != -50 {
 		t.Error()
 	}
-	log.Println(state.Snapshot.Scoreboard, sa, sb)
+	a.WinLossAmount = 50
+	b.WinLossAmount = -50
+	handler.UpdateBuyInAmount(a)
+	handler.UpdateBuyInAmount(b)
+	sa = state.Snapshot.Scoreboard[0]
+	sb = state.Snapshot.Scoreboard[1]
+	if sa.BuyInAmount != 200 {
+		t.Error()
+	}
+	if sb.BuyInAmount != 250 {
+		t.Error()
+	}
+	a.WinLossAmount = 20
+	b.WinLossAmount = -20
+	handler.UpdateBuyInAmount(a)
+	handler.UpdateBuyInAmount(b)
+	sa = state.Snapshot.Scoreboard[0]
+	sb = state.Snapshot.Scoreboard[1]
+	if sa.BuyInAmount != 200 {
+		t.Error()
+	}
+	if sb.BuyInAmount != 250 {
+		t.Error()
+	}
+	a.WinLossAmount = 100
+	b.WinLossAmount = -100
+	handler.UpdateBuyInAmount(a)
+	handler.UpdateBuyInAmount(b)
+	sa = state.Snapshot.Scoreboard[0]
+	sb = state.Snapshot.Scoreboard[1]
+	if sa.BuyInAmount != 200 {
+		t.Error()
+	}
+	if sb.BuyInAmount != 300 {
+		t.Error()
+	}
+	a.WinLossAmount = -200
+	b.WinLossAmount = 100
+	handler.UpdateBuyInAmount(a)
+	handler.UpdateBuyInAmount(b)
+	sa = state.Snapshot.Scoreboard[0]
+	sb = state.Snapshot.Scoreboard[1]
+	if sa.BuyInAmount != 400 {
+		t.Error()
+	}
+	if sb.BuyInAmount != 300 {
+		t.Error()
+	}
 }

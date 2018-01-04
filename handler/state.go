@@ -92,7 +92,7 @@ func broadcast(so socketio.Socket, players model.Players, event string, owner st
 
 // CreateResponseWithCode what each player should see and send error if needed
 func CreateResponseWithCode(id string, event string, err *model.Error) string {
-	competitors := CreateSharedState(state.GS.Players)
+	competitors := CreateSharedCardState()
 	_, player := util.Get(state.GS.Players, id)
 	actions := model.Actions{}
 	if _, c := util.Get(state.GS.Players, id); c.ID != "" {
@@ -136,49 +136,11 @@ func CreateResponseWithCode(id string, event string, err *model.Error) string {
 
 // CreateResponse what each player should see
 func CreateResponse(id string, event string) string {
-	competitors := CreateSharedState(state.GS.Players)
-	_, player := util.Get(state.GS.Players, id)
-	actions := model.Actions{}
-	if _, c := util.Get(state.GS.Players, id); c.ID != "" {
-		actions = c.Actions
-	} else if _, v := util.Get(state.GS.Visitors, id); v.ID != "" {
-		actions = v.Actions
-	}
-	// for record latest state
-	if event != "" {
-		state.GS.Event = event
-	}
-	// map to playerstate
-	data, _ := json.Marshal(
-		state.Resp{
-			Header: state.Header{Token: "player_token"},
-			Payload: state.RespPayload{
-				EventName:       state.GS.Event,
-				Actions:         actions,
-				CurrentTime:     time.Now().Unix(),
-				StartRoundTime:  state.GS.StartRoundTime,
-				FinishRoundTime: state.GS.FinishRoundTime,
-				IsTableExpired:  state.GS.IsTableExpired,
-				GameIndex:       state.GS.GameIndex,
-				FinishGameDelay: state.GS.Gambit.GetSettings().FinishGameDelay,
-				Scoreboard:      state.GS.Scoreboard,
-				GameState: state.PlayerState{
-					Player:       player,
-					Competitors:  competitors,
-					Visitors:     state.GS.Visitors,
-					Pots:         []int{util.SumPots(state.GS.PlayerPots)},
-					SummaryPots:  state.GS.Pots,
-					HighestBet:   util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players),
-					Version:      state.GS.Version,
-					IsTableStart: state.GS.IsTableStart,
-					IsGameStart:  state.GS.IsGameStart,
-				}},
-			Signature: state.Signature{}})
-	return string(data)
+	return CreateResponseWithCode(id, event, nil)
 }
 
-// CreateSharedState filter only attributes are able to be shared
-func CreateSharedState(players model.Players) model.Players {
+// CreateSharedCardState filter only attributes are able to be shared
+func CreateSharedCardState() model.Players {
 	fight := 0
 	// Count player who actually fold
 	for _, player := range state.GS.Players {

@@ -246,6 +246,7 @@ func (game NineK) Finish() bool {
 				return false
 			}
 		}
+		handler.SaveHistory()
 		// Revert minimum bet
 		handler.SetMinimumBet(game.BlindsBig)
 		handler.FlushPlayers()

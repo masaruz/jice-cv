@@ -265,3 +265,42 @@ func GetUserIDFromToken(tablekey string) string {
 	}
 	return ""
 }
+
+// SaveHistory record winloss amount and cards
+func SaveHistory() {
+	competitors := CreateSharedCardState()
+	// Convert competitors to competitors history
+	histories := []*model.PlayerHistory{}
+	for _, player := range competitors {
+		if player.ID == "" {
+			continue
+		}
+		histories = append(histories, &model.PlayerHistory{
+			ID:            player.ID,
+			Name:          player.Name,
+			WinLossAmount: player.WinLossAmount,
+			Cards:         player.Cards,
+			Slot:          player.Slot,
+		})
+	}
+	for _, player := range competitors {
+		if player.ID == "" {
+			continue
+		}
+		// history := &state.Snapshot.History[player.ID]
+		history := model.History{
+			Player: &model.PlayerHistory{
+				ID:            player.ID,
+				Name:          player.Name,
+				WinLossAmount: player.WinLossAmount,
+				Cards:         player.Cards,
+				Slot:          player.Slot,
+			},
+			Competitors: histories,
+		}
+		if state.Snapshot.History[player.ID] == nil {
+			state.Snapshot.History[player.ID] = make(map[int]model.History)
+		}
+		state.Snapshot.History[player.ID][state.Snapshot.GameIndex] = history
+	}
+}

@@ -16,11 +16,12 @@ func UpdateBuyInAmount(player *model.Player) {
 	scoreboard, index := util.GetScoreboard(player.ID)
 	// If not found player in scoreboard then add them
 	if index == -1 {
-		state.Snapshot.Scoreboard = append(state.Snapshot.Scoreboard, model.Scoreboard{
-			UserID:      player.ID,
-			DisplayName: player.Name,
-			BuyInAmount: int(math.Floor(player.Chips)),
-		})
+		state.Snapshot.Scoreboard = append(state.Snapshot.Scoreboard,
+			model.Scoreboard{
+				UserID:      player.ID,
+				DisplayName: player.Name,
+				BuyInAmount: int(math.Floor(player.Chips)),
+			})
 	} else {
 		chips := decimal.NewFromFloat(player.Chips)
 		winnings := decimal.NewFromFloat(player.WinLossAmount)
