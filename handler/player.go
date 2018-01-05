@@ -268,26 +268,26 @@ func GetUserIDFromToken(tablekey string) string {
 
 // SaveHistory record winloss amount and cards
 func SaveHistory() {
-	competitors := CreateSharedCardState()
+	competitors := CreateSharedCardState(state.Snapshot)
 	// Convert competitors to competitors history
 	histories := []*model.PlayerHistory{}
-	for _, player := range competitors {
-		if player.ID == "" {
+	for _, comp := range competitors {
+		if comp.ID == "" {
 			continue
 		}
 		histories = append(histories, &model.PlayerHistory{
-			ID:            player.ID,
-			Name:          player.Name,
-			WinLossAmount: player.WinLossAmount,
-			Cards:         player.Cards,
-			Slot:          player.Slot,
+			ID:            comp.ID,
+			Name:          comp.Name,
+			WinLossAmount: comp.WinLossAmount,
+			Cards:         comp.Cards,
+			Slot:          comp.Slot,
 		})
 	}
-	for _, player := range competitors {
-		if player.ID == "" {
+	for _, comp := range competitors {
+		if comp.ID == "" {
 			continue
 		}
-		// history := &state.Snapshot.History[player.ID]
+		_, player := util.Get(state.Snapshot.Players, comp.ID)
 		history := model.History{
 			Player: &model.PlayerHistory{
 				ID:            player.ID,
@@ -298,9 +298,9 @@ func SaveHistory() {
 			},
 			Competitors: histories,
 		}
-		if state.Snapshot.History[player.ID] == nil {
-			state.Snapshot.History[player.ID] = make(map[int]model.History)
+		if state.Snapshot.History[comp.ID] == nil {
+			state.Snapshot.History[comp.ID] = make(map[int]model.History)
 		}
-		state.Snapshot.History[player.ID][state.Snapshot.GameIndex] = history
+		state.Snapshot.History[comp.ID][state.Snapshot.GameIndex] = history
 	}
 }

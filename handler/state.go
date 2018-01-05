@@ -92,7 +92,7 @@ func broadcast(so socketio.Socket, players model.Players, event string, owner st
 
 // CreateResponseWithCode what each player should see and send error if needed
 func CreateResponseWithCode(id string, event string, err *model.Error) string {
-	competitors := CreateSharedCardState()
+	competitors := CreateSharedCardState(state.GS)
 	_, player := util.Get(state.GS.Players, id)
 	actions := model.Actions{}
 	if _, c := util.Get(state.GS.Players, id); c.ID != "" {
@@ -140,25 +140,25 @@ func CreateResponse(id string, event string) string {
 }
 
 // CreateSharedCardState filter only attributes are able to be shared
-func CreateSharedCardState() model.Players {
+func CreateSharedCardState(gamestate state.GameState) model.Players {
 	fight := 0
 	// Count player who actually fold
-	for _, player := range state.GS.Players {
+	for _, player := range gamestate.Players {
 		if player.Action.Name != constant.Fold &&
 			len(player.Cards) > 0 {
 			fight++
 		}
 	}
 	others := model.Players{}
-	if state.GS.IsGameStart || fight <= 1 {
+	if gamestate.IsGameStart || fight <= 1 {
 		// Decide that players should see the cards
-		for _, player := range state.GS.Players {
+		for _, player := range gamestate.Players {
 			// If during gameplay or everyone is fold their cards
 			player.Cards = model.Cards{}
 			others = append(others, player)
 		}
 	} else {
-		for _, player := range state.GS.Players {
+		for _, player := range gamestate.Players {
 			// If call but is winner
 			if player.Action.Name == constant.Fold ||
 				(player.Action.Name == constant.Call && !player.IsWinner) {

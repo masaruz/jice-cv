@@ -121,10 +121,11 @@ func TestLoop01(t *testing.T) {
 	if !state.Snapshot.Gambit.Finish() {
 		t.Error()
 	}
-	// _, p1 := util.Get(state.Snapshot.Players, "player1")
-	// _, p2 := util.Get(state.Snapshot.Players, "player2")
-	// _, p3 := util.Get(state.Snapshot.Players, "player3")
-	// _, p4 := util.Get(state.Snapshot.Players, "player4")
+	for _, comp := range state.Snapshot.History["player1"][state.Snapshot.GameIndex].Competitors {
+		if len(comp.Cards) != 3 {
+			t.Error()
+		}
+	}
 	// p1.Print()
 	// p2.Print()
 	// p3.Print()
@@ -979,6 +980,11 @@ func TestLoop08(t *testing.T) {
 	_, p3 = util.Get(state.Snapshot.Players, id3)
 	if p3.Chips != 290 || p1.Chips != 140 || p2.Chips != 170 {
 		t.Error()
+	}
+	for _, comp := range state.Snapshot.History["player1"][state.Snapshot.GameIndex].Competitors {
+		if len(comp.Cards) > 0 {
+			t.Error()
+		}
 	}
 	// p1.Print()
 	// p2.Print()
@@ -4378,6 +4384,7 @@ func TestLoop47(t *testing.T) {
 	if !state.Snapshot.Gambit.Raise(a.ID, 100) {
 		t.Error()
 	}
+
 	// log.Println(a.Actions)
 	// a.Print()
 	// b.Print()
@@ -4416,7 +4423,7 @@ func TestLoop48(t *testing.T) {
 		t.Error()
 	}
 	state.GS = util.CloneState(state.Snapshot)
-	others := handler.CreateSharedCardState()
+	others := handler.CreateSharedCardState(state.GS)
 	for _, other := range others {
 		if other.ID == "" {
 			continue
@@ -4439,7 +4446,7 @@ func TestLoop48(t *testing.T) {
 		t.Error()
 	}
 	state.GS = util.CloneState(state.Snapshot)
-	others = handler.CreateSharedCardState()
+	others = handler.CreateSharedCardState(state.GS)
 	for _, other := range others {
 		if other.ID == "" {
 			continue
@@ -4477,7 +4484,7 @@ func TestLoop48(t *testing.T) {
 		t.Error()
 	}
 	state.GS = util.CloneState(state.Snapshot)
-	others = handler.CreateSharedCardState()
+	others = handler.CreateSharedCardState(state.GS)
 	for _, other := range others {
 		if other.ID == "" {
 			continue
@@ -4515,7 +4522,7 @@ func TestLoop48(t *testing.T) {
 		t.Error()
 	}
 	state.GS = util.CloneState(state.Snapshot)
-	others = handler.CreateSharedCardState()
+	others = handler.CreateSharedCardState(state.GS)
 	// handler.Sit("a", 2)
 	// handler.Sit("b", 5)
 	// handler.Sit("c", 1)
@@ -4579,7 +4586,7 @@ func TestLoop48(t *testing.T) {
 		t.Error()
 	}
 	state.GS = util.CloneState(state.Snapshot)
-	others = handler.CreateSharedCardState()
+	others = handler.CreateSharedCardState(state.GS)
 	// for _, other := range others {
 	// if other.ID == "" {
 	// 	continue
