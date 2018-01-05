@@ -15,6 +15,14 @@ import (
 func Reducer(event string, id string) model.Actions {
 	switch event {
 	case constant.StartTable:
+		index, _ := util.Get(state.Snapshot.Players, id)
+		if index != -1 {
+			return model.Actions{
+				model.Action{Name: constant.Stand}}
+		}
+		return model.Actions{
+			model.Action{Name: constant.Sit}}
+	case constant.Sit:
 		return model.Actions{
 			model.Action{Name: constant.Stand}}
 	default:
@@ -23,10 +31,12 @@ func Reducer(event string, id string) model.Actions {
 				state.Snapshot.PlayerTableKeys[id].ClubMemberLevel == 2) {
 			return model.Actions{
 				model.Action{Name: constant.Stand},
-				model.Action{Name: constant.StartTable}}
+				model.Action{Name: constant.StartTable},
+				model.Action{Name: constant.Sit}}
 		}
 		return model.Actions{
-			model.Action{Name: constant.Stand}}
+			model.Action{Name: constant.Stand},
+			model.Action{Name: constant.Sit}}
 	}
 }
 

@@ -32,7 +32,16 @@ func StartTable(id string) {
 	state.Snapshot.FinishTableTime = start + state.Snapshot.Duration
 	state.Snapshot.IsTableStart = true
 	index, _ := util.Get(state.Snapshot.Players, id)
-	player := &state.Snapshot.Players[index]
+	player := &model.Player{}
+	if index != -1 {
+		player = &state.Snapshot.Players[index]
+	} else {
+		// Get from visitor instead
+		index, _ = util.Get(state.Snapshot.Visitors, id)
+		if index != -1 {
+			player = &state.Snapshot.Visitors[index]
+		}
+	}
 	player.Actions = Reducer(constant.StartTable, id)
 }
 
