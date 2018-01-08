@@ -67,6 +67,11 @@ func IsTableExpired() bool {
 	return state.Snapshot.IsTableExpired
 }
 
+// IsAboutToTerminating true when already call terminate api
+func IsAboutToTerminating() bool {
+	return state.Snapshot.IsAboutToTerminating
+}
+
 // IsGameStart true or false
 func IsGameStart() bool {
 	return state.Snapshot.IsGameStart
@@ -416,6 +421,11 @@ func BurnBet(index int, burn int) {
 
 // TryTerminate try to terminate the container
 func TryTerminate() {
+	if !IsTableExpired() || IsAboutToTerminating() {
+		return
+	}
+	// Processing to be terminated
+	state.Snapshot.IsAboutToTerminating = true
 	// Check if current time is more than finish table time
 	util.Print("Try terminating")
 	state.Snapshot.IsTableStart = false

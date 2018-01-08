@@ -23,6 +23,13 @@ func Reducer(event string, id string) model.Actions {
 		return model.Actions{
 			model.Action{Name: constant.Sit}}
 	case constant.Sit:
+		if !state.Snapshot.IsTableStart &&
+			(state.Snapshot.PlayerTableKeys[id].ClubMemberLevel == 1 ||
+				state.Snapshot.PlayerTableKeys[id].ClubMemberLevel == 2) {
+			return model.Actions{
+				model.Action{Name: constant.Stand},
+				model.Action{Name: constant.StartTable}}
+		}
 		return model.Actions{
 			model.Action{Name: constant.Stand}}
 	default:
@@ -97,7 +104,7 @@ func Sit(id string, slot int) *model.Error {
 		resp := &api.Response{}
 		json.Unmarshal(body, resp)
 		// If cashback error
-		if resp.Error != (api.Error{}) && resp.Error.StatusCode != 404 {
+		if resp.Error != (api.Error{}) && resp.Error.StatusCode != 409 {
 			return &model.Error{Code: CashbackError}
 		}
 		// After cashback success set chips to be 0
@@ -156,7 +163,7 @@ func Stand(id string, force bool) bool {
 		util.Print("Response from SaveSettlement", string(body), err)
 		resp := &api.Response{}
 		json.Unmarshal(body, resp)
-		if resp.Error != (api.Error{}) && resp.Error.StatusCode != 404 && !force {
+		if resp.Error != (api.Error{}) && resp.Error.StatusCode != 422 && !force {
 			return false
 		}
 		// Save buy-in cash to real player pocket
@@ -164,7 +171,7 @@ func Stand(id string, force bool) bool {
 		util.Print("Response from CashBack", string(body), err)
 		resp = &api.Response{}
 		json.Unmarshal(body, resp)
-		if resp.Error != (api.Error{}) && resp.Error.StatusCode != 404 && !force {
+		if resp.Error != (api.Error{}) && resp.Error.StatusCode != 409 && !force {
 			return false
 		}
 	}

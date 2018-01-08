@@ -4611,6 +4611,9 @@ func TestLoop48(t *testing.T) {
 	if tmp := others[5]; len(tmp.Cards) < 3 && tmp.IsWinner {
 		t.Error()
 	}
+
+	// data, _ := json.Marshal(state.Snapshot.History)
+	// log.Println(string(data))
 	// a.Print()
 	// b.Print()
 	// c.Print()

@@ -588,6 +588,7 @@ func main() {
 		result := make(chan []byte)
 		queue <- func() {
 			state.Snapshot = util.CloneState(state.GS)
+			handler.TryTerminate()
 			playerTableKeys := []model.PlayerTableKey{}
 			b, _ := ioutil.ReadAll(r.Body)
 			json.Unmarshal(b, &playerTableKeys)
