@@ -152,7 +152,6 @@ func AssignWinnerToPots(gs *state.GameState, id string) {
 					player.IsWinner = true
 				}
 				player.WinLossAmount, _ = decimal.NewFromFloat(player.WinLossAmount).Add(decimal.NewFromFloat(net)).Float64()
-				UpdateWinningsAmount(player.ID, net)
 				player.IsEarned = true
 				break
 			}

@@ -198,8 +198,9 @@ func (game NineK) Finish() bool {
 		hbonus := -1
 		pos := -1
 		util.Print("Find the winner(s)")
-		// Evaluate score from everyone's hand
 		for i := 0; i < len(state.Snapshot.Players); i++ {
+			// Evaluate score from everyone's hand
+			// Find a winner
 			for index, player := range state.Snapshot.Players {
 				if !util.IsPlayingAndNotFold(player) ||
 					len(player.Cards) == 0 ||
@@ -227,6 +228,13 @@ func (game NineK) Finish() bool {
 				hbonus = -1
 				pos = -1
 			}
+		}
+		// Update scoreboard with winloss amount value
+		for _, player := range state.Snapshot.Players {
+			if !player.IsPlaying {
+				continue
+			}
+			handler.UpdateWinningsAmount(player.ID, player.WinLossAmount)
 		}
 		if state.Snapshot.Env != "dev" {
 			body, err := api.SaveSettlements()
@@ -315,7 +323,6 @@ func (game NineK) Call(id string) bool {
 	if int(math.Floor(player.Chips)) < chips || chips == 0 {
 		return false
 	}
-	handler.UpdateWinningsAmount(player.ID, float64(-chips))
 	state.Snapshot.DoActions[index] = true
 	player.Chips, _ = decimal.NewFromFloat(player.Chips).Sub(chipsDecimal).Float64()
 	player.WinLossAmount, _ = decimal.NewFromFloat(player.WinLossAmount).Sub(chipsDecimal).Float64()
@@ -355,7 +362,6 @@ func (game NineK) AllIn(id string) bool {
 		return false
 	}
 	highestbet := util.GetHighestBetInTurn(state.Snapshot.Turn, state.Snapshot.Players)
-	handler.UpdateWinningsAmount(player.ID, float64(-chips))
 	state.Snapshot.DoActions[index] = true
 	player.Bets[state.Snapshot.Turn] += chips
 	chipsDecimal := decimal.NewFromFloat(float64(chips))
@@ -572,7 +578,6 @@ func (game NineK) pay(id string, chips int, action string) bool {
 	if int(math.Floor(player.Chips)) < chips {
 		return false
 	}
-	handler.UpdateWinningsAmount(player.ID, float64(-chips))
 	state.Snapshot.DoActions[index] = true
 	// added value to the bet in this turn
 	chipsDecimal := decimal.NewFromFloat(float64(chips))

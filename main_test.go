@@ -4750,3 +4750,75 @@ func TestLoop50(t *testing.T) {
 		t.Error()
 	}
 }
+
+func TestLoop51(t *testing.T) {
+	decisionTime := int64(1)
+	ninek := gambit.NineK{
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		MaxPlayers:      6,
+		BuyInMin:        500,
+		BuyInMax:        1000,
+		BlindsSmall:     50,
+		BlindsBig:       50,
+		DecisionTime:    decisionTime,
+		Rake:            5.00,
+		Cap:             0.5}
+	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot = util.CloneState(state.GS)
+	state.Snapshot.Duration = 1800
+	handler.Enter(model.Player{ID: "a"})
+	handler.Enter(model.Player{ID: "b"})
+	handler.Enter(model.Player{ID: "c"})
+	// dumb player
+	handler.Sit("a", 2)
+	handler.Sit("b", 5)
+	handler.Sit("c", 1)
+	a := &state.Snapshot.Players[2]
+	b := &state.Snapshot.Players[5]
+	c := &state.Snapshot.Players[1]
+	sa := &state.Snapshot.Scoreboard[0]
+	sb := &state.Snapshot.Scoreboard[1]
+	sc := &state.Snapshot.Scoreboard[2]
+	handler.StartTable("a")
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	a.Cards = model.Cards{9, 10, 11}
+	b.Cards = model.Cards{5, 6, 7}
+	c.Cards = model.Cards{1, 2, 3}
+	state.Snapshot.FinishRoundTime = 0
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	if sa.WinningsAmount != 92.5 {
+		t.Error()
+	}
+	if sb.WinningsAmount != -50 {
+		t.Error()
+	}
+	if sc.WinningsAmount != -50 {
+		t.Error()
+	}
+	state.Snapshot.FinishRoundTime = 0
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	a.Cards = model.Cards{5, 6, 7}
+	b.Cards = model.Cards{9, 10, 11}
+	c.Cards = model.Cards{1, 2, 3}
+	state.Snapshot.FinishRoundTime = 0
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	if sa.WinningsAmount != 42.5 {
+		t.Error()
+	}
+	if sb.WinningsAmount != 42.5 {
+		t.Error()
+	}
+	if sc.WinningsAmount != -100 {
+		t.Error()
+	}
+}
