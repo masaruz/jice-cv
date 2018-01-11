@@ -74,6 +74,12 @@ func (game NineK) Start() bool {
 					return false
 				}
 			}
+			// else if util.Distance(0, 0, 0, 0) <= 50 {
+			// 	util.Print(player.ID, "Is nearby someone")
+			// 	if !handler.Stand(player.ID, false) {
+			// 		return false
+			// 	}
+			// }
 		}
 		// After filtered with the critiria
 		// if there are more than 2 players are sitting

@@ -12,4 +12,5 @@ const (
 	UpdateRealtimeError ErrorCode = 102
 	CashbackError       ErrorCode = 103
 	NoAvailableSeat     ErrorCode = 104
+	NearOtherPlayers    ErrorCode = 105
 )

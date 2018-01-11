@@ -69,9 +69,12 @@ func main() {
 				// Join the room
 				so.Join(userid)
 				if handler.Enter(model.Player{
-					ID:      userid,
-					Name:    data.Header.DisplayName,
-					Picture: "picture",
+					ID:              userid,
+					Name:            data.Header.DisplayName,
+					AvatarSource:    data.Header.AvatarSource,
+					AvatarBuiltinID: data.Header.AvatarBuiltinID,
+					AvatarCustomID:  data.Header.AvatarCustomID,
+					FacebookID:      data.Header.FacebookID,
 				}) {
 					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()

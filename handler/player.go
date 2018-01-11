@@ -94,6 +94,12 @@ func Sit(id string, slot int) *model.Error {
 			caller.Type = player.Type
 			break
 		}
+		// if util.Distance(0, 0, 0, 0) <= 50 {
+		// 	util.Print(player.ID, "Is nearby someone")
+		// 	if !Stand(player.ID, false) {
+		// 		return &model.Error{Code: NearOtherPlayers}
+		// 	}
+		// }
 	}
 	if caller.Slot == -1 {
 		return &model.Error{Code: NoAvailableSeat}
@@ -188,11 +194,14 @@ func Stand(id string, force bool) bool {
 	}
 	// Change state player to visitor
 	visitor := model.Player{
-		ID:      id,
-		Action:  model.Action{Name: constant.Stand},
-		Actions: Reducer(constant.Connection, id),
-		Name:    caller.Name,
-		Picture: caller.Picture,
+		ID:              id,
+		Action:          model.Action{Name: constant.Stand},
+		Actions:         Reducer(constant.Connection, id),
+		Name:            caller.Name,
+		AvatarSource:    caller.AvatarSource,
+		AvatarBuiltinID: caller.AvatarBuiltinID,
+		AvatarCustomID:  caller.AvatarCustomID,
+		FacebookID:      caller.FacebookID,
 	}
 	state.Snapshot.Players = util.Kick(state.Snapshot.Players, caller.ID)
 	state.Snapshot.Visitors = util.Add(state.Snapshot.Visitors, visitor)

@@ -4,25 +4,28 @@ import "log"
 
 // Player in the battle
 type Player struct {
-	ID            string     `json:"id"`
-	Name          string     `json:"name"`
-	Picture       string     `json:"picture"`
-	Cards         Cards      `json:"cards"`
-	CardAmount    int        `json:"card_amount"`
-	Chips         float64    `json:"chips"`
-	WinLossAmount float64    `json:"win_loss_amount,omitempty"`
-	Type          string     `json:"type"`
-	Bets          []int      `json:"bets"`
-	Slot          int        `json:"slot,omitempty"`
-	Default       Action     `json:"default_action"`
-	Action        Action     `json:"action"`
-	Actions       []Action   `json:"actions"`
-	IsPlaying     bool       `json:"is_playing"`
-	IsEarned      bool       `json:"is_earned,omitempty"`
-	IsWinner      bool       `json:"is_winner,omitempty"`
-	DeadLine      int64      `json:"deadline"`
-	StartLine     int64      `json:"startline"`
-	Stickers      *[]Sticker `json:"send_stickers,omitempty"`
+	ID              string     `json:"id"`
+	Name            string     `json:"name"`
+	Cards           Cards      `json:"cards"`
+	CardAmount      int        `json:"card_amount"`
+	Chips           float64    `json:"chips"`
+	WinLossAmount   float64    `json:"win_loss_amount,omitempty"`
+	Type            string     `json:"type"`
+	Bets            []int      `json:"bets"`
+	Slot            int        `json:"slot,omitempty"`
+	Default         Action     `json:"default_action"`
+	Action          Action     `json:"action"`
+	Actions         []Action   `json:"actions"`
+	IsPlaying       bool       `json:"is_playing"`
+	IsEarned        bool       `json:"is_earned,omitempty"`
+	IsWinner        bool       `json:"is_winner,omitempty"`
+	DeadLine        int64      `json:"deadline"`
+	StartLine       int64      `json:"startline"`
+	Stickers        *[]Sticker `json:"send_stickers,omitempty"`
+	AvatarSource    string     `json:"avatar_source,omitempty"`
+	AvatarBuiltinID string     `json:"avatar_builtin_id,omitempty"`
+	AvatarCustomID  string     `json:"avatar_custom_id,omitempty"`
+	FacebookID      string     `json:"facebook_id,omitempty"`
 }
 
 // PlayerTableKey for player authentication each table
