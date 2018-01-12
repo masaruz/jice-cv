@@ -41,7 +41,8 @@ type PlayerTableKey struct {
 func (p Player) Print() {
 	log.Println(p.ID, p.Name, p.Cards, p.Default, p.Action,
 		p.StartLine, p.DeadLine, p.Chips, p.Bets, p.Type,
-		p.IsWinner, p.WinLossAmount, p.IsPlaying, p.Stickers)
+		p.IsWinner, p.WinLossAmount, p.IsPlaying, p.Stickers,
+		p.Lat, p.Lon)
 }
 
 // Players in the battle

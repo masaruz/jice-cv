@@ -87,20 +87,23 @@ func Leave(id string) bool {
 func Sit(id string, slot int) *model.Error {
 	index, caller := util.Get(state.Snapshot.Visitors, id)
 	caller.Slot = -1
+	for _, player := range state.Snapshot.Players {
+		if player.ID == "" {
+			continue
+		}
+		// If gps is required then check the distance to others
+		if state.Snapshot.Gambit.GetSettings().GPSRestrcited &&
+			util.Distance(caller, player) <= 50 {
+			util.Print(player.ID, "Is nearby someone")
+			return &model.Error{Code: NearOtherPlayers}
+		}
+	}
 	// find slot for them
 	for _, player := range state.Snapshot.Players {
 		if slot == player.Slot && player.ID == "" {
 			caller.Slot = player.Slot
 			caller.Type = player.Type
 			break
-		}
-		// If gps is required then check the distance to others
-		if state.Snapshot.Gambit.GetSettings().GPSRestrcited &&
-			util.Distance(caller, player) <= 50 {
-			util.Print(player.ID, "Is nearby someone")
-			if !Stand(player.ID, false) {
-				return &model.Error{Code: NearOtherPlayers}
-			}
 		}
 	}
 	if caller.Slot == -1 {
@@ -204,6 +207,8 @@ func Stand(id string, force bool) bool {
 		AvatarBuiltinID: caller.AvatarBuiltinID,
 		AvatarCustomID:  caller.AvatarCustomID,
 		FacebookID:      caller.FacebookID,
+		Lat:             caller.Lat,
+		Lon:             caller.Lon,
 	}
 	state.Snapshot.Players = util.Kick(state.Snapshot.Players, caller.ID)
 	state.Snapshot.Visitors = util.Add(state.Snapshot.Visitors, visitor)

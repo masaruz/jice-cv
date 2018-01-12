@@ -78,6 +78,9 @@ func (game NineK) Start() bool {
 			} else if game.GPSRestrcited {
 				// Check to others
 				for _, competitor := range state.Snapshot.Players {
+					if competitor.ID == "" || competitor.ID == player.ID {
+						continue
+					}
 					if util.Distance(*player, competitor) <= 50 {
 						util.Print(player.ID, "Is nearby someone")
 						if !handler.Stand(player.ID, false) {

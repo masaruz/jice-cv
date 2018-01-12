@@ -4849,22 +4849,57 @@ func TestLoop52(t *testing.T) {
 		util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]) > 1.3 {
 		t.Error()
 	}
+	if err := handler.Sit("a", 2); err != nil {
+		t.Error()
+	}
+	if err := handler.Sit("b", 1); err.Code != handler.NearOtherPlayers {
+		t.Error()
+	}
+	handler.Stand("a", true)
 	// MRT Sutthisan & Zap station
 	handler.SetPlayerLocation("a", 13.789577, 100.574427)
 	handler.SetPlayerLocation("b", 13.789475, 100.576454)
-	if util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]) < 219 ||
-		util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]) > 220 {
+	if util.Distance(state.Snapshot.Visitors[2], state.Snapshot.Visitors[0]) < 219 ||
+		util.Distance(state.Snapshot.Visitors[2], state.Snapshot.Visitors[0]) > 220 {
 		t.Error()
 	}
 	// Zap station & Sinoze
 	handler.SetPlayerLocation("a", 13.789577, 100.574427)
 	handler.SetPlayerLocation("b", 13.789352, 100.580043)
-	if util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]) < 607 ||
-		util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]) > 608 {
+	if util.Distance(state.Snapshot.Visitors[2], state.Snapshot.Visitors[0]) < 607 ||
+		util.Distance(state.Snapshot.Visitors[2], state.Snapshot.Visitors[0]) > 608 {
 		t.Error()
 	}
 	handler.SetPlayerLocation("a", 0, 0)
-	if util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]) != 0 {
+	if util.Distance(state.Snapshot.Visitors[2], state.Snapshot.Visitors[0]) != 0 {
+		t.Error()
+	}
+	handler.SetPlayerLocation("a", 13.789577, 100.574427)
+	handler.SetPlayerLocation("b", 13.789352, 100.580043)
+	if err := handler.Sit("a", 0); err != nil {
+		t.Error()
+	}
+	if err := handler.Sit("b", 1); err != nil {
+		t.Error()
+	}
+	handler.SetPlayerLocation("a", 13.632016, 100.590107)
+	handler.SetPlayerLocation("b", 13.632006, 100.590101)
+	handler.StartTable("a")
+	if len(state.Snapshot.Visitors) != 1 {
+		t.Error()
+	}
+	if state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	if len(state.Snapshot.Visitors) != 2 {
+		t.Error()
+	}
+	handler.SetPlayerLocation("a", 13.789577, 100.574427)
+	handler.SetPlayerLocation("b", 13.789352, 100.580043)
+	if err := handler.Sit("a", 0); err != nil {
+		t.Error(err)
+	}
+	if !state.Snapshot.Gambit.Start() {
 		t.Error()
 	}
 	// log.Println(util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]))

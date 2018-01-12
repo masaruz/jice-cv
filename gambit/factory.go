@@ -44,7 +44,7 @@ func Create(gambit string) engine.Gambit {
 		maxbi = 1000
 	}
 	// GPSRestrcited
-	gps, err := strconv.ParseBool(os.Getenv(constant.BuyInMax))
+	gps, err := strconv.ParseBool(os.Getenv(constant.GPSRestrcited))
 	if err != nil {
 		gps = false
 	}
