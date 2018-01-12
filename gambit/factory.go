@@ -43,6 +43,11 @@ func Create(gambit string) engine.Gambit {
 	if err != nil {
 		maxbi = 1000
 	}
+	// GPSRestrcited
+	gps, err := strconv.ParseBool(os.Getenv(constant.BuyInMax))
+	if err != nil {
+		gps = false
+	}
 	switch gambit {
 	default:
 		return NineK{
@@ -56,6 +61,8 @@ func Create(gambit string) engine.Gambit {
 			BuyInMax:        maxbi,
 			BuyInMin:        minbi,
 			FinishGameDelay: 5,
-			DelayNextRound:  1}
+			DelayNextRound:  1,
+			GPSRestrcited:   gps,
+		}
 	}
 }

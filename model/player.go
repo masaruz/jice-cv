@@ -26,6 +26,8 @@ type Player struct {
 	AvatarBuiltinID string     `json:"avatar_builtin_id,omitempty"`
 	AvatarCustomID  string     `json:"avatar_custom_id,omitempty"`
 	FacebookID      string     `json:"facebook_id,omitempty"`
+	Lat             float64    `json:"lat,omitempty"`
+	Lon             float64    `json:"lon,omitempty"`
 }
 
 // PlayerTableKey for player authentication each table

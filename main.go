@@ -76,6 +76,7 @@ func main() {
 					AvatarCustomID:  data.Header.AvatarCustomID,
 					FacebookID:      data.Header.FacebookID,
 				}) {
+					handler.SetPlayerLocation(userid, data.Header.Lat, data.Header.Lon)
 					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
 					handler.BroadcastGameState(so, channel, userid)
@@ -103,6 +104,7 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
+				handler.SetPlayerLocation(userid, data.Header.Lat, data.Header.Lon)
 				util.Print("Prepare to check Start(), NextRound(), Finish()")
 				if state.GS.Gambit.Start() || state.GS.Gambit.NextRound() || state.GS.Gambit.Finish() {
 					channel = constant.PushState
@@ -151,7 +153,8 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
-				if state.GS.Gambit.Check(userid) {
+				handler.SetPlayerLocation(userid, data.Header.Lat, data.Header.Lon)
+				if state.Snapshot.Gambit.Check(userid) {
 					channel = constant.Check
 					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
@@ -179,8 +182,9 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
+				handler.SetPlayerLocation(userid, data.Header.Lat, data.Header.Lon)
 				// client send amount of bet
-				if state.GS.Gambit.Bet(userid, data.Payload.Parameters[0].IntegerValue) {
+				if state.Snapshot.Gambit.Bet(userid, data.Payload.Parameters[0].IntegerValue) {
 					channel = constant.Bet
 					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
@@ -208,8 +212,9 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
+				handler.SetPlayerLocation(userid, data.Header.Lat, data.Header.Lon)
 				// client send amount of raise
-				if state.GS.Gambit.Raise(userid, data.Payload.Parameters[0].IntegerValue) {
+				if state.Snapshot.Gambit.Raise(userid, data.Payload.Parameters[0].IntegerValue) {
 					channel = constant.Raise
 					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
@@ -237,7 +242,8 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
-				if state.GS.Gambit.Call(userid) {
+				handler.SetPlayerLocation(userid, data.Header.Lat, data.Header.Lon)
+				if state.Snapshot.Gambit.Call(userid) {
 					channel = constant.Call
 					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
@@ -265,7 +271,8 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
-				if state.GS.Gambit.AllIn(userid) {
+				handler.SetPlayerLocation(userid, data.Header.Lat, data.Header.Lon)
+				if state.Snapshot.Gambit.AllIn(userid) {
 					channel = constant.Raise
 					state.GS = util.CloneState(state.Snapshot)
 					state.GS.IncreaseVersion()
@@ -293,7 +300,8 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
-				if state.GS.Gambit.Fold(userid) {
+				handler.SetPlayerLocation(userid, data.Header.Lat, data.Header.Lon)
+				if state.Snapshot.Gambit.Fold(userid) {
 					channel = constant.Fold
 					state.GS.Gambit.Finish()
 					state.GS = util.CloneState(state.Snapshot)
@@ -327,6 +335,7 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
+				handler.SetPlayerLocation(userid, data.Header.Lat, data.Header.Lon)
 				if !handler.IsTableStart() {
 					channel = constant.StartTable
 					handler.StartTable(userid)
@@ -359,6 +368,7 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
+				handler.SetPlayerLocation(userid, data.Header.Lat, data.Header.Lon)
 				err := handler.Sit(userid, data.Payload.Parameters[0].IntegerValue)
 				if err == nil {
 					channel = constant.Sit
@@ -391,6 +401,7 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
+				handler.SetPlayerLocation(userid, data.Header.Lat, data.Header.Lon)
 				if handler.Stand(userid, false) {
 					channel = constant.Stand
 					state.GS.Gambit.Finish()
@@ -427,6 +438,7 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
+				handler.SetPlayerLocation(userid, data.Header.Lat, data.Header.Lon)
 				channel = constant.Leave
 				handler.Leave(userid)
 				state.Snapshot.Gambit.Finish()
@@ -474,6 +486,7 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
+				handler.SetPlayerLocation(userid, data.Header.Lat, data.Header.Lon)
 				// if cannot parse or client send nothing
 				if len(data.Payload.Parameters) == 2 {
 					param1 := data.Payload.Parameters[0]
@@ -524,6 +537,7 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
+				handler.SetPlayerLocation(userid, data.Header.Lat, data.Header.Lon)
 				if handler.ExtendPlayerTimeline(userid) {
 					channel = constant.ExtendDecisionTime
 					state.GS = util.CloneState(state.Snapshot)
@@ -551,6 +565,7 @@ func main() {
 					result <- handler.CreateResponse(userid, channel)
 					return
 				}
+				handler.SetPlayerLocation(userid, data.Header.Lat, data.Header.Lon)
 				if state.Snapshot.PlayerTableKeys[userid].ClubMemberLevel != 1 {
 					util.Print(userid, "Disband Table", "Not Allowed")
 					result <- handler.CreateResponse(userid, channel)

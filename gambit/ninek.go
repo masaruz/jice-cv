@@ -29,6 +29,7 @@ type NineK struct {
 	BuyInMax        int
 	Rake            float64 // percentage
 	Cap             float64 // cap of rake
+	GPSRestrcited   bool
 }
 
 // Init deck and environment variables
@@ -73,13 +74,18 @@ func (game NineK) Start() bool {
 				if !handler.Stand(player.ID, false) {
 					return false
 				}
+				// In case this room check GPS location
+			} else if game.GPSRestrcited {
+				// Check to others
+				for _, competitor := range state.Snapshot.Players {
+					if util.Distance(competitor, *player) <= 50 {
+						util.Print(player.ID, "Is nearby someone")
+						if !handler.Stand(player.ID, false) {
+							return false
+						}
+					}
+				}
 			}
-			// else if util.Distance(0, 0, 0, 0) <= 50 {
-			// 	util.Print(player.ID, "Is nearby someone")
-			// 	if !handler.Stand(player.ID, false) {
-			// 		return false
-			// 	}
-			// }
 		}
 		// After filtered with the critiria
 		// if there are more than 2 players are sitting
@@ -566,6 +572,7 @@ func (game NineK) GetSettings() engine.Settings {
 		Cap:             game.Cap,
 		FinishGameDelay: game.FinishGameDelay,
 		DelayNextRound:  game.DelayNextRound,
+		GPSRestrcited:   game.GPSRestrcited,
 	}
 }
 

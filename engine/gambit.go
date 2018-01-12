@@ -49,4 +49,5 @@ type Settings struct {
 	BuyInMax        int
 	Rake            float64 // percentage
 	Cap             float64 // cap of rake
+	GPSRestrcited   bool
 }

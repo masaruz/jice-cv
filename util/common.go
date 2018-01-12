@@ -92,12 +92,12 @@ func hsin(theta float64) float64 {
 }
 
 // Distance calculate distance between to location
-func Distance(lat1, lon1, lat2, lon2 float64) float64 {
+func Distance(player1, player2 model.Player) float64 {
 	var la1, lo1, la2, lo2, r float64
-	la1 = lat1 * math.Pi / 180
-	lo1 = lon1 * math.Pi / 180
-	la2 = lat2 * math.Pi / 180
-	lo2 = lon2 * math.Pi / 180
+	la1 = player1.Lat * math.Pi / 180
+	lo1 = player1.Lon * math.Pi / 180
+	la2 = player2.Lat * math.Pi / 180
+	lo2 = player2.Lon * math.Pi / 180
 
 	r = 6378100 // Earth radius in METERS
 

@@ -94,12 +94,14 @@ func Sit(id string, slot int) *model.Error {
 			caller.Type = player.Type
 			break
 		}
-		// if util.Distance(0, 0, 0, 0) <= 50 {
-		// 	util.Print(player.ID, "Is nearby someone")
-		// 	if !Stand(player.ID, false) {
-		// 		return &model.Error{Code: NearOtherPlayers}
-		// 	}
-		// }
+		// If gps is required then check the distance to others
+		if state.Snapshot.Gambit.GetSettings().GPSRestrcited &&
+			util.Distance(player, caller) <= 50 {
+			util.Print(player.ID, "Is nearby someone")
+			if !Stand(player.ID, false) {
+				return &model.Error{Code: NearOtherPlayers}
+			}
+		}
 	}
 	if caller.Slot == -1 {
 		return &model.Error{Code: NoAvailableSeat}
@@ -329,4 +331,21 @@ func SaveHistory() {
 		}
 		state.Snapshot.History[comp.ID][state.Snapshot.GameIndex] = history
 	}
+}
+
+// SetPlayerLocation for validation if needed
+func SetPlayerLocation(id string, lat float64, lon float64) {
+	player := &model.Player{}
+	index, _ := util.Get(state.Snapshot.Players, id)
+	if index != -1 {
+		player = &state.Snapshot.Players[index]
+	} else {
+		index, _ = util.Get(state.Snapshot.Visitors, id)
+		if index == -1 {
+			return
+		}
+		player = &state.Snapshot.Visitors[index]
+	}
+	player.Lat = lat
+	player.Lon = lon
 }

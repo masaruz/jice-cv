@@ -4822,3 +4822,50 @@ func TestLoop51(t *testing.T) {
 		t.Error()
 	}
 }
+
+func TestLoop52(t *testing.T) {
+	ninek := gambit.NineK{
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		MaxPlayers:      6,
+		BuyInMin:        500,
+		BuyInMax:        1000,
+		BlindsSmall:     50,
+		BlindsBig:       50,
+		DecisionTime:    1,
+		Rake:            5.00,
+		Cap:             0.5,
+		GPSRestrcited:   true}
+	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot = util.CloneState(state.GS)
+	state.Snapshot.Duration = 1800
+	handler.Enter(model.Player{ID: "a"})
+	handler.Enter(model.Player{ID: "b"})
+	handler.Enter(model.Player{ID: "c"})
+	handler.SetPlayerLocation("a", 13.632016, 100.590107)
+	handler.SetPlayerLocation("b", 13.632006, 100.590101)
+	if util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]) < 1.2 ||
+		util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]) > 1.3 {
+		t.Error()
+	}
+	// MRT Sutthisan & Zap station
+	handler.SetPlayerLocation("a", 13.789577, 100.574427)
+	handler.SetPlayerLocation("b", 13.789475, 100.576454)
+	if util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]) < 219 ||
+		util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]) > 220 {
+		t.Error()
+	}
+	// Zap station & Sinoze
+	handler.SetPlayerLocation("a", 13.789577, 100.574427)
+	handler.SetPlayerLocation("b", 13.789352, 100.580043)
+	// if util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]) < 219 ||
+	// 	util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]) > 220 {
+	// 	t.Error()
+	// }
+	// log.Println(util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]))
+	// dumb player
+	// handler.Sit("a", 2)
+	// handler.Sit("b", 5)
+	// handler.Sit("c", 1)
+}

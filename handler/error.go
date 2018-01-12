@@ -13,4 +13,5 @@ const (
 	CashbackError       ErrorCode = 103
 	NoAvailableSeat     ErrorCode = 104
 	NearOtherPlayers    ErrorCode = 105
+	NoAvailableGPS      ErrorCode = 106
 )
