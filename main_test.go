@@ -4859,10 +4859,14 @@ func TestLoop52(t *testing.T) {
 	// Zap station & Sinoze
 	handler.SetPlayerLocation("a", 13.789577, 100.574427)
 	handler.SetPlayerLocation("b", 13.789352, 100.580043)
-	// if util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]) < 219 ||
-	// 	util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]) > 220 {
-	// 	t.Error()
-	// }
+	if util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]) < 607 ||
+		util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]) > 608 {
+		t.Error()
+	}
+	handler.SetPlayerLocation("a", 0, 0)
+	if util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]) != 0 {
+		t.Error()
+	}
 	// log.Println(util.Distance(state.Snapshot.Visitors[0], state.Snapshot.Visitors[1]))
 	// dumb player
 	// handler.Sit("a", 2)

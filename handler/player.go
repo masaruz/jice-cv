@@ -96,7 +96,7 @@ func Sit(id string, slot int) *model.Error {
 		}
 		// If gps is required then check the distance to others
 		if state.Snapshot.Gambit.GetSettings().GPSRestrcited &&
-			util.Distance(player, caller) <= 50 {
+			util.Distance(caller, player) <= 50 {
 			util.Print(player.ID, "Is nearby someone")
 			if !Stand(player.ID, false) {
 				return &model.Error{Code: NearOtherPlayers}
