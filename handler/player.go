@@ -32,6 +32,14 @@ func Reducer(event string, id string) model.Actions {
 		}
 		return model.Actions{
 			model.Action{Name: constant.Stand}}
+	case constant.Connection:
+		actions := model.Actions{model.Action{Name: constant.Sit}}
+		if !state.Snapshot.IsTableStart &&
+			(state.Snapshot.PlayerTableKeys[id].ClubMemberLevel == 1 ||
+				state.Snapshot.PlayerTableKeys[id].ClubMemberLevel == 2) {
+			return append(actions, model.Action{Name: constant.StartTable})
+		}
+		return actions
 	default:
 		index, _ := util.Get(state.Snapshot.Players, id)
 		actions := model.Actions{}
