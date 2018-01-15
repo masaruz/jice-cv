@@ -33,17 +33,22 @@ func Reducer(event string, id string) model.Actions {
 		return model.Actions{
 			model.Action{Name: constant.Stand}}
 	default:
+		index, _ := util.Get(state.Snapshot.Players, id)
+		actions := model.Actions{}
+		// If player's sitting
+		if index != -1 {
+			actions = model.Actions{
+				model.Action{Name: constant.Stand}}
+		} else {
+			actions = model.Actions{
+				model.Action{Name: constant.Sit}}
+		}
 		if !state.Snapshot.IsTableStart &&
 			(state.Snapshot.PlayerTableKeys[id].ClubMemberLevel == 1 ||
 				state.Snapshot.PlayerTableKeys[id].ClubMemberLevel == 2) {
-			return model.Actions{
-				model.Action{Name: constant.Stand},
-				model.Action{Name: constant.StartTable},
-				model.Action{Name: constant.Sit}}
+			return append(actions, model.Action{Name: constant.StartTable})
 		}
-		return model.Actions{
-			model.Action{Name: constant.Stand},
-			model.Action{Name: constant.Sit}}
+		return actions
 	}
 }
 

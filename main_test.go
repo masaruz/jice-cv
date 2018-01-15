@@ -4908,3 +4908,47 @@ func TestLoop52(t *testing.T) {
 	// handler.Sit("b", 5)
 	// handler.Sit("c", 1)
 }
+
+func TestLoop53(t *testing.T) {
+	decisionTime := int64(1)
+	ninek := gambit.NineK{
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		MaxPlayers:      6,
+		BuyInMin:        500,
+		BuyInMax:        1000,
+		BlindsSmall:     50,
+		BlindsBig:       50,
+		DecisionTime:    decisionTime,
+		Rake:            5.00,
+		Cap:             0.5}
+	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot = util.CloneState(state.GS)
+	state.Snapshot.Duration = 1800
+	handler.Enter(model.Player{ID: "a"})
+	handler.Enter(model.Player{ID: "b"})
+	handler.Enter(model.Player{ID: "c"})
+	for _, player := range state.Snapshot.Visitors {
+		if player.Actions[0].Name != constant.Sit {
+			t.Error()
+		}
+	}
+	// dumb player
+	handler.Sit("a", 2)
+	handler.Sit("b", 5)
+	for _, player := range state.Snapshot.Players {
+		if player.ID != "" && player.Actions[0].Name != constant.Stand {
+			t.Error()
+		}
+	}
+	handler.StartTable("a")
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	for _, player := range state.Snapshot.Players {
+		if player.ID != "" && player.Actions[len(player.Actions)-1].Name != constant.Stand {
+			t.Error()
+		}
+	}
+}

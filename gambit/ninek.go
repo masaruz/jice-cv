@@ -432,6 +432,8 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 		Hints: model.Hints{
 			model.Hint{Name: "amount", Type: "integer", Value: 15},
 		}}
+	standAction := model.Action{
+		Name: constant.Stand}
 	switch event {
 	case constant.Check:
 		_, player := util.Get(state.Snapshot.Players, id)
@@ -439,7 +441,7 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 			return model.Actions{
 				model.Action{Name: constant.Fold},
 				model.Action{Name: constant.Check},
-				extendAction}
+				extendAction, standAction}
 		}
 		// maximum will be player's chips if not enough
 		maximum := 0
@@ -460,7 +462,7 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 						Name: "amount", Type: "integer", Value: state.Snapshot.MinimumBet},
 					model.Hint{
 						Name: "amount_max", Type: "integer", Value: maximum}}},
-			extendAction}
+			extendAction, standAction}
 	case constant.Bet:
 		_, player := util.Get(state.Snapshot.Players, id)
 		playerchips := int(math.Floor(player.Chips)) + player.Bets[state.Snapshot.Turn]
@@ -485,7 +487,7 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 					Hints: model.Hints{
 						model.Hint{
 							Name: "amount", Type: "integer", Value: int(math.Floor(player.Chips))}}},
-				extendAction}
+				extendAction, standAction}
 		}
 		diff := highestbet - playerbet
 		if playerchips < raise {
@@ -499,7 +501,7 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 					Hints: model.Hints{
 						model.Hint{
 							Name: "amount", Type: "integer", Value: int(math.Floor(player.Chips))}}},
-				extendAction}
+				extendAction, standAction}
 		}
 		// maximum will be player's chips if not enough
 		maximum := 0
@@ -523,7 +525,7 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 						Name: "amount", Type: "integer", Value: raise - playerbet},
 					model.Hint{
 						Name: "amount_max", Type: "integer", Value: maximum - playerbet}}},
-			extendAction}
+			extendAction, standAction}
 	case constant.Fold:
 		return model.Actions{
 			model.Action{Name: constant.Stand}}
