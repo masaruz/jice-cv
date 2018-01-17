@@ -49,7 +49,8 @@ func Reducer(event string, id string) model.Actions {
 				model.Action{Name: constant.Stand}}
 		} else {
 			actions = model.Actions{
-				model.Action{Name: constant.Sit}}
+				model.Action{Name: constant.Sit},
+				model.Action{Name: constant.Stand}}
 		}
 		if !state.Snapshot.IsTableStart &&
 			(state.Snapshot.PlayerTableKeys[id].ClubMemberLevel == 1 ||
@@ -179,6 +180,7 @@ func Stand(id string, force bool) bool {
 	if caller.ID == "" {
 		return false
 	}
+	UpdateWinningsAmount(caller.ID, caller.WinLossAmount)
 	// If not in dev, call api
 	// If this player already buyin
 	// Update buy-in cash

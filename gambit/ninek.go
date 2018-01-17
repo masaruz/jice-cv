@@ -531,7 +531,7 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 			model.Action{Name: constant.Stand}}
 	default:
 		return model.Actions{
-			model.Action{Name: constant.Sit}}
+			model.Action{Name: constant.Sit}, standAction}
 	}
 }
 

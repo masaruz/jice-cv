@@ -27,7 +27,7 @@ func UpdateBuyInAmount(player *model.Player) {
 		winnings := decimal.NewFromFloat(player.WinLossAmount)
 		net, _ := chips.Sub(winnings).Floor().Float64()
 		if netInt := int(net); netInt > scoreboard.BuyInAmount {
-			scoreboard.BuyInAmount = netInt
+			state.Snapshot.Scoreboard[index].BuyInAmount = netInt
 		}
 	}
 }
