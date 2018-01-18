@@ -40,6 +40,7 @@ type Header struct {
 	AvatarSource    string  `json:"avatar_source,omitempty"`
 	AvatarBuiltinID string  `json:"avatar_builtin_id,omitempty"`
 	AvatarCustomID  string  `json:"avatar_custom_id,omitempty"`
+	AvatarTimestamp string  `json:"avatar_timestamp,omitempty"`
 	FacebookID      string  `json:"facebook_id,omitempty"`
 	Lat             float64 `json:"lat,omitempty"`
 	Lon             float64 `json:"lon,omitempty"`

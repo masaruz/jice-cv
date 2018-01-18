@@ -74,6 +74,7 @@ func main() {
 					AvatarSource:    data.Header.AvatarSource,
 					AvatarBuiltinID: data.Header.AvatarBuiltinID,
 					AvatarCustomID:  data.Header.AvatarCustomID,
+					AvatarTimestamp: data.Header.AvatarTimestamp,
 					FacebookID:      data.Header.FacebookID,
 				}) {
 					handler.SetPlayerLocation(userid, data.Header.Lat, data.Header.Lon)

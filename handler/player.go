@@ -221,6 +221,7 @@ func Stand(id string, force bool) bool {
 		AvatarSource:    caller.AvatarSource,
 		AvatarBuiltinID: caller.AvatarBuiltinID,
 		AvatarCustomID:  caller.AvatarCustomID,
+		AvatarTimestamp: caller.AvatarTimestamp,
 		FacebookID:      caller.FacebookID,
 		Lat:             caller.Lat,
 		Lon:             caller.Lon,
