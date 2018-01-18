@@ -7,6 +7,7 @@ import (
 	"999k_engine/model"
 	"999k_engine/state"
 	"999k_engine/util"
+	"encoding/json"
 	"math"
 	"time"
 
@@ -26,11 +27,20 @@ func CreateSeats(seats int) {
 }
 
 // StartTable set table start
-func StartTable(id string) {
+func StartTable(id string) bool {
 	start := time.Now().Unix()
 	state.Snapshot.StartTableTime = start
 	state.Snapshot.FinishTableTime = start + state.Snapshot.Duration
 	state.Snapshot.IsTableStart = true
+	// Request to start game
+	body, err := api.StartTable()
+	util.Print("Response from StartTable", string(body), err)
+	resp := &api.Response{}
+	json.Unmarshal(body, resp)
+	// Is there any error when start game
+	if resp.Error != (api.Error{}) {
+		return false
+	}
 	index, _ := util.Get(state.Snapshot.Players, id)
 	player := &model.Player{}
 	if index != -1 {
@@ -43,6 +53,7 @@ func StartTable(id string) {
 		}
 	}
 	player.Actions = Reducer(constant.StartTable, id)
+	return true
 }
 
 // FinishTable set table start

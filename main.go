@@ -337,9 +337,8 @@ func main() {
 					return
 				}
 				handler.SetPlayerLocation(userid, data.Header.Lat, data.Header.Lon)
-				if !handler.IsTableStart() {
+				if !handler.IsTableStart() && handler.StartTable(userid) {
 					channel = constant.StartTable
-					handler.StartTable(userid)
 					if util.CountSitting(state.Snapshot.Players) > 1 {
 						state.Snapshot.Gambit.Start()
 					}

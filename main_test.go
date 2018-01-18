@@ -4937,6 +4937,10 @@ func TestLoop53(t *testing.T) {
 	// dumb player
 	handler.Sit("a", 2)
 	handler.Sit("b", 5)
+	handler.Sit("c", 1)
+	a := &state.Snapshot.Players[2]
+	b := &state.Snapshot.Players[1]
+	c := &state.Snapshot.Players[5]
 	for _, player := range state.Snapshot.Players {
 		if player.ID != "" && player.Actions[0].Name != constant.Stand {
 			t.Error()
@@ -4951,4 +4955,23 @@ func TestLoop53(t *testing.T) {
 			t.Error()
 		}
 	}
+	if !state.Snapshot.Gambit.Bet("a", 50) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Call("b") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Raise("c", 100) {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Call("a") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Call("b") {
+		t.Error()
+	}
+	// if !state.
+	// a.Print()
+	// b.Print()
+	// c.Print()
 }

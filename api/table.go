@@ -94,14 +94,25 @@ func DeleteFromRealtime() ([]byte, error) {
 	return delete(url)
 }
 
+// StartTable set start_time only 1st game and send game index
+func StartTable() ([]byte, error) {
+	table := Table{}
+	table.StartTime = state.Snapshot.StartTableTime
+	// cast param to byte
+	data, err := json.Marshal(table)
+	if err != nil {
+		return nil, err
+	}
+	// create url
+	url := fmt.Sprintf("%s/tablestart", getTableURL(state.Snapshot.TableID))
+	return post(url, data)
+}
+
 // StartGame set start_time only 1st game and send game index
 func StartGame() ([]byte, error) {
 	table := Table{}
 	table.GroupID = state.Snapshot.GroupID
 	table.GameIndex = state.Snapshot.GameIndex
-	if table.GameIndex == 0 {
-		table.StartTime = state.Snapshot.StartTableTime
-	}
 	// cast param to byte
 	data, err := json.Marshal(table)
 	if err != nil {
