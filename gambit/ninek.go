@@ -61,6 +61,14 @@ func (game NineK) Start() bool {
 			if player.ID == "" {
 				continue
 			}
+			// If someone has requested for topup then call buyin
+			if player.TopUp.IsRequest {
+				if err := handler.TopUp(player.ID); err.Code == handler.BuyInError || err.Code == handler.ChipIsNotEnough {
+					if !handler.Stand(player.ID, false) {
+						return false
+					}
+				}
+			}
 			// If player has no chip enough
 			if int(math.Floor(player.Chips)) < game.GetSettings().BlindsSmall {
 				// Force to stand
@@ -131,6 +139,13 @@ func (game NineK) Start() bool {
 			handler.SetPlayersRake(game.Rake, game.Cap*float64(game.BlindsBig))
 			util.Print("Start Success")
 			return true
+		}
+		for index := range state.Snapshot.Players {
+			comp := &state.Snapshot.Players[index]
+			if comp.ID == "" {
+				continue
+			}
+			comp.CardAmount = 0
 		}
 		handler.PreparePlayers(false)
 		// Need to update state because number of players might be changed
@@ -210,7 +225,10 @@ func (game NineK) Finish() bool {
 		handler.ExtendFinishRoundTime()
 		// Find winner and added their rewards
 		hscore := -1
-		hbonus := -1
+		hbonus1 := -1
+		hbonus2 := -1
+		hbonus3 := -1
+		hbonus4 := -1
 		pos := -1
 		util.Print("Find the winner(s)")
 		for i := 0; i < len(state.Snapshot.Players); i++ {
@@ -224,14 +242,21 @@ func (game NineK) Finish() bool {
 				}
 				scores, _ := game.Evaluate(player.Cards)
 				score := scores[0]
-				bonus := scores[1]
-				if hscore < score {
+				bonus1 := scores[1]
+				bonus2 := scores[2]
+				bonus3 := scores[3]
+				bonus4 := scores[4]
+				highscore := (hscore < score) ||
+					(hscore == score && hbonus1 < bonus1) ||
+					(hscore == score && hbonus1 == bonus1 && hbonus2 < bonus2) ||
+					(hscore == score && hbonus1 == bonus1 && hbonus2 == bonus2 && hbonus3 < bonus3) ||
+					(hscore == score && hbonus1 == bonus1 && hbonus2 == bonus2 && hbonus3 == bonus3 && hbonus4 < bonus4)
+				if highscore {
 					hscore = score
-					hbonus = bonus
-					pos = index
-				} else if hscore == score && hbonus < bonus {
-					hscore = score
-					hbonus = bonus
+					hbonus1 = bonus1
+					hbonus2 = bonus2
+					hbonus3 = bonus3
+					hbonus4 = bonus4
 					pos = index
 				}
 			}
@@ -240,7 +265,9 @@ func (game NineK) Finish() bool {
 				winner := &state.Snapshot.Players[pos]
 				handler.AssignWinnerToPots(&state.Snapshot, winner.ID)
 				hscore = -1
-				hbonus = -1
+				hbonus1 = -1
+				hbonus2 = -1
+				hbonus3 = -1
 				pos = -1
 			}
 		}
@@ -427,6 +454,9 @@ func (game NineK) End() {}
 
 // Reducer reduce the action and when receive the event
 func (game NineK) Reducer(event string, id string) model.Actions {
+	_, player := util.Get(state.Snapshot.Players, id)
+	chip := int(math.Floor(player.Chips))
+	topupAction := handler.GetTopUpHint(id)
 	extendAction := model.Action{
 		Name: constant.ExtendDecisionTime,
 		Hints: model.Hints{
@@ -436,17 +466,16 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 		Name: constant.Stand}
 	switch event {
 	case constant.Check:
-		_, player := util.Get(state.Snapshot.Players, id)
 		if math.Floor(player.Chips) == 0 {
 			return model.Actions{
 				model.Action{Name: constant.Fold},
 				model.Action{Name: constant.Check},
-				extendAction, standAction}
+				extendAction, standAction, topupAction}
 		}
 		// maximum will be player's chips if not enough
 		maximum := 0
-		if state.Snapshot.MaximumBet > int(math.Floor(player.Chips)) {
-			maximum = int(math.Floor(player.Chips))
+		if state.Snapshot.MaximumBet > chip {
+			maximum = chip
 		} else {
 			maximum = state.Snapshot.MaximumBet
 		}
@@ -462,10 +491,9 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 						Name: "amount", Type: "integer", Value: state.Snapshot.MinimumBet},
 					model.Hint{
 						Name: "amount_max", Type: "integer", Value: maximum}}},
-			extendAction, standAction}
+			extendAction, standAction, topupAction}
 	case constant.Bet:
-		_, player := util.Get(state.Snapshot.Players, id)
-		playerchips := int(math.Floor(player.Chips)) + player.Bets[state.Snapshot.Turn]
+		playerchips := chip + player.Bets[state.Snapshot.Turn]
 		// highest bet in that turn
 		highestbet := util.GetHighestBetInTurn(state.Snapshot.Turn, state.Snapshot.Players)
 		playerbet := player.Bets[state.Snapshot.Turn]
@@ -486,8 +514,8 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 				model.Action{Name: constant.AllIn,
 					Hints: model.Hints{
 						model.Hint{
-							Name: "amount", Type: "integer", Value: int(math.Floor(player.Chips))}}},
-				extendAction, standAction}
+							Name: "amount", Type: "integer", Value: chip}}},
+				extendAction, standAction, topupAction}
 		}
 		diff := highestbet - playerbet
 		if playerchips < raise {
@@ -500,8 +528,8 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 				model.Action{Name: constant.AllIn,
 					Hints: model.Hints{
 						model.Hint{
-							Name: "amount", Type: "integer", Value: int(math.Floor(player.Chips))}}},
-				extendAction, standAction}
+							Name: "amount", Type: "integer", Value: chip}}},
+				extendAction, standAction, topupAction}
 		}
 		// maximum will be player's chips if not enough
 		maximum := 0
@@ -525,13 +553,13 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 						Name: "amount", Type: "integer", Value: raise - playerbet},
 					model.Hint{
 						Name: "amount_max", Type: "integer", Value: maximum - playerbet}}},
-			extendAction, standAction}
+			extendAction, standAction, topupAction}
 	case constant.Fold:
 		return model.Actions{
-			model.Action{Name: constant.Stand}}
+			model.Action{Name: constant.Stand}, topupAction}
 	default:
 		return model.Actions{
-			model.Action{Name: constant.Sit}, standAction}
+			model.Action{Name: constant.Sit}, standAction, topupAction}
 	}
 }
 

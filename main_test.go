@@ -121,8 +121,8 @@ func TestLoop01(t *testing.T) {
 	if !state.Snapshot.Gambit.Finish() {
 		t.Error()
 	}
-	for _, comp := range state.Snapshot.History["player1"][state.Snapshot.GameIndex].Competitors {
-		if len(comp.Cards) != 3 {
+	for _, comp := range state.Snapshot.History["player1"].Competitors {
+		if len(*comp.Cards) != 3 {
 			t.Error()
 		}
 	}
@@ -981,8 +981,8 @@ func TestLoop08(t *testing.T) {
 	if p3.Chips != 290 || p1.Chips != 140 || p2.Chips != 170 {
 		t.Error()
 	}
-	for _, comp := range state.Snapshot.History["player1"][state.Snapshot.GameIndex].Competitors {
-		if len(comp.Cards) > 0 {
+	for _, comp := range state.Snapshot.History["player1"].Competitors {
+		if len(*comp.Cards) > 0 {
 			t.Error()
 		}
 	}
@@ -2070,7 +2070,7 @@ func TestLoop21(t *testing.T) {
 		scores, kind := gambit.NineK{}.Evaluate(model.Cards{
 			48, 0, 4,
 		})
-		if scores[0] != 1000 || scores[1] != 48 || kind != constant.Flush {
+		if scores[0] != 1000 || scores[1] != 14 || kind != constant.Flush {
 			t.Error()
 		}
 	})
@@ -2774,7 +2774,7 @@ func TestLoop31(t *testing.T) {
 	}
 	_, p1 := util.Get(state.Snapshot.Players, id1)
 	// _, p2 := util.Get(state.Snapshot.Players, id2)
-	if len(p1.Actions) > 4 {
+	if len(p1.Actions) > 6 {
 		t.Error()
 	}
 	// log.Println(p1.Actions)
@@ -4939,8 +4939,8 @@ func TestLoop53(t *testing.T) {
 	handler.Sit("b", 5)
 	handler.Sit("c", 1)
 	a := &state.Snapshot.Players[2]
-	b := &state.Snapshot.Players[1]
-	c := &state.Snapshot.Players[5]
+	b := &state.Snapshot.Players[5]
+	c := &state.Snapshot.Players[1]
 	for _, player := range state.Snapshot.Players {
 		if player.ID != "" && player.Actions[0].Name != constant.Stand {
 			t.Error()
@@ -4951,7 +4951,7 @@ func TestLoop53(t *testing.T) {
 		t.Error()
 	}
 	for _, player := range state.Snapshot.Players {
-		if player.ID != "" && player.Actions[len(player.Actions)-1].Name != constant.Stand {
+		if player.ID != "" && player.Actions[len(player.Actions)-2].Name != constant.Stand {
 			t.Error()
 		}
 	}
@@ -4970,8 +4970,150 @@ func TestLoop53(t *testing.T) {
 	if !state.Snapshot.Gambit.Call("b") {
 		t.Error()
 	}
-	// if !state.
-	// a.Print()
-	// b.Print()
-	// c.Print()
+	if !state.Snapshot.Gambit.NextRound() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("a") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("b") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("c") {
+		t.Error()
+	}
+	a.Cards = model.Cards{40, 20, 28} // Q79 cover
+	b.Cards = model.Cards{43, 19, 31} // Q69 spades
+	c.Cards = model.Cards{1, 3, 5}
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	if !a.IsWinner || b.IsWinner || c.IsWinner {
+		t.Error()
+	}
+	state.Snapshot.FinishRoundTime = 0
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("b") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("c") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("a") {
+		t.Error()
+	}
+	if a.CardAmount != 2 || b.CardAmount != 2 || c.CardAmount != 2 {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.NextRound() {
+		t.Error()
+	}
+	if a.CardAmount != 3 || b.CardAmount != 3 || c.CardAmount != 3 {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("b") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("c") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("a") {
+		t.Error()
+	}
+	a.Cards = model.Cards{40, 20, 28} // Q79 cover
+	b.Cards = model.Cards{43, 23, 31} // Q79 spades
+	c.Cards = model.Cards{1, 3, 5}
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	if a.CardAmount != 0 || b.CardAmount != 0 || c.CardAmount != 0 {
+		t.Error()
+	}
+	if !b.IsWinner || a.IsWinner || c.IsWinner {
+		t.Error()
+	}
+}
+
+func TestLoop54(t *testing.T) {
+	t.Run("Q69 spades < Q79 clubs", func(t *testing.T) {
+		a, akind := gambit.NineK{}.Evaluate(model.Cards{
+			43, 19, 31,
+		})
+		b, bkind := gambit.NineK{}.Evaluate(model.Cards{
+			40, 20, 28,
+		})
+		c, ckind := gambit.NineK{}.Evaluate(model.Cards{
+			40, 20,
+		})
+		d, _ := gambit.NineK{}.Evaluate(model.Cards{
+			40,
+		})
+		if akind != constant.Flush || bkind != constant.Flush || ckind != constant.Flush {
+			t.Error()
+		}
+		if len(a) != 5 || len(b) != 5 || len(c) != 5 || len(d) != 5 {
+			t.Error()
+		}
+	})
+}
+
+func TestLoop55(t *testing.T) {
+	decisionTime := int64(1)
+	ninek := gambit.NineK{
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		MaxPlayers:      6,
+		BuyInMin:        500,
+		BuyInMax:        1000,
+		BlindsSmall:     50,
+		BlindsBig:       50,
+		DecisionTime:    decisionTime,
+		Rake:            5.00,
+		Cap:             0.5}
+	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot = util.CloneState(state.GS)
+	state.Snapshot.Duration = 1800
+	handler.Enter(model.Player{ID: "a"})
+	handler.Enter(model.Player{ID: "b"})
+	for _, player := range state.Snapshot.Visitors {
+		if player.Actions[0].Name != constant.Sit {
+			t.Error()
+		}
+	}
+	// dumb player
+	handler.Sit("a", 5)
+	handler.Sit("b", 2)
+	a := &state.Snapshot.Players[5]
+	b := &state.Snapshot.Players[2]
+	if a.Actions[len(a.Actions)-1].Hints[1].Value != 500 {
+		t.Error()
+	}
+	if b.Actions[len(a.Actions)-1].Hints[1].Value != 500 {
+		t.Error()
+	}
+	handler.StartTable("a")
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	if a.Actions[len(a.Actions)-1].Hints[1].Value != 550 {
+		t.Error()
+	}
+	if b.Actions[len(a.Actions)-1].Hints[1].Value != 550 {
+		t.Error()
+	}
+	if !handler.PrepareTopUp(a.ID, 400) {
+		t.Error()
+	}
+	if a.TopUp.Amount != 400 || !a.TopUp.IsRequest {
+		t.Error()
+	}
+	if !handler.PrepareTopUp(a.ID, 100) {
+		t.Error()
+	}
+	if a.TopUp.Amount != 500 || !a.TopUp.IsRequest {
+		t.Error()
+	}
 }

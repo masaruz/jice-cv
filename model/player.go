@@ -29,6 +29,7 @@ type Player struct {
 	FacebookID      string     `json:"facebook_id,omitempty"`
 	Lat             float64    `json:"lat,omitempty"`
 	Lon             float64    `json:"lon,omitempty"`
+	TopUp           TopUp      `json:"topup"`
 }
 
 // PlayerTableKey for player authentication each table

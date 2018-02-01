@@ -24,4 +24,5 @@ const (
 	ExtendDecisionTime = "extendactiontime"
 	DisbandTable       = "disbandtable"
 	Enter              = "enter"
+	TopUp              = "topup"
 )

@@ -10,15 +10,25 @@ func summary(kind string, hands []int) ([]int, string) {
 	bonus := hands[len(hands)-1]
 	switch kind {
 	case constant.ThreeOfAKind:
-		return []int{10000000, bonus}, constant.ThreeOfAKind
+		return []int{10000000, bonus, 0, 0, 0}, constant.ThreeOfAKind
 	case constant.StraightFlush:
-		return []int{1000000, bonus}, constant.StraightFlush
+		return []int{1000000, bonus, 0, 0, 0}, constant.StraightFlush
 	case constant.Royal:
-		return []int{100000, bonus}, constant.Royal
+		return []int{100000, bonus, 0, 0, 0}, constant.Royal
 	case constant.Straight:
-		return []int{10000, bonus}, constant.Straight
+		return []int{10000, bonus, 0, 0, 0}, constant.Straight
 	case constant.Flush:
-		return []int{1000, bonus}, constant.Flush
+		scores := []int{1000}
+		for index := len(hands) - 1; index >= 0; index-- {
+			if index < len(hands) {
+				scores = append(scores, util.GetCardNumberFromValue(hands[index]))
+			}
+		}
+		for index := len(scores); index < 4; index++ {
+			scores = append(scores, 0)
+		}
+		scores = append(scores, bonus)
+		return scores, constant.Flush
 	default:
 		score := 0
 		for _, value := range hands {
@@ -32,7 +42,7 @@ func summary(kind string, hands []int) ([]int, string) {
 			}
 			score += number
 		}
-		return []int{score % 10, bonus}, constant.Nothing
+		return []int{score % 10, bonus, 0, 0, 0, 0}, constant.Nothing
 	}
 }
 

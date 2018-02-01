@@ -8,17 +8,19 @@ import (
 	"999k_engine/util"
 	"encoding/json"
 	"log"
+	"math"
 	"time"
 )
 
 // Reducer reduce player common actions
 func Reducer(event string, id string) model.Actions {
+	topupAction := GetTopUpHint(id)
 	switch event {
 	case constant.StartTable:
 		index, _ := util.Get(state.Snapshot.Players, id)
 		if index != -1 {
 			return model.Actions{
-				model.Action{Name: constant.Stand}}
+				model.Action{Name: constant.Stand}, topupAction}
 		}
 		return model.Actions{
 			model.Action{Name: constant.Sit}}
@@ -28,10 +30,12 @@ func Reducer(event string, id string) model.Actions {
 				state.Snapshot.PlayerTableKeys[id].ClubMemberLevel == 2) {
 			return model.Actions{
 				model.Action{Name: constant.Stand},
-				model.Action{Name: constant.StartTable}}
+				model.Action{Name: constant.StartTable},
+				topupAction}
 		}
 		return model.Actions{
-			model.Action{Name: constant.Stand}}
+			model.Action{Name: constant.Stand},
+			topupAction}
 	case constant.Connection:
 		actions := model.Actions{model.Action{Name: constant.Sit}}
 		if !state.Snapshot.IsTableStart &&
@@ -46,7 +50,8 @@ func Reducer(event string, id string) model.Actions {
 		// If player's sitting
 		if index != -1 {
 			actions = model.Actions{
-				model.Action{Name: constant.Stand}}
+				model.Action{Name: constant.Stand},
+				topupAction}
 		} else {
 			actions = model.Actions{
 				model.Action{Name: constant.Sit},
@@ -328,7 +333,7 @@ func SaveHistory() {
 			ID:            comp.ID,
 			Name:          comp.Name,
 			WinLossAmount: comp.WinLossAmount,
-			Cards:         comp.Cards,
+			Cards:         &comp.Cards,
 			Slot:          comp.Slot,
 		})
 	}
@@ -342,15 +347,12 @@ func SaveHistory() {
 				ID:            player.ID,
 				Name:          player.Name,
 				WinLossAmount: player.WinLossAmount,
-				Cards:         player.Cards,
+				Cards:         &player.Cards,
 				Slot:          player.Slot,
 			},
 			Competitors: histories,
 		}
-		if state.Snapshot.History[comp.ID] == nil {
-			state.Snapshot.History[comp.ID] = make(map[int]model.History)
-		}
-		state.Snapshot.History[comp.ID][state.Snapshot.GameIndex] = history
+		state.Snapshot.History[comp.ID] = history
 	}
 }
 
@@ -369,4 +371,63 @@ func SetPlayerLocation(id string, lat float64, lon float64) {
 	}
 	player.Lat = lat
 	player.Lon = lon
+}
+
+// GetTopUpHint get hint for topup
+func GetTopUpHint(id string) model.Action {
+	_, player := util.Get(state.Snapshot.Players, id)
+	chip := int(math.Floor(player.Chips))
+	topupMax := state.Snapshot.Gambit.GetSettings().BuyInMax - chip - int(math.Floor(player.TopUp.Amount))
+	// Never be negative
+	if topupMax < 0 {
+		topupMax = 0
+	}
+	return model.Action{
+		Name: constant.TopUp,
+		Hints: model.Hints{
+			model.Hint{Name: "topup_min", Type: "integer", Value: 0},
+			model.Hint{Name: "topup_max", Type: "integer", Value: topupMax},
+		}}
+}
+
+// PrepareTopUp marked player who request for topup and wait for process next turn
+func PrepareTopUp(id string, amount float64) bool {
+	index, _ := util.Get(state.Snapshot.Players, id)
+	if index == -1 {
+		return false
+	}
+	player := &state.Snapshot.Players[index]
+	player.TopUp.IsRequest = true
+	player.TopUp.Amount += amount
+	return true
+}
+
+// TopUp add amount and be ready to update chips next turn
+func TopUp(id string) *model.Error {
+	index, _ := util.Get(state.Snapshot.Players, id)
+	if index == -1 {
+		return &model.Error{Code: PlayerNotFound}
+	}
+	player := &state.Snapshot.Players[index]
+	// If this player does not request yet
+	if !player.TopUp.IsRequest || player.TopUp.Amount == 0 {
+		return nil
+	}
+	// Need request to server for buyin
+	body, err := api.BuyIn(player.ID, int(math.Floor(player.TopUp.Amount)))
+	util.Print("Response from BuyIn", string(body), err)
+	resp := &api.Response{}
+	json.Unmarshal(body, resp)
+	// BuyIn must be successful
+	if resp.Error != (api.Error{}) {
+		err := &model.Error{Code: BuyInError}
+		if resp.Error.StatusCode == 422 {
+			err = &model.Error{Code: ChipIsNotEnough}
+		}
+		return err
+	}
+	// If buyin success then reset
+	player.TopUp.Amount = 0
+	player.TopUp.IsRequest = false
+	return nil
 }

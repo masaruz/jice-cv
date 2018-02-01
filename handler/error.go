@@ -14,4 +14,5 @@ const (
 	NoAvailableSeat     ErrorCode = 104
 	NearOtherPlayers    ErrorCode = 105
 	NoAvailableGPS      ErrorCode = 106
+	PlayerNotFound      ErrorCode = 107
 )

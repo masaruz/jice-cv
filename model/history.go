@@ -12,5 +12,5 @@ type PlayerHistory struct {
 	Name          string  `json:"name,omitempty"`
 	WinLossAmount float64 `json:"win_loss_amount,omitempty"`
 	Slot          int     `json:"slot,omitempty"`
-	Cards         Cards   `json:"cards,omitempty"`
+	Cards         *Cards  `json:"cards,omitempty"`
 }
