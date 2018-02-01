@@ -393,12 +393,17 @@ func GetTopUpHint(id string) model.Action {
 // PrepareTopUp marked player who request for topup and wait for process next turn
 func PrepareTopUp(id string, amount float64) bool {
 	index, _ := util.Get(state.Snapshot.Players, id)
-	if index == -1 {
+	if index == -1 || amount == 0 {
 		return false
 	}
 	player := &state.Snapshot.Players[index]
 	player.TopUp.IsRequest = true
 	player.TopUp.Amount += amount
+	if player.IsPlaying {
+		player.Actions = state.Snapshot.Gambit.Reducer(player.Action.Name, player.ID)
+	} else {
+		player.Actions = Reducer(constant.TopUp, player.ID)
+	}
 	return true
 }
 
@@ -413,19 +418,22 @@ func TopUp(id string) *model.Error {
 	if !player.TopUp.IsRequest || player.TopUp.Amount == 0 {
 		return nil
 	}
-	// Need request to server for buyin
-	body, err := api.BuyIn(player.ID, int(math.Floor(player.TopUp.Amount)))
-	util.Print("Response from BuyIn", string(body), err)
-	resp := &api.Response{}
-	json.Unmarshal(body, resp)
-	// BuyIn must be successful
-	if resp.Error != (api.Error{}) {
-		err := &model.Error{Code: BuyInError}
-		if resp.Error.StatusCode == 422 {
-			err = &model.Error{Code: ChipIsNotEnough}
+	if state.Snapshot.Env != "dev" {
+		// Need request to server for buyin
+		body, err := api.BuyIn(player.ID, int(math.Floor(player.TopUp.Amount)))
+		util.Print("Response from BuyIn", string(body), err)
+		resp := &api.Response{}
+		json.Unmarshal(body, resp)
+		// BuyIn must be successful
+		if resp.Error != (api.Error{}) {
+			err := &model.Error{Code: BuyInError}
+			if resp.Error.StatusCode == 422 {
+				err = &model.Error{Code: ChipIsNotEnough}
+			}
+			return err
 		}
-		return err
 	}
+	player.Chips += player.TopUp.Amount
 	// If buyin success then reset
 	player.TopUp.Amount = 0
 	player.TopUp.IsRequest = false

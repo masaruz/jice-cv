@@ -63,7 +63,7 @@ func (game NineK) Start() bool {
 			}
 			// If someone has requested for topup then call buyin
 			if player.TopUp.IsRequest {
-				if err := handler.TopUp(player.ID); err.Code == handler.BuyInError || err.Code == handler.ChipIsNotEnough {
+				if err := handler.TopUp(player.ID); err != nil && (err.Code == handler.BuyInError || err.Code == handler.ChipIsNotEnough) {
 					if !handler.Stand(player.ID, false) {
 						return false
 					}
@@ -465,33 +465,6 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 	standAction := model.Action{
 		Name: constant.Stand}
 	switch event {
-	case constant.Check:
-		if math.Floor(player.Chips) == 0 {
-			return model.Actions{
-				model.Action{Name: constant.Fold},
-				model.Action{Name: constant.Check},
-				extendAction, standAction, topupAction}
-		}
-		// maximum will be player's chips if not enough
-		maximum := 0
-		if state.Snapshot.MaximumBet > chip {
-			maximum = chip
-		} else {
-			maximum = state.Snapshot.MaximumBet
-		}
-		return model.Actions{
-			model.Action{Name: constant.Fold},
-			model.Action{Name: constant.Check},
-			model.Action{Name: constant.Bet,
-				Parameters: model.Parameters{
-					model.Parameter{
-						Name: "amount", Type: "integer"}},
-				Hints: model.Hints{
-					model.Hint{
-						Name: "amount", Type: "integer", Value: state.Snapshot.MinimumBet},
-					model.Hint{
-						Name: "amount_max", Type: "integer", Value: maximum}}},
-			extendAction, standAction, topupAction}
 	case constant.Bet:
 		playerchips := chip + player.Bets[state.Snapshot.Turn]
 		// highest bet in that turn
@@ -558,8 +531,32 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 		return model.Actions{
 			model.Action{Name: constant.Stand}, topupAction}
 	default:
+		if math.Floor(player.Chips) == 0 {
+			return model.Actions{
+				model.Action{Name: constant.Fold},
+				model.Action{Name: constant.Check},
+				extendAction, standAction, topupAction}
+		}
+		// maximum will be player's chips if not enough
+		maximum := 0
+		if state.Snapshot.MaximumBet > chip {
+			maximum = chip
+		} else {
+			maximum = state.Snapshot.MaximumBet
+		}
 		return model.Actions{
-			model.Action{Name: constant.Sit}, standAction, topupAction}
+			model.Action{Name: constant.Fold},
+			model.Action{Name: constant.Check},
+			model.Action{Name: constant.Bet,
+				Parameters: model.Parameters{
+					model.Parameter{
+						Name: "amount", Type: "integer"}},
+				Hints: model.Hints{
+					model.Hint{
+						Name: "amount", Type: "integer", Value: state.Snapshot.MinimumBet},
+					model.Hint{
+						Name: "amount_max", Type: "integer", Value: maximum}}},
+			extendAction, standAction, topupAction}
 	}
 }
 

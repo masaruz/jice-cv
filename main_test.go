@@ -5028,9 +5028,6 @@ func TestLoop53(t *testing.T) {
 	if !state.Snapshot.Gambit.Finish() {
 		t.Error()
 	}
-	if a.CardAmount != 0 || b.CardAmount != 0 || c.CardAmount != 0 {
-		t.Error()
-	}
 	if !b.IsWinner || a.IsWinner || c.IsWinner {
 		t.Error()
 	}
@@ -5094,26 +5091,35 @@ func TestLoop55(t *testing.T) {
 	if b.Actions[len(a.Actions)-1].Hints[1].Value != 500 {
 		t.Error()
 	}
+	if !handler.PrepareTopUp(b.ID, 100) {
+		t.Error()
+	}
+	if b.TopUp.Amount != 100 || !b.TopUp.IsRequest || b.Actions[len(a.Actions)-1].Hints[1].Value != 400 {
+		t.Error()
+	}
 	handler.StartTable("a")
 	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	if b.Chips != 550 {
 		t.Error()
 	}
 	if a.Actions[len(a.Actions)-1].Hints[1].Value != 550 {
 		t.Error()
 	}
-	if b.Actions[len(a.Actions)-1].Hints[1].Value != 550 {
+	if b.Actions[len(a.Actions)-1].Hints[1].Value != 450 {
 		t.Error()
 	}
 	if !handler.PrepareTopUp(a.ID, 400) {
 		t.Error()
 	}
-	if a.TopUp.Amount != 400 || !a.TopUp.IsRequest {
+	if a.TopUp.Amount != 400 || !a.TopUp.IsRequest || a.Actions[len(a.Actions)-1].Hints[1].Value != 150 {
 		t.Error()
 	}
 	if !handler.PrepareTopUp(a.ID, 100) {
 		t.Error()
 	}
-	if a.TopUp.Amount != 500 || !a.TopUp.IsRequest {
+	if a.TopUp.Amount != 500 || !a.TopUp.IsRequest || a.Actions[len(a.Actions)-1].Hints[1].Value != 50 {
 		t.Error()
 	}
 }

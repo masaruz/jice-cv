@@ -551,6 +551,39 @@ func main() {
 			defer close(result)
 			return <-result
 		})
+		// Extend a player action time with effect to everyone's timeline
+		// And also finish round time of table
+		so.On(constant.TopUp, func(msg string) string {
+			result := make(chan string)
+			queue <- func() {
+				state.Snapshot = util.CloneState(state.GS)
+				channel := ""
+				data, _ := handler.ConvertStringToRequestStruct(msg)
+				userid := handler.GetUserIDFromToken(data.Header.Token)
+				util.Print(userid, "++++++++++++++ Top Up ++++++++++++++")
+				if userid == "" {
+					util.Print(userid, "Top Up", "Token is invalid")
+					result <- handler.CreateResponse(userid, channel)
+					return
+				}
+				handler.SetPlayerLocation(userid, data.Header.Lat, data.Header.Lon)
+				amount := 0
+				if len(data.Payload.Parameters) == 1 {
+					amount = data.Payload.Parameters[0].IntegerValue
+				}
+				if handler.PrepareTopUp(userid, float64(amount)) {
+					channel = constant.TopUp
+					state.GS = util.CloneState(state.Snapshot)
+					state.GS.IncreaseVersion()
+					handler.BroadcastGameState(so, channel, userid)
+				}
+				result <- handler.CreateResponse(userid, channel)
+				return
+			}
+			defer util.Log()
+			defer close(result)
+			return <-result
+		})
 		// When admin disband table it should be set finish table time
 		so.On(constant.DisbandTable, func(msg string) string {
 			result := make(chan string)
