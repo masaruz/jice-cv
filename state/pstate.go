@@ -54,6 +54,9 @@ type RespPayload struct {
 	Scoreboard      []model.Scoreboard `json:"scoreboard"`
 	GameIndex       int                `json:"gameindex"`
 	CurrentTime     int64              `json:"current_time"`
+	DeadLine        int64              `json:"self_deadline"`
+	StartLine       int64              `json:"self_startline"`
+	HighestBet      int                `json:"highest_bet"`
 	StartRoundTime  int64              `json:"start_round_time"`
 	FinishRoundTime int64              `json:"finish_round_time"`
 	IsTableExpired  bool               `json:"is_table_expired"`

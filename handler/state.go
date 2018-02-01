@@ -104,6 +104,7 @@ func CreateResponseWithCode(id string, event string, err *model.Error) string {
 	if event != "" {
 		state.GS.Event = event
 	}
+	highestbet := util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players)
 	// map to playerstate
 	data, _ := json.Marshal(
 		state.Resp{
@@ -119,13 +120,16 @@ func CreateResponseWithCode(id string, event string, err *model.Error) string {
 				FinishGameDelay: state.GS.Gambit.GetSettings().FinishGameDelay,
 				Scoreboard:      state.GS.Scoreboard,
 				Error:           err,
+				StartLine:       player.StartLine,
+				DeadLine:        player.DeadLine,
+				HighestBet:      highestbet,
 				GameState: state.PlayerState{
 					Player:       player,
 					Competitors:  competitors,
 					Visitors:     state.GS.Visitors,
 					Pots:         []int{util.SumPots(state.GS.PlayerPots)},
 					SummaryPots:  state.GS.Pots,
-					HighestBet:   util.GetHighestBetInTurn(state.GS.Turn, state.GS.Players),
+					HighestBet:   highestbet,
 					Version:      state.GS.Version,
 					IsTableStart: state.GS.IsTableStart,
 					IsGameStart:  state.GS.IsGameStart,
