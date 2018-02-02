@@ -316,6 +316,9 @@ func (game NineK) Check(id string) bool {
 	}
 	index, _ := util.Get(state.Snapshot.Players, id)
 	player := &state.Snapshot.Players[index]
+	if !util.IsPlayingAndNotFoldAndNotAllIn(*player) {
+		return false
+	}
 	// Cannot check if player has less bet than highest
 	if player.Bets[state.Snapshot.Turn] <
 		util.GetHighestBetInTurn(state.Snapshot.Turn, state.Snapshot.Players) {
@@ -358,6 +361,9 @@ func (game NineK) Call(id string) bool {
 	}
 	index, _ := util.Get(state.Snapshot.Players, id)
 	player := &state.Snapshot.Players[index]
+	if !util.IsPlayingAndNotFoldAndNotAllIn(*player) {
+		return false
+	}
 	chips := util.GetHighestBetInTurn(state.Snapshot.Turn, state.Snapshot.Players) -
 		player.Bets[state.Snapshot.Turn]
 	chipsDecimal := decimal.NewFromFloat(float64(chips))
@@ -398,6 +404,9 @@ func (game NineK) AllIn(id string) bool {
 	}
 	index, _ := util.Get(state.Snapshot.Players, id)
 	player := &state.Snapshot.Players[index]
+	if !util.IsPlayingAndNotFoldAndNotAllIn(*player) {
+		return false
+	}
 	chips := int(math.Floor(player.Chips))
 	// not more than maximum
 	if player.Bets[state.Snapshot.Turn]+chips > state.Snapshot.MaximumBet {
@@ -439,6 +448,9 @@ func (game NineK) Fold(id string) bool {
 	}
 	index, _ := util.Get(state.Snapshot.Players, id)
 	player := &state.Snapshot.Players[index]
+	if !util.IsPlayingAndNotFoldAndNotAllIn(*player) {
+		return false
+	}
 	state.Snapshot.DoActions[index] = true
 	player.Default = model.Action{Name: constant.Fold}
 	player.Action = model.Action{Name: constant.Fold}
@@ -609,6 +621,9 @@ func (game NineK) GetSettings() engine.Settings {
 func (game NineK) pay(id string, chips int, action string) bool {
 	index, _ := util.Get(state.Snapshot.Players, id)
 	player := &state.Snapshot.Players[index]
+	if !util.IsPlayingAndNotFoldAndNotAllIn(*player) {
+		return false
+	}
 	// not less than minimum
 	if player.Bets[state.Snapshot.Turn]+chips < state.Snapshot.MinimumBet {
 		return false
