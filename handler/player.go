@@ -386,8 +386,8 @@ func GetTopUpHint(id string) model.Action {
 	return model.Action{
 		Name: constant.TopUp,
 		Hints: model.Hints{
-			model.Hint{Name: "topup_min", Type: "integer", Value: 0},
-			model.Hint{Name: "topup_max", Type: "integer", Value: topupMax},
+			model.Hint{Name: "amount", Type: "integer", Value: 0},
+			model.Hint{Name: "amount_max", Type: "integer", Value: topupMax},
 		}}
 }
 
