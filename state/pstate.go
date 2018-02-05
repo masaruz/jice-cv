@@ -16,6 +16,7 @@ type PlayerState struct {
 	HighestBet   int           `json:"highest_bet"`
 	IsGameStart  bool          `json:"is_game_start"`
 	IsTableStart bool          `json:"is_table_start"`
+	History      model.History `json:"history,omitempty"`
 }
 
 // Resp is server response
