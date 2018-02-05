@@ -63,11 +63,7 @@ func (game NineK) Start() bool {
 			}
 			// If someone has requested for topup then call buyin
 			if player.TopUp.IsRequest {
-				if err := handler.TopUp(player.ID); err != nil && (err.Code == handler.BuyInError || err.Code == handler.ChipIsNotEnough) {
-					if !handler.Stand(player.ID, false) {
-						return false
-					}
-				}
+				handler.TopUp(player.ID)
 			}
 			// If player has no chip enough
 			if int(math.Floor(player.Chips)) < game.GetSettings().BlindsSmall {
