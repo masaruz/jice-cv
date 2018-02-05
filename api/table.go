@@ -38,6 +38,15 @@ type Summary struct {
 	GroupID     string             `json:"groupid"`
 }
 
+// History post body
+type History struct {
+	UserID      string                `json:"userid"`
+	TableID     string                `json:"tableid"`
+	CreateTime  int64                 `json:"createtime"`
+	Player      model.PlayerHistory   `json:"player"`
+	Competitors []model.PlayerHistory `json:"competitors"`
+}
+
 func getTableURL(id string) string {
 	return fmt.Sprintf("%s/tables/%s", Host, id)
 }
@@ -129,6 +138,29 @@ func Terminate() ([]byte, error) {
 	url := fmt.Sprintf("%s/terminate", getTableURL(state.Snapshot.TableID))
 	// create request
 	return post(url, nil)
+}
+
+// SaveHistories save latest histories when game is end
+func SaveHistories() ([]byte, error) {
+	// create url
+	url := fmt.Sprintf("%s/history", getTableURL(state.Snapshot.TableID))
+	// cast param to byte
+	histories := []History{}
+	for _, history := range state.Snapshot.History {
+		histories = append(histories, History{
+			UserID:      history.Player.ID,
+			TableID:     state.Snapshot.TableID,
+			CreateTime:  time.Now().Unix(),
+			Player:      history.Player,
+			Competitors: history.Competitors,
+		})
+	}
+	data, err := json.Marshal(state.Snapshot.History)
+	if err != nil {
+		return nil, err
+	}
+	// create request
+	return post(url, data)
 }
 
 // SaveSettlements after game's end
