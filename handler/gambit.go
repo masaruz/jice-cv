@@ -290,7 +290,7 @@ func FlushPlayers() {
 	for index := range state.Snapshot.Players {
 		player := &state.Snapshot.Players[index]
 		player.IsPlaying = false
-		player.Actions = model.Actions{}
+		player.Actions = Reducer(constant.Sit, player.ID)
 		player.StartLine = 0
 		player.DeadLine = 0
 		player.IsEarned = false

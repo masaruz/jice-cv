@@ -474,8 +474,7 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 		Hints: model.Hints{
 			model.Hint{Name: "amount", Type: "integer", Value: 15},
 		}}
-	standAction := model.Action{
-		Name: constant.Stand}
+	standAction := model.Action{Name: constant.Stand}
 	switch event {
 	case constant.Bet:
 		playerchips := chip + player.Bets[state.Snapshot.Turn]
@@ -540,8 +539,7 @@ func (game NineK) Reducer(event string, id string) model.Actions {
 						Name: "amount_max", Type: "integer", Value: maximum - playerbet}}},
 			extendAction, standAction, topupAction}
 	case constant.Fold:
-		return model.Actions{
-			model.Action{Name: constant.Stand}, topupAction}
+		return model.Actions{standAction, topupAction}
 	default:
 		if math.Floor(player.Chips) == 0 {
 			return model.Actions{

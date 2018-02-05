@@ -23,7 +23,8 @@ func Reducer(event string, id string) model.Actions {
 				model.Action{Name: constant.Stand}, topupAction}
 		}
 		return model.Actions{
-			model.Action{Name: constant.Sit}}
+			model.Action{Name: constant.Sit},
+			model.Action{Name: constant.Stand}}
 	case constant.Sit:
 		if !state.Snapshot.IsTableStart &&
 			(state.Snapshot.PlayerTableKeys[id].ClubMemberLevel == 1 ||
