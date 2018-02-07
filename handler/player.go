@@ -419,9 +419,12 @@ func TopUp(id string) *model.Error {
 	if !player.TopUp.IsRequest || player.TopUp.Amount == 0 {
 		return nil
 	}
+	amount := player.TopUp.Amount
+	player.TopUp.Amount = 0
+	player.TopUp.IsRequest = false
 	if state.Snapshot.Env != "dev" {
 		// Need request to server for buyin
-		body, err := api.BuyIn(player.ID, int(math.Floor(player.TopUp.Amount)))
+		body, err := api.BuyIn(player.ID, int(math.Floor(amount)))
 		util.Print("Response from BuyIn", string(body), err)
 		resp := &api.Response{}
 		json.Unmarshal(body, resp)
@@ -434,9 +437,6 @@ func TopUp(id string) *model.Error {
 			return err
 		}
 	}
-	player.Chips += player.TopUp.Amount
-	// If buyin success then reset
-	player.TopUp.Amount = 0
-	player.TopUp.IsRequest = false
+	player.Chips += amount
 	return nil
 }
