@@ -342,6 +342,7 @@ func SaveHistory() {
 				WinLossAmount: comps[tmp].WinLossAmount,
 				Cards:         comps[tmp].Cards,
 				Slot:          comps[tmp].Slot,
+				CardAmount:    comps[tmp].CardAmount,
 			})
 		}
 		history := model.History{
@@ -351,6 +352,7 @@ func SaveHistory() {
 				WinLossAmount: player.WinLossAmount,
 				Cards:         player.Cards,
 				Slot:          player.Slot,
+				CardAmount:    player.CardAmount,
 			},
 			Competitors: histories,
 		}
