@@ -294,6 +294,7 @@ func FlushPlayers() {
 		player.StartLine = 0
 		player.DeadLine = 0
 		player.IsEarned = false
+		player.WinLossAmount = 0
 	}
 }
 
