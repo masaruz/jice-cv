@@ -358,6 +358,11 @@ func SaveHistory() {
 		}
 		state.Snapshot.History[comps[index].ID] = history
 	}
+	if state.Snapshot.Env != "dev" {
+		// Need request to server for buyin
+		body, err := api.SaveHistories()
+		util.Print("Response from Save Histories", string(body), err)
+	}
 }
 
 // SetPlayerLocation for validation if needed

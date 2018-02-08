@@ -42,6 +42,7 @@ type Summary struct {
 type History struct {
 	UserID      string                `json:"userid"`
 	TableID     string                `json:"tableid"`
+	Name        string                `json:"name"`
 	CreateTime  int64                 `json:"createtime"`
 	Player      model.PlayerHistory   `json:"player"`
 	Competitors []model.PlayerHistory `json:"competitors"`
@@ -150,12 +151,15 @@ func SaveHistories() ([]byte, error) {
 		histories = append(histories, History{
 			UserID:      history.Player.ID,
 			TableID:     state.Snapshot.TableID,
+			Name:        history.Player.Name,
 			CreateTime:  time.Now().Unix(),
 			Player:      history.Player,
 			Competitors: history.Competitors,
 		})
 	}
-	data, err := json.Marshal(state.Snapshot.History)
+	data, err := json.Marshal(struct {
+		Histories []History `json:"histories"`
+	}{Histories: histories})
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +183,6 @@ func SaveSettlements() ([]byte, error) {
 			UserID:        player.ID,
 			WinLossAmount: player.WinLossAmount,
 			PaidRake:      state.Snapshot.Rakes[player.ID]})
-		player.WinLossAmount = 0
 	}
 	// cast param to byte
 	data, err := json.Marshal(summary)

@@ -293,11 +293,11 @@ func (game NineK) Finish() bool {
 			}
 		}
 		// Revert minimum bet
-		handler.SetMinimumBet(game.BlindsBig)
-		handler.FlushPlayers()
 		state.Snapshot.Turn = 0
 		state.Snapshot.IsGameStart = false
+		handler.SetMinimumBet(game.BlindsBig)
 		handler.SaveHistory()
+		handler.FlushPlayers()
 		util.Print("Finish Success")
 		return true
 	}
