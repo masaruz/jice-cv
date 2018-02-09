@@ -448,3 +448,20 @@ func TopUp(id string) *model.Error {
 	player.Chips += amount
 	return nil
 }
+
+// GetHistories from a user
+func GetHistories(id string) error {
+	body, err := api.GetHistories(id)
+	util.Print("Response from GetHistories", string(body), err)
+	resp := &api.Response{}
+	json.Unmarshal(body, resp)
+	if resp.Error != (api.Error{}) {
+		return err
+	}
+	message := &struct {
+		Histories []model.History `json:"histories"`
+	}{}
+	err = json.Unmarshal([]byte(resp.Message), message)
+	state.Snapshot.Histories[id] = message.Histories
+	return nil
+}

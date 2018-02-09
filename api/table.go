@@ -167,6 +167,14 @@ func SaveHistories() ([]byte, error) {
 	return post(url, data)
 }
 
+// GetHistories get list of hand history
+func GetHistories(userid string) ([]byte, error) {
+	// create url
+	// url := fmt.Sprintf("%s/history?userid=%s", getTableURL(state.Snapshot.TableID), userid)
+	url := fmt.Sprintf("https://icpjqhfscb.execute-api.ap-southeast-1.amazonaws.com/prd/tables/%s/history?userid=%s", state.Snapshot.TableID, userid)
+	return get(url)
+}
+
 // SaveSettlements after game's end
 func SaveSettlements() ([]byte, error) {
 	summary := Summary{

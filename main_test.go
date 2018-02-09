@@ -5256,3 +5256,23 @@ func TestLoop55(t *testing.T) {
 		t.Error()
 	}
 }
+
+func TestLoop56(t *testing.T) {
+	decisionTime := int64(1)
+	ninek := gambit.NineK{
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		MaxPlayers:      6,
+		BuyInMin:        500,
+		BuyInMax:        1000,
+		BlindsSmall:     50,
+		BlindsBig:       50,
+		DecisionTime:    decisionTime,
+		Rake:            5.00,
+		Cap:             0.5}
+	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot.TableID = "ta1d0nw59rjde5xvcz"
+	err := handler.GetHistories("us1d0nw2rmjd2qm8r2")
+	fmt.Println(state.Snapshot.Histories["us1d0nw2rmjd2qm8r2"], err)
+}
