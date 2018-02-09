@@ -17,7 +17,8 @@ var (
 
 // Response from api server
 type Response struct {
-	Error Error `json:"err"`
+	Error   Error  `json:"err"`
+	Message string `json:"message"`
 }
 
 // Error when receive something wrong from server
