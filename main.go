@@ -1,7 +1,6 @@
 package main
 
 import (
-	"999k_engine/api"
 	"999k_engine/constant"
 	"999k_engine/gambit"
 	"999k_engine/handler"
@@ -14,7 +13,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/googollee/go-socket.io"
 	"github.com/gorilla/mux"
@@ -451,23 +449,7 @@ func main() {
 				result <- handler.CreateResponse(userid, channel)
 				return
 			}
-			defer func() {
-				// If no one in the room terminate itself
-				util.Print("Try terminate ...")
-				state.Snapshot = util.CloneState(state.GS)
-				if util.CountSitting(state.Snapshot.Players) <= 0 &&
-					len(state.Snapshot.Visitors) <= 0 {
-					util.Print("No players then terminate")
-					if state.Snapshot.Env != "dev" {
-						// Delay before send signal to hawkeye that please kill this container
-						go func() {
-							time.Sleep(time.Millisecond * 100)
-							body, err := api.Terminate()
-							util.Print("Response from Terminate", string(body), err)
-						}()
-					}
-				}
-			}()
+			defer handler.TryTerminateWhenNoPlayers()
 			defer util.Log()
 			defer close(result)
 			return <-result
@@ -617,6 +599,32 @@ func main() {
 				handler.BroadcastGameState(so, channel, userid)
 				util.Print(userid, "Disband", "success")
 				result <- handler.CreateResponse(userid, channel)
+				return
+			}
+			defer util.Log()
+			defer close(result)
+			return <-result
+		})
+		// Get list of hand history but this event is not broadcasting
+		so.On(constant.GetHistories, func(msg string) string {
+			result := make(chan string)
+			queue <- func() {
+				state.Snapshot = util.CloneState(state.GS)
+				channel := ""
+				data, _ := handler.ConvertStringToRequestStruct(msg)
+				userid := handler.GetUserIDFromToken(data.Header.Token)
+				util.Print(userid, "++++++++++++++ History ++++++++++++++")
+				if userid == "" {
+					util.Print(userid, "GetHistories", "Token is invalid")
+					result <- handler.CreateResponse(userid, channel)
+					return
+				}
+				channel = constant.GetHistories
+				state.GS = util.CloneState(state.Snapshot)
+				util.Print(userid, "GetHistories", "success")
+				result <- handler.CreateResponse(userid, channel)
+				// Delete these histories from state prevent overflow
+				// delete(state.GS.Histories, userid)
 				return
 			}
 			defer util.Log()

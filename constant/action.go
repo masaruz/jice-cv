@@ -25,4 +25,5 @@ const (
 	DisbandTable       = "disbandtable"
 	Enter              = "enter"
 	TopUp              = "topup"
+	GetHistories       = "gethistories"
 )

@@ -6,17 +6,18 @@ import (
 
 // PlayerState reperesent what each player should know
 type PlayerState struct {
-	Player       model.Player  `json:"player"`
-	Visitors     model.Players `json:"visitors"`
-	Competitors  model.Players `json:"competitors"`
-	Slot         int           `json:"slot"`
-	Version      int           `json:"version"`
-	Pots         []int         `json:"pots"`
-	SummaryPots  model.Pots    `json:"summary_pots"`
-	HighestBet   int           `json:"highest_bet"`
-	IsGameStart  bool          `json:"is_game_start"`
-	IsTableStart bool          `json:"is_table_start"`
-	History      model.History `json:"history,omitempty"`
+	Player       model.Player    `json:"player"`
+	Visitors     model.Players   `json:"visitors"`
+	Competitors  model.Players   `json:"competitors"`
+	Slot         int             `json:"slot"`
+	Version      int             `json:"version"`
+	Pots         []int           `json:"pots"`
+	SummaryPots  model.Pots      `json:"summary_pots"`
+	HighestBet   int             `json:"highest_bet"`
+	IsGameStart  bool            `json:"is_game_start"`
+	IsTableStart bool            `json:"is_table_start"`
+	History      model.History   `json:"history,omitempty"`
+	Histories    []model.History `json:"histories,omitempty"`
 }
 
 // Resp is server response
