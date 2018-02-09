@@ -620,6 +620,7 @@ func main() {
 					return
 				}
 				channel = constant.GetHistories
+				handler.GetHistories(userid)
 				state.GS = util.CloneState(state.Snapshot)
 				util.Print(userid, "GetHistories", "success")
 				result <- handler.CreateResponse(userid, channel)
