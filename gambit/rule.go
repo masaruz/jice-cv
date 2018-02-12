@@ -18,19 +18,9 @@ func summary(kind string, hands []int) ([]int, string) {
 	case constant.Straight:
 		return []int{10000, bonus, 0, 0, 0}, constant.Straight
 	case constant.Flush:
-		scores := []int{1000}
-		for index := len(hands) - 1; index >= 0; index-- {
-			if index < len(hands) {
-				scores = append(scores, util.GetCardNumberFromValue(hands[index]))
-			}
-		}
-		for index := len(scores); index < 4; index++ {
-			scores = append(scores, 0)
-		}
-		scores = append(scores, bonus)
-		return scores, constant.Flush
+		return append(appendScores([]int{1000}, hands), bonus), constant.Flush
 	default:
-		score := 0
+		point := 0
 		for _, value := range hands {
 			number := util.GetCardNumberFromValue(value)
 			// if value is A
@@ -40,10 +30,22 @@ func summary(kind string, hands []int) ([]int, string) {
 			if number == 11 || number == 12 || number == 13 {
 				number = 10
 			}
-			score += number
+			point += number
 		}
-		return []int{score % 10, bonus, 0, 0, 0, 0}, constant.Nothing
+		return append(appendScores([]int{point % 10}, hands), bonus), constant.Nothing
 	}
+}
+
+func appendScores(scores []int, hands []int) []int {
+	for index := len(hands) - 1; index >= 0; index-- {
+		if index < len(hands) {
+			scores = append(scores, util.GetCardNumberFromValue(hands[index]))
+		}
+	}
+	for index := len(scores); index < 4; index++ {
+		scores = append(scores, 0)
+	}
+	return scores
 }
 
 // ThreeOfAKind when three cards are same number

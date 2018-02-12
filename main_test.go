@@ -2209,9 +2209,12 @@ func TestLoop24(t *testing.T) {
 			40, 33, 51,
 		})
 		if scores[0] != 1 ||
-			scores[1] != 51 ||
+			scores[1] != 14 ||
+			scores[2] != 12 ||
+			scores[3] != 10 ||
+			scores[4] != 51 ||
 			kind != constant.Nothing {
-			t.Error()
+			t.Error(scores)
 		}
 	})
 	t.Run("Jd,Qd,Ah is nothing", func(t *testing.T) {
@@ -2219,7 +2222,10 @@ func TestLoop24(t *testing.T) {
 			37, 41, 50,
 		})
 		if scores[0] != 1 ||
-			scores[1] != 50 ||
+			scores[1] != 14 ||
+			scores[2] != 12 ||
+			scores[3] != 11 ||
+			scores[4] != 50 ||
 			kind != constant.Nothing {
 			t.Error()
 		}
@@ -5029,6 +5035,46 @@ func TestLoop53(t *testing.T) {
 		t.Error()
 	}
 	if !b.IsWinner || a.IsWinner || c.IsWinner {
+		t.Error()
+	}
+	state.Snapshot.FinishRoundTime = 0
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("c") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("a") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("b") {
+		t.Error()
+	}
+	if a.CardAmount != 2 || b.CardAmount != 2 || c.CardAmount != 2 {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.NextRound() {
+		t.Error()
+	}
+	if a.CardAmount != 3 || b.CardAmount != 3 || c.CardAmount != 3 {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("c") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("a") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("b") {
+		t.Error()
+	}
+	a.Cards = model.Cards{50, 44, 26} // A(heart)K8
+	b.Cards = model.Cards{51, 43, 25} // A(spades)Q8
+	c.Cards = model.Cards{1, 3, 5}
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	if !a.IsWinner || b.IsWinner || c.IsWinner {
 		t.Error()
 	}
 }
