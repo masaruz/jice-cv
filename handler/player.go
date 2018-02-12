@@ -321,8 +321,8 @@ func GetUserIDFromToken(tablekey string) string {
 	return ""
 }
 
-// SaveHistory record winloss amount and cards
-func SaveHistory() {
+// SaveTempHistory save history during game
+func SaveTempHistory() {
 	comps := CreateSharedCardState(state.Snapshot)
 	// Convert competitors to competitors history
 	for index := range comps {
@@ -358,7 +358,31 @@ func SaveHistory() {
 			},
 			Competitors: histories,
 		}
-		state.Snapshot.History[comps[index].ID] = history
+		state.Snapshot.TempHistory[comps[index].ID] = history
+	}
+}
+
+// SaveHistory record winloss amount and cards
+func SaveHistory() {
+	// Backup latest history before save to temp
+	for playerid, tmp := range state.Snapshot.TempHistory {
+		state.Snapshot.History[playerid] = tmp
+	}
+	SaveTempHistory()
+	for tmpID, tmp := range state.Snapshot.TempHistory {
+		for hisID, his := range state.Snapshot.History {
+			if tmpID == hisID {
+				his.Player = tmp.Player
+				for _, tmpCom := range tmp.Competitors {
+					for hisComI, hisCom := range his.Competitors {
+						if tmpCom.ID == hisCom.ID {
+							his.Competitors[hisComI] = tmpCom
+						}
+					}
+				}
+				state.Snapshot.History[hisID] = his
+			}
+		}
 	}
 	if state.Snapshot.Env != "dev" {
 		// Need request to server for buyin

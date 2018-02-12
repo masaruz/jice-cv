@@ -133,6 +133,7 @@ func (game NineK) Start() bool {
 			handler.Deal(2, game.MaxPlayers)
 			util.Print("2 cards dealed")
 			handler.SetPlayersRake(game.Rake, game.Cap*float64(game.BlindsBig))
+			handler.SaveTempHistory()
 			util.Print("Start Success")
 			return true
 		}
@@ -185,6 +186,7 @@ func (game NineK) NextRound() bool {
 		handler.IncreaseTurn()
 		// no one is assumed afk
 		state.Snapshot.DoActions = make([]bool, game.MaxPlayers)
+		handler.SaveTempHistory()
 		util.Print("Next round Success")
 		return true
 	}

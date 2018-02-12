@@ -38,6 +38,7 @@ type GameState struct {
 	Rakes                map[string]float64
 	PlayerTableKeys      map[string]model.PlayerTableKey // Map of each player_table_key and player_id
 	Scoreboard           []model.Scoreboard
+	TempHistory          map[string]model.History
 	History              map[string]model.History
 	Histories            map[string][]model.History
 	Env                  string
@@ -53,6 +54,7 @@ var GS = GameState{
 	GameIndex:       0,
 	PlayerTableKeys: make(map[string]model.PlayerTableKey),
 	History:         make(map[string]model.History),
+	TempHistory:     make(map[string]model.History),
 	Histories:       make(map[string][]model.History),
 	Env:             os.Getenv(constant.Env),
 }
@@ -61,6 +63,7 @@ var GS = GameState{
 var Snapshot = GameState{
 	PlayerTableKeys: make(map[string]model.PlayerTableKey),
 	History:         make(map[string]model.History),
+	TempHistory:     make(map[string]model.History),
 	Histories:       make(map[string][]model.History),
 	Env:             os.Getenv(constant.Env),
 }
