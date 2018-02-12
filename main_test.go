@@ -4599,16 +4599,16 @@ func TestLoop48(t *testing.T) {
 	// }
 	// 	other.Print()
 	// }
-	if tmp := others[0]; len(tmp.Cards) > 0 && !tmp.IsWinner && tmp.Action.Name != constant.AllIn {
+	if tmp := others[0]; len(tmp.Cards) < 3 && !tmp.IsWinner && tmp.Action.Name != constant.AllIn {
 		t.Error()
 	}
-	if tmp := others[0]; len(tmp.Cards) < 3 && !tmp.IsWinner && tmp.Action.Name == constant.AllIn {
+	if tmp := others[0]; len(tmp.Cards) > 0 && !tmp.IsWinner && tmp.Action.Name == constant.AllIn {
 		t.Error()
 	}
 	if tmp := others[1]; len(tmp.Cards) > 0 { // Because fold
 		t.Error()
 	}
-	if tmp := others[2]; len(tmp.Cards) < 3 { // Because allin
+	if tmp := others[2]; len(tmp.Cards) > 0 { // Because allin
 		t.Error()
 	}
 	if tmp := others[5]; len(tmp.Cards) > 0 && !tmp.IsWinner {
@@ -5491,6 +5491,32 @@ func TestLoop57(t *testing.T) {
 		t.Error()
 	}
 	if len(state.Snapshot.History["a"].Competitors[0].Cards) != 0 {
+		t.Error()
+	}
+	state.Snapshot.FinishRoundTime = 0
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("b") {
+		t.Error()
+	}
+	handler.Sit("c", 1)
+	if !state.Snapshot.Gambit.Check("a") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.NextRound() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("b") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("a") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	if len(state.Snapshot.History["a"].Competitors) != 1 {
 		t.Error()
 	}
 }

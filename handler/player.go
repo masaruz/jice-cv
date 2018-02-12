@@ -323,6 +323,7 @@ func GetUserIDFromToken(tablekey string) string {
 
 // SaveTempHistory save history during game
 func SaveTempHistory() {
+	state.Snapshot.TempHistory = make(map[string]model.History)
 	comps := CreateSharedCardState(state.Snapshot)
 	// Convert competitors to competitors history
 	for index := range comps {
@@ -347,7 +348,7 @@ func SaveTempHistory() {
 				CardAmount:    comps[tmp].CardAmount,
 			})
 		}
-		history := model.History{
+		state.Snapshot.TempHistory[comps[index].ID] = model.History{
 			Player: model.PlayerHistory{
 				ID:            player.ID,
 				Name:          player.Name,
@@ -357,8 +358,8 @@ func SaveTempHistory() {
 				CardAmount:    player.CardAmount,
 			},
 			Competitors: histories,
+			CreateTime:  time.Now().Unix(),
 		}
-		state.Snapshot.TempHistory[comps[index].ID] = history
 	}
 }
 

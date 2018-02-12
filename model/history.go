@@ -4,6 +4,7 @@ package model
 type History struct {
 	Player      PlayerHistory   `json:"player"`
 	Competitors []PlayerHistory `json:"competitors"`
+	CreateTime  int64           `json:"createtime"`
 }
 
 // PlayerHistory filtered player's attributes

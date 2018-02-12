@@ -148,14 +148,19 @@ func SaveHistories() ([]byte, error) {
 	// cast param to byte
 	histories := []History{}
 	for _, history := range state.Snapshot.History {
+		// No need to save again if already saved
+		if state.Snapshot.SavedHistory[history.Player.ID].CreateTime == history.CreateTime {
+			continue
+		}
 		histories = append(histories, History{
 			UserID:      history.Player.ID,
 			TableID:     state.Snapshot.TableID,
 			Name:        history.Player.Name,
-			CreateTime:  time.Now().Unix(),
+			CreateTime:  history.CreateTime,
 			Player:      history.Player,
 			Competitors: history.Competitors,
 		})
+		state.Snapshot.SavedHistory[history.Player.ID] = history
 	}
 	data, err := json.Marshal(struct {
 		Histories []History `json:"histories"`
