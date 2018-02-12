@@ -165,7 +165,8 @@ func CreateSharedCardState(gamestate state.GameState) model.Players {
 		for _, player := range gamestate.Players {
 			// If call but is winner
 			if player.Action.Name == constant.Fold ||
-				(player.Action.Name == constant.Call && !player.IsWinner) {
+				(player.Action.Name == constant.Call && !player.IsWinner) ||
+				(player.Action.Name == constant.AllIn && !player.IsWinner) {
 				player.Cards = model.Cards{}
 			}
 			others = append(others, player)
