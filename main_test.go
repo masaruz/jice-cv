@@ -5330,7 +5330,83 @@ func TestLoop56(t *testing.T) {
 		Cap:             0.5}
 	handler.Initiate(ninek)
 	state.GS.Gambit.Init() // create seats
-	state.Snapshot.TableID = "ta1d0nw59rjde5xvcz"
-	err := handler.GetHistories("us1d0nw2rmjd2qm8r2")
-	fmt.Println(state.Snapshot.Histories["us1d0nw2rmjd2qm8r2"], err)
+	state.Snapshot = util.CloneState(state.GS)
+	state.Snapshot.Duration = 1800
+	handler.Enter(model.Player{ID: "a", Name: "a"})
+	handler.Enter(model.Player{ID: "b", Name: "b"})
+	handler.Enter(model.Player{ID: "c", Name: "c"})
+	// dumb player
+	handler.Sit("a", 2)
+	handler.Sit("b", 5)
+	handler.Sit("c", 1)
+	// a := &state.Snapshot.Players[2]
+	// b := &state.Snapshot.Players[5]
+	// c := &state.Snapshot.Players[1]
+	for _, player := range state.Snapshot.Players {
+		if player.ID != "" && player.Actions[0].Name != constant.Stand {
+			t.Error()
+		}
+	}
+	handler.StartTable("a")
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("a") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("b") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("c") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.NextRound() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("a") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("b") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("c") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	handler.Stand("c", false)
+	state.Snapshot.FinishRoundTime = 0
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("b") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("a") {
+		t.Error()
+	}
+	handler.Sit("c", 1)
+	if !state.Snapshot.Gambit.NextRound() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("b") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Check("a") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	if len(state.Snapshot.History["a"].Competitors) != 1 {
+		t.Error()
+	}
+	if len(state.Snapshot.History["b"].Competitors) != 1 {
+		t.Error()
+	}
+	// From last game not current
+	if len(state.Snapshot.History["c"].Competitors) != 2 {
+		t.Error()
+	}
 }

@@ -326,14 +326,16 @@ func SaveHistory() {
 	comps := CreateSharedCardState(state.Snapshot)
 	// Convert competitors to competitors history
 	for index := range comps {
-		if comps[index].ID == "" {
+		if comps[index].ID == "" || !comps[index].IsPlaying {
 			continue
 		}
 		_, player := util.Get(state.Snapshot.Players, comps[index].ID)
-		// Skip player themselve
+		// Skip player themselve and who is not playing
 		histories := []model.PlayerHistory{}
 		for tmp := range comps {
-			if comps[tmp].ID == "" || comps[tmp].ID == player.ID {
+			if comps[tmp].ID == "" ||
+				comps[tmp].ID == player.ID ||
+				!comps[tmp].IsPlaying {
 				continue
 			}
 			histories = append(histories, model.PlayerHistory{
