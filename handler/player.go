@@ -168,13 +168,10 @@ func Sit(id string, slot int) *model.Error {
 	SetOtherActionsWhoAreNotPlaying(constant.Sit)
 	// Update realtime data ex. Visitors
 	if state.Snapshot.Env != "dev" {
-		body, err := api.UpdateRealtimeData()
-		util.Print("Response from UpdateRealtimeData", string(body), err)
-		resp := &api.Response{}
-		json.Unmarshal(body, resp)
-		if resp.Error != (api.Error{}) {
-			return &model.Error{Code: UpdateRealtimeError}
-		}
+		go func() {
+			body, err := api.UpdateRealtimeData()
+			util.Print("Response from UpdateRealtimeData", string(body), err)
+		}()
 	}
 	state.Snapshot.AFKCounts[index] = 0
 	return nil
