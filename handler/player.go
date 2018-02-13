@@ -359,6 +359,8 @@ func SaveTempHistory() {
 				}
 			}
 			if !has {
+				// When found player who's not in this game anymore hide their cards
+				tmp.Player.Cards = model.Cards{}
 				histories = append(histories, tmp.Player)
 			}
 		}
