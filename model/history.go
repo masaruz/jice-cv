@@ -5,6 +5,7 @@ type History struct {
 	Player      PlayerHistory   `json:"player"`
 	Competitors []PlayerHistory `json:"competitors"`
 	CreateTime  int64           `json:"createtime"`
+	GameIndex   int             `json:"gameindex"`
 }
 
 // PlayerHistory filtered player's attributes

@@ -323,32 +323,46 @@ func GetUserIDFromToken(tablekey string) string {
 
 // SaveTempHistory save history during game
 func SaveTempHistory() {
-	state.Snapshot.TempHistory = make(map[string]model.History)
 	comps := CreateSharedCardState(state.Snapshot)
 	// Convert competitors to competitors history
-	for index := range comps {
-		if comps[index].ID == "" || !comps[index].IsPlaying {
+	for _, comp := range comps {
+		if comp.ID == "" || !comp.IsPlaying {
 			continue
 		}
-		_, player := util.Get(state.Snapshot.Players, comps[index].ID)
-		// Skip player themselve and who is not playing
+		_, player := util.Get(state.Snapshot.Players, comp.ID)
+		// Skip player themselves and who is not playing
 		histories := []model.PlayerHistory{}
-		for tmp := range comps {
-			if comps[tmp].ID == "" ||
-				comps[tmp].ID == player.ID ||
-				!comps[tmp].IsPlaying {
+		for _, tmp := range comps {
+			if tmp.ID == "" ||
+				tmp.ID == player.ID ||
+				!tmp.IsPlaying {
 				continue
 			}
 			histories = append(histories, model.PlayerHistory{
-				ID:            comps[tmp].ID,
-				Name:          comps[tmp].Name,
-				WinLossAmount: comps[tmp].WinLossAmount,
-				Cards:         comps[tmp].Cards,
-				Slot:          comps[tmp].Slot,
-				CardAmount:    comps[tmp].CardAmount,
+				ID:            tmp.ID,
+				Name:          tmp.Name,
+				WinLossAmount: tmp.WinLossAmount,
+				Cards:         tmp.Cards,
+				Slot:          tmp.Slot,
+				CardAmount:    tmp.CardAmount,
 			})
 		}
-		state.Snapshot.TempHistory[comps[index].ID] = model.History{
+		for tmpID, tmp := range state.Snapshot.TempHistory {
+			if tmpID == player.ID || state.Snapshot.GameIndex != tmp.GameIndex {
+				continue
+			}
+			has := false
+			for _, his := range histories {
+				if tmpID == his.ID {
+					has = !has
+					break
+				}
+			}
+			if !has {
+				histories = append(histories, tmp.Player)
+			}
+		}
+		state.Snapshot.TempHistory[comp.ID] = model.History{
 			Player: model.PlayerHistory{
 				ID:            player.ID,
 				Name:          player.Name,
@@ -359,6 +373,19 @@ func SaveTempHistory() {
 			},
 			Competitors: histories,
 			CreateTime:  time.Now().Unix(),
+			GameIndex:   state.Snapshot.GameIndex,
+		}
+	}
+	for tmpIndex, tmp := range state.Snapshot.TempHistory {
+		if state.Snapshot.GameIndex == tmp.GameIndex {
+			for _, comp := range comps {
+				for index, his := range tmp.Competitors {
+					if comp.ID == his.ID {
+						state.Snapshot.TempHistory[tmpIndex].Competitors[index].WinLossAmount =
+							state.Snapshot.TempHistory[comp.ID].Player.WinLossAmount
+					}
+				}
+			}
 		}
 	}
 }
