@@ -981,11 +981,11 @@ func TestLoop08(t *testing.T) {
 	if p3.Chips != 290 || p1.Chips != 140 || p2.Chips != 170 {
 		t.Error()
 	}
-	for _, comp := range state.Snapshot.History["player1"].Competitors {
-		if len(comp.Cards) > 0 {
-			t.Error()
-		}
-	}
+	// for _, comp := range state.Snapshot.History["player1"].Competitors {
+	// 	if len(comp.Cards) > 0 {
+	// 		t.Error()
+	// 	}
+	// }
 	// p1.Print()
 	// p2.Print()
 	// p3.Print()
@@ -5118,7 +5118,13 @@ func TestLoop53(t *testing.T) {
 	if len(state.Snapshot.History["a"].Competitors[1].Cards) != 0 {
 		t.Error()
 	}
-	if len(state.Snapshot.History["a"].Competitors[0].Cards) != 0 {
+	if state.Snapshot.History["a"].Competitors[1].CardAmount != 3 {
+		t.Error()
+	}
+	if len(state.Snapshot.History["a"].Competitors[0].Cards) != 3 {
+		t.Error()
+	}
+	if state.Snapshot.History["a"].Competitors[0].CardAmount != 3 {
 		t.Error()
 	}
 	state.Snapshot.FinishRoundTime = 0
@@ -5597,11 +5603,13 @@ func TestLoop58(t *testing.T) {
 		t.Error()
 	}
 	if state.Snapshot.TempHistory["b"].Player.WinLossAmount == 92.5 {
-		if state.Snapshot.TempHistory["c"].Competitors[1].WinLossAmount != 92.5 {
+		if state.Snapshot.TempHistory["c"].Competitors[1].WinLossAmount != 92.5 ||
+			len(state.Snapshot.TempHistory["c"].Competitors[1].Cards) != 3 {
 			t.Error()
 		}
 	} else {
-		if state.Snapshot.TempHistory["c"].Competitors[0].WinLossAmount != 92.5 {
+		if state.Snapshot.TempHistory["c"].Competitors[0].WinLossAmount != 92.5 ||
+			len(state.Snapshot.TempHistory["c"].Competitors[0].Cards) != 3 {
 			t.Error()
 		}
 	}

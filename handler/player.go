@@ -381,8 +381,15 @@ func SaveTempHistory() {
 			for _, comp := range comps {
 				for index, his := range tmp.Competitors {
 					if comp.ID == his.ID {
+						if comp.IsWinner {
+							state.Snapshot.TempHistory[tmpIndex].Competitors[index] =
+								state.Snapshot.TempHistory[comp.ID].Player
+							continue
+						}
 						state.Snapshot.TempHistory[tmpIndex].Competitors[index].WinLossAmount =
 							state.Snapshot.TempHistory[comp.ID].Player.WinLossAmount
+						state.Snapshot.TempHistory[tmpIndex].Competitors[index].CardAmount =
+							state.Snapshot.TempHistory[comp.ID].Player.CardAmount
 					}
 				}
 			}
