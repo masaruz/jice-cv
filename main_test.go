@@ -4608,8 +4608,8 @@ func TestLoop48(t *testing.T) {
 	if tmp := others[1]; len(tmp.Cards) > 0 { // Because fold
 		t.Error()
 	}
-	if tmp := others[2]; len(tmp.Cards) > 0 { // Because allin
-		t.Error()
+	if tmp := others[2]; len(tmp.Cards) > 0 && !tmp.IsWinner { // Because allin
+		t.Error(tmp)
 	}
 	if tmp := others[5]; len(tmp.Cards) > 0 && !tmp.IsWinner {
 		t.Error()
