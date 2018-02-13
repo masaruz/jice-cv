@@ -106,6 +106,10 @@ func Leave(id string) bool {
 // Sit for playing the game
 func Sit(id string, slot int) *model.Error {
 	index, caller := util.Get(state.Snapshot.Visitors, id)
+	if state.Snapshot.Gambit.GetSettings().GPSRestrcited &&
+		caller.Lat == 0 && caller.Lon == 0 {
+		return &model.Error{Code: NearOtherPlayers}
+	}
 	caller.Slot = -1
 	for _, player := range state.Snapshot.Players {
 		if player.ID == "" {
