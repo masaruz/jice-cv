@@ -57,34 +57,6 @@ func BuyIn(userid string, buyinamount int) ([]byte, error) {
 	return post(url, data)
 }
 
-// CheckBuyIn if player is able to buyin
-func CheckBuyIn(userid string, buyinamount int) ([]byte, error) {
-	// Not allow empty string or buyinamount value must > 0
-	if userid == "" || buyinamount <= 0 {
-		return nil, fmt.Errorf("user_id or buy_in_amount is empty")
-	}
-	// cast param to byte
-	data, err := json.Marshal(struct {
-		UserID      string `json:"userid"`
-		GroupID     string `json:"groupid"`
-		CreateTime  int64  `json:"createtime"`
-		GameIndex   int    `json:"gameindex"`
-		BuyInAmount int    `json:"buyinamount"`
-	}{
-		UserID:      userid,
-		GroupID:     state.GS.GroupID,
-		CreateTime:  time.Now().Unix(),
-		GameIndex:   state.GS.GameIndex,
-		BuyInAmount: buyinamount,
-	})
-	if err != nil {
-		return nil, err
-	}
-	// create url
-	url := fmt.Sprintf("%s/checkbuyin", getTableURL(state.GS.TableID))
-	return post(url, data)
-}
-
 // CashBack when player stand or leave the table will gain cash back from buyin
 func CashBack(userid string) ([]byte, error) {
 	if userid == "" {

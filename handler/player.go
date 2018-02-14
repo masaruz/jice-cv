@@ -112,11 +112,13 @@ func Leave(id string) bool {
 	// after they stand then remove from visitor
 	state.Snapshot.Visitors = util.Remove(state.Snapshot.Visitors, id)
 	if state.Snapshot.Env != "dev" {
-		body, err := api.RemoveAuth(id)
-		util.Print("Response from RemoveAuth", string(body), err)
-		// Update realtime data ex. Visitors
-		body, err = api.UpdateRealtimeData()
-		util.Print("Response from UpdateRealtimeData", string(body), err)
+		go func() {
+			body, err := api.RemoveAuth(id)
+			util.Print("Response from RemoveAuth", string(body), err)
+			// Update realtime data ex. Visitors
+			body, err = api.UpdateRealtimeData()
+			util.Print("Response from UpdateRealtimeData", string(body), err)
+		}()
 	}
 	return true
 }
@@ -176,14 +178,6 @@ func Sit(id string, slot int) *model.Error {
 			return err
 		}
 		util.Print("Buy-in success")
-		body, err = api.GetPlayer(caller.ID, state.Snapshot.GroupID)
-		util.Print("Response from Get A Player", string(body), err)
-		resp = &api.Response{}
-		json.Unmarshal(body, resp)
-		// If get player error
-		if resp.Error != (api.Error{}) {
-			return &model.Error{Code: GetPlayerError}
-		}
 		message := &api.GetPlayerMessage{}
 		json.Unmarshal([]byte(resp.Message), message)
 		caller.TotalChips = message.Player.Chips
@@ -268,13 +262,10 @@ func Stand(id string, force bool) bool {
 	SetOtherActionsWhoAreNotPlaying(constant.Sit)
 	// Update realtime data ex. Visitors
 	if state.Snapshot.Env != "dev" {
-		body, err := api.UpdateRealtimeData()
-		util.Print("Response from UpdateRealtimeData", string(body), err)
-		resp := &api.Response{}
-		json.Unmarshal(body, resp)
-		if resp.Error != (api.Error{}) && !force {
-			return false
-		}
+		go func() {
+			body, err := api.UpdateRealtimeData()
+			util.Print("Response from UpdateRealtimeData", string(body), err)
+		}()
 	}
 	state.Snapshot.AFKCounts[index] = 0
 	return true
@@ -453,9 +444,11 @@ func SaveHistory() {
 		}
 	}
 	if state.Snapshot.Env != "dev" {
-		// Need request to server for buyin
-		body, err := api.SaveHistories()
-		util.Print("Response from Save Histories", string(body), err)
+		go func() {
+			// Need request to server for buyin
+			body, err := api.SaveHistories()
+			util.Print("Response from Save Histories", string(body), err)
+		}()
 	}
 }
 
@@ -539,14 +532,6 @@ func TopUp(id string) *model.Error {
 				err = &model.Error{Code: ChipIsNotEnough}
 			}
 			return err
-		}
-		body, err = api.GetPlayer(player.ID, state.Snapshot.GroupID)
-		util.Print("Response from Get A Player", string(body), err)
-		resp = &api.Response{}
-		json.Unmarshal(body, resp)
-		// If get player error
-		if resp.Error != (api.Error{}) {
-			return &model.Error{Code: GetPlayerError}
 		}
 		message := &api.GetPlayerMessage{}
 		json.Unmarshal([]byte(resp.Message), message)
