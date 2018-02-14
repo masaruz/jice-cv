@@ -21,6 +21,12 @@ type Response struct {
 	Message string `json:"message"`
 }
 
+// GetPlayerMessage convert from string message to get player message
+type GetPlayerMessage struct {
+	OK     bool   `json:"ok"`
+	Player Player `json:"member"`
+}
+
 // Error when receive something wrong from server
 type Error struct {
 	StatusCode int    `json:"statusCode"`

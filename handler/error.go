@@ -15,4 +15,5 @@ const (
 	NearOtherPlayers    ErrorCode = 105
 	NoAvailableGPS      ErrorCode = 106
 	PlayerNotFound      ErrorCode = 107
+	GetPlayerError      ErrorCode = 108
 )

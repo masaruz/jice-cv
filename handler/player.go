@@ -78,11 +78,29 @@ func Connect(id string) {
 
 // Enter when player actually call to enter to the room
 func Enter(player model.Player) bool {
+	message := &api.GetPlayerMessage{}
+	if state.Snapshot.Env != "dev" {
+		body, err := api.GetPlayer(player.ID, state.Snapshot.GroupID)
+		util.Print("Response from Get A Player", string(body), err)
+		resp := &api.Response{}
+		json.Unmarshal(body, resp)
+		// If get player error
+		if resp.Error != (api.Error{}) {
+			return false
+		}
+		json.Unmarshal([]byte(resp.Message), message)
+	} else {
+		// When testing assign buyin max
+		message.Player.Chips = float64(state.Snapshot.Gambit.GetSettings().BuyInMax)
+	}
 	index, _ := util.Get(state.Snapshot.Players, player.ID)
 	if index == -1 {
 		player.Action = model.Action{Name: constant.Stand}
 		player.Actions = Reducer(constant.Connection, player.ID)
+		player.TotalChips = message.Player.Chips
 		state.Snapshot.Visitors = util.Add(state.Snapshot.Visitors, player)
+	} else {
+		state.Snapshot.Players[index].TotalChips = message.Player.Chips
 	}
 	return true
 }
@@ -158,6 +176,18 @@ func Sit(id string, slot int) *model.Error {
 			return err
 		}
 		util.Print("Buy-in success")
+		body, err = api.GetPlayer(caller.ID, state.Snapshot.GroupID)
+		util.Print("Response from Get A Player", string(body), err)
+		resp = &api.Response{}
+		json.Unmarshal(body, resp)
+		// If get player error
+		if resp.Error != (api.Error{}) {
+			return &model.Error{Code: GetPlayerError}
+		}
+		message := &api.GetPlayerMessage{}
+		json.Unmarshal([]byte(resp.Message), message)
+		caller.TotalChips = message.Player.Chips
+		util.Print("Get player success")
 	}
 	// Assign how much they buy-in
 	caller.Chips = float64(state.Snapshot.Gambit.GetSettings().BuyInMin)
@@ -454,6 +484,8 @@ func GetTopUpHint(id string) model.Action {
 	// Never be negative
 	if topupMax < 0 {
 		topupMax = 0
+	} else if total := int(math.Floor(player.TotalChips)); topupMax > total {
+		topupMax = total
 	}
 	return model.Action{
 		Name: constant.TopUp,
@@ -508,6 +540,18 @@ func TopUp(id string) *model.Error {
 			}
 			return err
 		}
+		body, err = api.GetPlayer(player.ID, state.Snapshot.GroupID)
+		util.Print("Response from Get A Player", string(body), err)
+		resp = &api.Response{}
+		json.Unmarshal(body, resp)
+		// If get player error
+		if resp.Error != (api.Error{}) {
+			return &model.Error{Code: GetPlayerError}
+		}
+		message := &api.GetPlayerMessage{}
+		json.Unmarshal([]byte(resp.Message), message)
+		player.TotalChips = message.Player.Chips
+		util.Print("Get player success")
 	}
 	player.Chips += amount
 	return nil
