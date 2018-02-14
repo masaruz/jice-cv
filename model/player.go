@@ -9,6 +9,7 @@ type Player struct {
 	Cards           Cards      `json:"cards"`
 	CardAmount      int        `json:"card_amount"`
 	Chips           float64    `json:"chips"`
+	TotalChips      float64    `json:"max_chips,omitempty"`
 	WinLossAmount   float64    `json:"win_loss_amount,omitempty"`
 	Type            string     `json:"type"`
 	Bets            []int      `json:"bets"`
@@ -43,8 +44,8 @@ type PlayerTableKey struct {
 func (p Player) Print() {
 	log.Println(p.ID, p.Name, p.Cards, p.Default, p.Action,
 		p.StartLine, p.DeadLine, p.Chips, p.Bets, p.Type,
-		p.IsWinner, p.WinLossAmount, p.IsPlaying, p.Stickers,
-		p.Lat, p.Lon)
+		p.IsWinner, p.WinLossAmount, p.IsPlaying, p.WinLossAmount,
+		p.TotalChips, p.Lat, p.Lon)
 }
 
 // Players in the battle

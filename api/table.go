@@ -38,6 +38,16 @@ type Summary struct {
 	GroupID     string             `json:"groupid"`
 }
 
+// History post body
+type History struct {
+	UserID      string                `json:"userid"`
+	TableID     string                `json:"tableid"`
+	Name        string                `json:"name"`
+	CreateTime  int64                 `json:"createtime"`
+	Player      model.PlayerHistory   `json:"player"`
+	Competitors []model.PlayerHistory `json:"competitors"`
+}
+
 func getTableURL(id string) string {
 	return fmt.Sprintf("%s/tables/%s", Host, id)
 }
@@ -131,6 +141,44 @@ func Terminate() ([]byte, error) {
 	return post(url, nil)
 }
 
+// SaveHistories save latest histories when game is end
+func SaveHistories() ([]byte, error) {
+	// create url
+	url := fmt.Sprintf("%s/history", getTableURL(state.Snapshot.TableID))
+	// cast param to byte
+	histories := []History{}
+	for _, history := range state.Snapshot.History {
+		// No need to save again if already saved
+		if state.Snapshot.SavedHistory[history.Player.ID].CreateTime == history.CreateTime {
+			continue
+		}
+		histories = append(histories, History{
+			UserID:      history.Player.ID,
+			TableID:     state.Snapshot.TableID,
+			Name:        history.Player.Name,
+			CreateTime:  history.CreateTime,
+			Player:      history.Player,
+			Competitors: history.Competitors,
+		})
+		state.Snapshot.SavedHistory[history.Player.ID] = history
+	}
+	data, err := json.Marshal(struct {
+		Histories []History `json:"histories"`
+	}{Histories: histories})
+	if err != nil {
+		return nil, err
+	}
+	// create request
+	return post(url, data)
+}
+
+// GetHistories get list of hand history
+func GetHistories(userid string) ([]byte, error) {
+	// create url
+	url := fmt.Sprintf("%s/history?userid=%s", getTableURL(state.Snapshot.TableID), userid)
+	return get(url)
+}
+
 // SaveSettlements after game's end
 func SaveSettlements() ([]byte, error) {
 	summary := Summary{
@@ -147,7 +195,6 @@ func SaveSettlements() ([]byte, error) {
 			UserID:        player.ID,
 			WinLossAmount: player.WinLossAmount,
 			PaidRake:      state.Snapshot.Rakes[player.ID]})
-		player.WinLossAmount = 0
 	}
 	// cast param to byte
 	data, err := json.Marshal(summary)

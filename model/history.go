@@ -2,15 +2,18 @@ package model
 
 // History of hands of players
 type History struct {
-	Player      *PlayerHistory   `json:"player"`
-	Competitors []*PlayerHistory `json:"competitors"`
+	Player      PlayerHistory   `json:"player"`
+	Competitors []PlayerHistory `json:"competitors"`
+	CreateTime  int64           `json:"createtime"`
+	GameIndex   int             `json:"gameindex"`
 }
 
 // PlayerHistory filtered player's attributes
 type PlayerHistory struct {
-	ID            string  `json:"id,omitempty"`
-	Name          string  `json:"name,omitempty"`
-	WinLossAmount float64 `json:"win_loss_amount,omitempty"`
-	Slot          int     `json:"slot,omitempty"`
-	Cards         *Cards  `json:"cards,omitempty"`
+	ID            string  `json:"id"`
+	Name          string  `json:"name"`
+	WinLossAmount float64 `json:"win_loss_amount"`
+	Slot          int     `json:"slot"`
+	CardAmount    int     `json:"card_amount"`
+	Cards         Cards   `json:"cards"`
 }

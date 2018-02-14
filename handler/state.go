@@ -133,6 +133,8 @@ func CreateResponseWithCode(id string, event string, err *model.Error) string {
 					Version:      state.GS.Version,
 					IsTableStart: state.GS.IsTableStart,
 					IsGameStart:  state.GS.IsGameStart,
+					History:      state.GS.History[id],
+					Histories:    state.GS.Histories[id],
 				}},
 			Signature: state.Signature{}})
 	return string(data)

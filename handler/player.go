@@ -78,11 +78,29 @@ func Connect(id string) {
 
 // Enter when player actually call to enter to the room
 func Enter(player model.Player) bool {
+	message := &api.GetPlayerMessage{}
+	if state.Snapshot.Env != "dev" {
+		body, err := api.GetPlayer(player.ID, state.Snapshot.GroupID)
+		util.Print("Response from Get A Player", string(body), err)
+		resp := &api.Response{}
+		json.Unmarshal(body, resp)
+		// If get player error
+		if resp.Error != (api.Error{}) {
+			return false
+		}
+		json.Unmarshal([]byte(resp.Message), message)
+	} else {
+		// When testing assign buyin max
+		message.Player.Chips = float64(state.Snapshot.Gambit.GetSettings().BuyInMax)
+	}
 	index, _ := util.Get(state.Snapshot.Players, player.ID)
 	if index == -1 {
 		player.Action = model.Action{Name: constant.Stand}
 		player.Actions = Reducer(constant.Connection, player.ID)
+		player.TotalChips = message.Player.Chips
 		state.Snapshot.Visitors = util.Add(state.Snapshot.Visitors, player)
+	} else {
+		state.Snapshot.Players[index].TotalChips = message.Player.Chips
 	}
 	return true
 }
@@ -106,6 +124,10 @@ func Leave(id string) bool {
 // Sit for playing the game
 func Sit(id string, slot int) *model.Error {
 	index, caller := util.Get(state.Snapshot.Visitors, id)
+	if state.Snapshot.Gambit.GetSettings().GPSRestrcited &&
+		caller.Lat == 0 && caller.Lon == 0 {
+		return &model.Error{Code: NearOtherPlayers}
+	}
 	caller.Slot = -1
 	for _, player := range state.Snapshot.Players {
 		if player.ID == "" {
@@ -154,6 +176,18 @@ func Sit(id string, slot int) *model.Error {
 			return err
 		}
 		util.Print("Buy-in success")
+		body, err = api.GetPlayer(caller.ID, state.Snapshot.GroupID)
+		util.Print("Response from Get A Player", string(body), err)
+		resp = &api.Response{}
+		json.Unmarshal(body, resp)
+		// If get player error
+		if resp.Error != (api.Error{}) {
+			return &model.Error{Code: GetPlayerError}
+		}
+		message := &api.GetPlayerMessage{}
+		json.Unmarshal([]byte(resp.Message), message)
+		caller.TotalChips = message.Player.Chips
+		util.Print("Get player success")
 	}
 	// Assign how much they buy-in
 	caller.Chips = float64(state.Snapshot.Gambit.GetSettings().BuyInMin)
@@ -168,13 +202,10 @@ func Sit(id string, slot int) *model.Error {
 	SetOtherActionsWhoAreNotPlaying(constant.Sit)
 	// Update realtime data ex. Visitors
 	if state.Snapshot.Env != "dev" {
-		body, err := api.UpdateRealtimeData()
-		util.Print("Response from UpdateRealtimeData", string(body), err)
-		resp := &api.Response{}
-		json.Unmarshal(body, resp)
-		if resp.Error != (api.Error{}) {
-			return &model.Error{Code: UpdateRealtimeError}
-		}
+		go func() {
+			body, err := api.UpdateRealtimeData()
+			util.Print("Response from UpdateRealtimeData", string(body), err)
+		}()
 	}
 	state.Snapshot.AFKCounts[index] = 0
 	return nil
@@ -321,39 +352,110 @@ func GetUserIDFromToken(tablekey string) string {
 	return ""
 }
 
-// SaveHistory record winloss amount and cards
-func SaveHistory() {
-	competitors := CreateSharedCardState(state.Snapshot)
+// SaveTempHistory save history during game
+func SaveTempHistory() {
+	comps := CreateSharedCardState(state.Snapshot)
 	// Convert competitors to competitors history
-	histories := []*model.PlayerHistory{}
-	for _, comp := range competitors {
-		if comp.ID == "" {
-			continue
-		}
-		histories = append(histories, &model.PlayerHistory{
-			ID:            comp.ID,
-			Name:          comp.Name,
-			WinLossAmount: comp.WinLossAmount,
-			Cards:         &comp.Cards,
-			Slot:          comp.Slot,
-		})
-	}
-	for _, comp := range competitors {
-		if comp.ID == "" {
+	for _, comp := range comps {
+		if comp.ID == "" || !comp.IsPlaying {
 			continue
 		}
 		_, player := util.Get(state.Snapshot.Players, comp.ID)
-		history := model.History{
-			Player: &model.PlayerHistory{
+		// Skip player themselves and who is not playing
+		histories := []model.PlayerHistory{}
+		for _, tmp := range comps {
+			if tmp.ID == "" ||
+				tmp.ID == player.ID ||
+				!tmp.IsPlaying {
+				continue
+			}
+			histories = append(histories, model.PlayerHistory{
+				ID:            tmp.ID,
+				Name:          tmp.Name,
+				WinLossAmount: tmp.WinLossAmount,
+				Cards:         tmp.Cards,
+				Slot:          tmp.Slot,
+				CardAmount:    tmp.CardAmount,
+			})
+		}
+		for tmpID, tmp := range state.Snapshot.TempHistory {
+			if tmpID == player.ID || state.Snapshot.GameIndex != tmp.GameIndex {
+				continue
+			}
+			has := false
+			for _, his := range histories {
+				if tmpID == his.ID {
+					has = !has
+					break
+				}
+			}
+			if !has {
+				// When found player who's not in this game anymore hide their cards
+				tmp.Player.Cards = model.Cards{}
+				histories = append(histories, tmp.Player)
+			}
+		}
+		state.Snapshot.TempHistory[comp.ID] = model.History{
+			Player: model.PlayerHistory{
 				ID:            player.ID,
 				Name:          player.Name,
 				WinLossAmount: player.WinLossAmount,
-				Cards:         &player.Cards,
+				Cards:         player.Cards,
 				Slot:          player.Slot,
+				CardAmount:    player.CardAmount,
 			},
 			Competitors: histories,
+			CreateTime:  time.Now().Unix(),
+			GameIndex:   state.Snapshot.GameIndex,
 		}
-		state.Snapshot.History[comp.ID] = history
+	}
+	for tmpIndex, tmp := range state.Snapshot.TempHistory {
+		if state.Snapshot.GameIndex == tmp.GameIndex {
+			for _, comp := range comps {
+				for index, his := range tmp.Competitors {
+					if comp.ID == his.ID {
+						if comp.IsWinner {
+							state.Snapshot.TempHistory[tmpIndex].Competitors[index] =
+								state.Snapshot.TempHistory[comp.ID].Player
+							continue
+						}
+						state.Snapshot.TempHistory[tmpIndex].Competitors[index].WinLossAmount =
+							state.Snapshot.TempHistory[comp.ID].Player.WinLossAmount
+						state.Snapshot.TempHistory[tmpIndex].Competitors[index].CardAmount =
+							state.Snapshot.TempHistory[comp.ID].Player.CardAmount
+					}
+				}
+			}
+		}
+	}
+}
+
+// SaveHistory record winloss amount and cards
+func SaveHistory() {
+	// Backup latest history before save to temp
+	for playerid, tmp := range state.Snapshot.TempHistory {
+		state.Snapshot.History[playerid] = tmp
+	}
+	SaveTempHistory()
+	for tmpID, tmp := range state.Snapshot.TempHistory {
+		for hisID, his := range state.Snapshot.History {
+			if tmpID == hisID {
+				his.Player = tmp.Player
+				for _, tmpCom := range tmp.Competitors {
+					for hisComI, hisCom := range his.Competitors {
+						if tmpCom.ID == hisCom.ID {
+							his.Competitors[hisComI] = tmpCom
+						}
+					}
+				}
+				state.Snapshot.History[hisID] = his
+			}
+		}
+	}
+	if state.Snapshot.Env != "dev" {
+		// Need request to server for buyin
+		body, err := api.SaveHistories()
+		util.Print("Response from Save Histories", string(body), err)
 	}
 }
 
@@ -382,6 +484,8 @@ func GetTopUpHint(id string) model.Action {
 	// Never be negative
 	if topupMax < 0 {
 		topupMax = 0
+	} else if total := int(math.Floor(player.TotalChips)); topupMax > total {
+		topupMax = total
 	}
 	return model.Action{
 		Name: constant.TopUp,
@@ -436,7 +540,36 @@ func TopUp(id string) *model.Error {
 			}
 			return err
 		}
+		body, err = api.GetPlayer(player.ID, state.Snapshot.GroupID)
+		util.Print("Response from Get A Player", string(body), err)
+		resp = &api.Response{}
+		json.Unmarshal(body, resp)
+		// If get player error
+		if resp.Error != (api.Error{}) {
+			return &model.Error{Code: GetPlayerError}
+		}
+		message := &api.GetPlayerMessage{}
+		json.Unmarshal([]byte(resp.Message), message)
+		player.TotalChips = message.Player.Chips
+		util.Print("Get player success")
 	}
 	player.Chips += amount
+	return nil
+}
+
+// GetHistories from a user
+func GetHistories(id string) error {
+	body, err := api.GetHistories(id)
+	util.Print("Response from GetHistories", string(body), err)
+	resp := &api.Response{}
+	json.Unmarshal(body, resp)
+	if resp.Error != (api.Error{}) {
+		return err
+	}
+	message := &struct {
+		Histories []model.History `json:"histories"`
+	}{}
+	err = json.Unmarshal([]byte(resp.Message), message)
+	state.Snapshot.Histories[id] = message.Histories
 	return nil
 }

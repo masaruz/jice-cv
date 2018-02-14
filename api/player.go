@@ -10,11 +10,10 @@ import (
 
 // Player response from api server
 type Player struct {
-	ID           string   `json:"userid"`
-	AltID        string   `json:"alt_id"`
-	DisplayName  string   `json:"display_name"`
-	Clubs        []string `json:"clubs"`
-	PendingClubs []string `json:"pending_clubs"`
+	ID          string  `json:"userid"`
+	AltID       string  `json:"alt_id"`
+	DisplayName string  `json:"display_name"`
+	Chips       float64 `json:"chip"`
 }
 
 // SendSticker send sticker by using gems
@@ -159,4 +158,15 @@ func RemoveAuth(playerid string) ([]byte, error) {
 	// create url
 	url := fmt.Sprintf("%s/unauth", getTableURL(state.GS.TableID))
 	return post(url, data)
+}
+
+// GetPlayer get player current stat
+func GetPlayer(playerid string, groupid string) ([]byte, error) {
+	// create url
+	url := fmt.Sprintf("%s/clubs/%s/members/%s",
+		Host, groupid, playerid)
+	// url := fmt.Sprintf(
+	// 	"https://icpjqhfscb.execute-api.ap-southeast-1.amazonaws.com/prd/clubs/%s/members/%s",
+	// 	groupid, playerid)
+	return get(url)
 }

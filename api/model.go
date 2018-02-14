@@ -17,7 +17,14 @@ var (
 
 // Response from api server
 type Response struct {
-	Error Error `json:"err"`
+	Error   Error  `json:"err"`
+	Message string `json:"message"`
+}
+
+// GetPlayerMessage convert from string message to get player message
+type GetPlayerMessage struct {
+	OK     bool   `json:"ok"`
+	Player Player `json:"member"`
 }
 
 // Error when receive something wrong from server
