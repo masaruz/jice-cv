@@ -1,5 +1,5 @@
 #!/bin/bash
-for i in $(seq 1 59)
+for i in $(seq 1 60)
 do
   if (( $i < 10 ))
   then

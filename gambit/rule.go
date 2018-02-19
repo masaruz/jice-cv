@@ -75,7 +75,7 @@ func straight(values []int) bool {
 		number = current
 	}
 	// because 48 - 51 are A
-	return number < 13 && util.GetCardNumberFromValue(values[1]) < 13
+	return number < 15 && util.GetCardNumberFromValue(values[1]) < 14
 }
 
 // Royal when 3 cards have no any number (only J,Q,K)

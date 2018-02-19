@@ -5670,6 +5670,18 @@ func TestLoop59(t *testing.T) {
 	if state.Snapshot.TempHistory["b"].Competitors[0].CardAmount != 2 {
 		t.Error()
 	}
-	fmt.Println(state.Snapshot.TempHistory["a"])
-	fmt.Println(state.Snapshot.TempHistory["b"])
+}
+
+func TestLoop60(t *testing.T) {
+	t.Run("Q69 spades < Q79 clubs", func(t *testing.T) {
+		c, kind := gambit.NineK{}.Evaluate(model.Cards{
+			50, 47, 41,
+		})
+		if c[0] != 10000 {
+			t.Error()
+		}
+		if kind != constant.Straight {
+			t.Error()
+		}
+	})
 }
