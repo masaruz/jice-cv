@@ -5121,7 +5121,7 @@ func TestLoop53(t *testing.T) {
 	if state.Snapshot.History["a"].Competitors[1].CardAmount != 3 {
 		t.Error()
 	}
-	if len(state.Snapshot.History["a"].Competitors[0].Cards) != 3 {
+	if len(state.Snapshot.History["a"].Competitors[0].Cards) != 0 {
 		t.Error()
 	}
 	if state.Snapshot.History["a"].Competitors[0].CardAmount != 3 {
@@ -5658,7 +5658,7 @@ func TestLoop59(t *testing.T) {
 	if !state.Snapshot.Gambit.Finish() {
 		t.Error()
 	}
-	if len(state.Snapshot.TempHistory["a"].Competitors[0].Cards) != 2 {
+	if len(state.Snapshot.TempHistory["a"].Competitors[0].Cards) != 0 {
 		t.Error()
 	}
 	if state.Snapshot.TempHistory["a"].Competitors[0].CardAmount != 2 {
@@ -5684,4 +5684,50 @@ func TestLoop60(t *testing.T) {
 			t.Error()
 		}
 	})
+}
+
+func TestLoop61(t *testing.T) {
+	decisionTime := int64(1)
+	ninek := gambit.NineK{
+		MaxAFKCount:     5,
+		FinishGameDelay: 5,
+		MaxPlayers:      6,
+		BuyInMin:        500,
+		BuyInMax:        1000,
+		BlindsSmall:     50,
+		BlindsBig:       50,
+		DecisionTime:    decisionTime,
+		Rake:            5.00,
+		Cap:             0.5}
+	handler.Initiate(ninek)
+	state.GS.Gambit.Init() // create seats
+	state.Snapshot = util.CloneState(state.GS)
+	state.Snapshot.Duration = 1800
+	handler.Enter(model.Player{ID: "a", Name: "a"})
+	handler.Enter(model.Player{ID: "b", Name: "b"})
+	// dumb player
+	handler.Sit("a", 5)
+	handler.Sit("b", 2)
+	handler.StartTable("a")
+	if !state.Snapshot.Gambit.Start() {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Fold("a") {
+		t.Error()
+	}
+	if !state.Snapshot.Gambit.Finish() {
+		t.Error()
+	}
+	if len(state.Snapshot.TempHistory["a"].Competitors[0].Cards) != 0 {
+		t.Error()
+	}
+	if state.Snapshot.TempHistory["a"].Competitors[0].CardAmount != 2 {
+		t.Error()
+	}
+	if len(state.Snapshot.TempHistory["b"].Competitors[0].Cards) != 0 {
+		t.Error()
+	}
+	if state.Snapshot.TempHistory["b"].Competitors[0].CardAmount != 2 {
+		t.Error()
+	}
 }
