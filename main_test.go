@@ -2066,11 +2066,11 @@ func TestLoop21(t *testing.T) {
 			t.Error()
 		}
 	})
-	t.Run("Ac,2c,3c is wrong", func(t *testing.T) {
+	t.Run("Ac,2c,3c is straight", func(t *testing.T) {
 		scores, kind := gambit.NineK{}.Evaluate(model.Cards{
 			48, 0, 4,
 		})
-		if scores[0] != 1000 || scores[1] != 14 || kind != constant.Flush {
+		if scores[0] != 1000000 || kind != constant.StraightFlush {
 			t.Error()
 		}
 	})
@@ -5729,5 +5729,26 @@ func TestLoop61(t *testing.T) {
 	}
 	if state.Snapshot.TempHistory["b"].Competitors[0].CardAmount != 2 {
 		t.Error()
+	}
+}
+
+func TestLoop62(t *testing.T) {
+	_, akind := gambit.NineK{}.Evaluate(model.Cards{
+		48, 1, 6,
+	})
+	_, bkind := gambit.NineK{}.Evaluate(model.Cards{
+		44, 49, 0,
+	})
+	_, ckind := gambit.NineK{}.Evaluate(model.Cards{
+		40, 45, 50,
+	})
+	if akind != constant.Straight {
+		t.Error("A23")
+	}
+	if bkind != constant.Nothing {
+		t.Error("KA2")
+	}
+	if ckind != constant.Straight {
+		t.Error("QKA")
 	}
 }

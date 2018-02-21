@@ -67,6 +67,14 @@ func straightFlush(values []int) bool {
 // Straight when three cards order in sequence
 func straight(values []int) bool {
 	number := util.GetCardNumberFromValue(values[0])
+	if len(values) == 3 {
+		a := util.GetCardNumberFromValue(values[0])
+		b := util.GetCardNumberFromValue(values[1])
+		c := util.GetCardNumberFromValue(values[2])
+		if a == 2 && b == 3 && c == 14 {
+			return true
+		}
+	}
 	for i := 1; i < len(values); i++ {
 		current := util.GetCardNumberFromValue(values[i])
 		if current-number != 1 {
