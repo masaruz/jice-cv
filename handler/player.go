@@ -201,7 +201,9 @@ func Sit(id string, slot int) *model.Error {
 			util.Print("Response from UpdateRealtimeData", string(body), err)
 		}()
 	}
-	state.Snapshot.AFKCounts[index] = 0
+	if index >= 0 {
+		state.Snapshot.AFKCounts[index] = 0
+	}
 	return nil
 }
 
