@@ -1,0 +1,229 @@
+/*------------------------------------------------
+*
+*	Table of contents: 
+*	1. Screen resolution 576px+
+*	2. Screen resolution 992px+
+*	3. Screen resolution less than 992px
+*	4. Screen resolution less than 768px
+*	5. Screen resolution less than 576px
+*
+-------------------------------------------------*/
+
+/*-------------------------------------------------
+	1. Screen resolution 576px+
+-------------------------------------------------*/
+@media (min-width: 576px) {
+	.education {
+		border-right: 1px solid rgb(230, 230, 230);
+	}
+	.education-box {
+		text-align: right;
+	}
+	.education-box .resume-year {
+		right: 0;
+	}
+	.employment-box .resume-year {
+		left: 0;
+	}
+	.education-box .resume-year span::before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		right: -19px;
+		-webkit-transform: translate(0,-50%);
+		transform: translate(0,-50%);
+		background: rgb(20, 20, 20);
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+	}
+}
+
+/*-------------------------------------------------
+	2. Screen resolution 992px+
+-------------------------------------------------*/
+@media (min-width: 992px) {
+	.wrapper .container {
+		padding: 0 74px;
+	}
+	.toggle-btn {
+		display: none;
+	}
+	.icon-menu {
+		position: absolute;
+		top: -50px;
+		padding-top: 50px;
+	}
+	.fixed {
+		position: fixed;
+		top: 0;
+	}
+	.sticky-socialWrapper {
+		position: absolute;
+		top: 0;
+		right: 24px;
+		width: 36px;
+	}
+	.sticky-social {
+		position: absolute;
+		top: -50px;
+		padding-top: 50px;
+	}
+	.sticky-social-fixed {
+		position: fixed;
+		top: 0;
+	}
+	.sticky-social ul li {
+		margin-bottom: 15px;
+	}
+	.resume-year {
+		position: absolute;
+		top: 0;
+	}
+	.education-box {
+		padding-right: 120px;
+	}
+	.employment-box {
+		padding-left: 120px;
+	}
+}
+
+/*-------------------------------------------------
+	3. Screen resolution less than 992px
+-------------------------------------------------*/
+@media (max-width: 992px) {
+	.wrapper .container {
+		padding: 0;
+	}
+	.icon-menu {
+		position: fixed;
+		top: 79px;
+		left: 20px;
+		visibility: hidden;
+		opacity: 0;
+		-webkit-transform: translateY(4px);
+		transform: translateY(4px);
+		-webkit-transition: ease-out 0.2s;
+		transition: ease-out 0.2s;
+	}
+	.icon-menu-show {
+		visibility: visible;
+		opacity: 1;
+		-webkit-transform: translateY(0);
+		transform: translateY(0);
+	}
+	.icon-menu ul li a {
+		-webkit-box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.2);
+		box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.2);
+	}
+	.sticky-socialWrapper {
+		position: fixed;
+		top: 24px;
+		left: 79px;
+	}
+	.sticky-social {
+		visibility: hidden;
+		opacity: 0;
+		-webkit-transform: translateX(4px);
+		transform: translateX(4px);
+		-webkit-transition: ease-out 0.2s;
+		transition: ease-out 0.2s;
+	}
+	.sticky-social-show {
+		visibility: visible;
+		opacity: 1;
+		-webkit-transform: translateX(0);
+		transform: translateX(0);
+	}
+	.sticky-social ul li {
+		display: inline-block;
+		margin-right: 12px;
+	}
+	.sticky-social ul li a {
+		-webkit-box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.2);
+		box-shadow: 0px 2px 3px 0px rgba(0,0,0,0.2);
+	}
+	.resume-year {
+		margin-bottom: 15px;
+	}
+}
+
+/*-------------------------------------------------
+	4. Screen resolution less than 768px
+-------------------------------------------------*/
+@media (max-width: 768px) {
+	.about-background {
+		text-align: center;
+	}
+	.avatar {
+		display: inline-block;
+		width: 120px;
+		height: 120px;
+		margin-bottom: 25px;
+	}
+	.skills-box {
+		margin-top: 30px;
+		text-align: left;
+	}
+	.services-box div {
+		padding: 30px;
+	}
+	.facts-box {
+		margin-bottom: 30px;
+	}
+	.facts-box:last-child {
+		margin: 0;
+	}
+	.contact-info-background .row div {
+		margin-bottom: 30px;
+	}
+	.contact-info-background .row div:last-child {
+		margin: 0;
+	}
+}
+
+/*-------------------------------------------------
+	5. Screen resolution less than 576px
+-------------------------------------------------*/
+@media (max-width: 576px) {
+	.resume-background {
+		padding-right: 30px;
+		padding-left: 30px;
+	}
+	.education {
+		margin-bottom: 30px;
+	}
+	.education, 
+	.employment {
+		padding-left: 15px;
+		border-left: 1px solid rgb(230, 230, 230);
+	}
+	.resume-box {
+		padding-left: 105px;
+	}
+	.resume-year {
+		position: absolute;
+		top: 0;
+		left: 0;
+		margin: 0;
+	}
+	.resume-year span::before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: -19px;
+		-webkit-transform: translate(0,-50%);
+		transform: translate(0,-50%);
+		background: rgb(20, 20, 20);
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+	}
+	.footer-background {
+		text-align: center;
+	}
+	.footer-social {
+		margin-top: 25px;
+		text-align: center;
+	}
+}

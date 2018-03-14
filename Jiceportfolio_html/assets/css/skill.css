@@ -1,0 +1,72 @@
+#skill{
+  display: inline;
+  padding: 60px 0;
+  float: left;
+  width: 100%;
+}
+
+
+.skill-inner{
+  display: inline;
+  float: left;
+  width: 100%;
+}
+
+
+.skill-inner p{
+  color: #727272;
+  font-size: 16px;
+  line-height: 30px;
+  font-weight: 400;
+}
+
+
+.title{
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 35px;
+  text-transform: uppercase;
+}
+
+
+.skill-progress-bar{
+  display: inline;
+  float: left;
+  width: 100%;
+  text-align: left;
+}
+
+
+.skill-progress-bar span {
+  color: #fff;
+  display: inline-block;
+  font-size: 16px;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  font-family:Lato-light;
+}
+
+
+.pro-bar-container {
+  border-radius: 0;
+  height: 4px;
+}
+
+
+.pro-bar {
+  border-radius: 0px;
+}
+.skill1{
+	color:#000 !important;
+	font-family:a1 !important;
+	font-size:40px !important;
+	border:0;
+
+}
+
+@media (max-width: 480px) {
+.title {font-size: 25px;line-height: 1; margin-bottom: 30px;}
+  .skill-inner p {font-size: 13px;line-height: 25px;}
+  .skill-progress-bar span { font-size: 15px;}
+}
